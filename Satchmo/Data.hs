@@ -9,7 +9,7 @@ where
 
 import Control.Monad.State.Strict
 
-data CNF     = CNF { clauses :: [ Clause  ] }
+newtype CNF     = CNF { clauses :: [ Clause  ] }
 
 instance Show CNF where
     show ( CNF cs ) = unlines $ map show cs
@@ -18,7 +18,7 @@ cnf :: [ Clause ] -> CNF
 cnf cs = CNF cs
 
 
-data Clause  = Clause { literals :: [ Literal ] }
+newtype Clause  = Clause { literals :: [ Literal ] }
 
 instance Show Clause where
     show ( Clause xs ) = unwords ( map show xs ++ [ "0" ] )
@@ -27,7 +27,7 @@ clause :: [ Literal ] -> Clause
 clause ls = Clause { literals = ls }
 
 
-data Literal = Literal Int 
+newtype Literal = Literal Int
     deriving ( Eq, Ord )
 
 instance Show Literal where 
