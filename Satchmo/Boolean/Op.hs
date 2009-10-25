@@ -17,30 +17,31 @@ import Satchmo.Boolean.Data
 
 import Control.Monad ( foldM )
 
-and :: [ Boolean ] -> SAT Boolean
+and :: MonadSAT m => [ Boolean ] -> m Boolean
 and xs = do
     y <- boolean
-    sequence $ do
+    sequence_ $ do
         x <- xs
         return $ assert [ not y, x ]
     assert $ y : map not xs
     return y
 
-or :: [ Boolean ] -> SAT Boolean
+or :: MonadSAT m => [ Boolean ] -> m Boolean
 or xs = do
     y <- and $ map not xs
     return $ not y
 
-xor :: [ Boolean ] -> SAT Boolean
+xor :: MonadSAT m => [ Boolean ] -> m Boolean
 xor [] = constant False
 xor (x:xs) = foldM xor2 x xs
 
 
 -- | implement the function by giving a full CNF
 -- that determines the outcome
-fun2 :: ( Bool -> Bool -> Bool )
+fun2 :: MonadSAT m => 
+        ( Bool -> Bool -> Bool )
      -> Boolean -> Boolean 
-     -> SAT Boolean
+     -> m Boolean
 fun2 f x y = do
     r <- boolean
     sequence_ $ do
@@ -53,9 +54,10 @@ fun2 f x y = do
 
 -- | implement the function by giving a full CNF
 -- that determines the outcome
-fun3 :: ( Bool -> Bool -> Bool -> Bool )
+fun3 :: MonadSAT m => 
+        ( Bool -> Bool -> Bool -> Bool )
      -> Boolean -> Boolean -> Boolean
-     -> SAT Boolean
+     -> m Boolean
 fun3 f x y z = do
     r <- boolean
     sequence_ $ do
@@ -69,11 +71,11 @@ fun3 f x y z = do
             ]
     return r
 
-xor2 :: Boolean -> Boolean -> SAT Boolean
+xor2 :: MonadSAT m => Boolean -> Boolean -> m Boolean
 xor2 = fun2 (/=)
 
 -- for historic reasons:
-xor2_orig :: Boolean -> Boolean -> SAT Boolean
+xor2_orig :: MonadSAT m => Boolean -> Boolean -> m Boolean
 xor2_orig x y = do
     a <- and [ x, not y ]
     b <- and [ not x, y ]

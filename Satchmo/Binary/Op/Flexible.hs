@@ -21,15 +21,15 @@ import Satchmo.Binary.Data
 import Satchmo.Binary.Op.Common
 import Satchmo.Counting
 
-add :: Number -> Number -> SAT Number
+add :: (MonadSAT m) => Number -> Number -> m Number
 add a b = do
     false <- Satchmo.Boolean.constant False
     ( zs, carry ) <- add_with_carry false (bits a) (bits b)
     return $ make $ zs ++ [carry]
 
-add_with_carry :: Boolean 
+add_with_carry :: (MonadSAT m) => Boolean 
                -> Booleans -> Booleans
-               -> SAT ( Booleans, Boolean )
+               -> m ( Booleans, Boolean )
 add_with_carry cin [] [] = return ( [], cin )
 add_with_carry cin (x:xs) [] = do
     -- z <- xor [ cin, x ]
@@ -46,7 +46,7 @@ add_with_carry cin (x:xs ) (y:ys) = do
     ( zs, cout ) <- add_with_carry c xs ys
     return ( z : zs, cout )
 
-times :: Number -> Number -> SAT Number
+times :: (MonadSAT m) => Number -> Number -> m Number
 times a b | [x] <- bits a = times1 x b
 times a b | x:xs <- bits a = do
     xys  <- times1 x b
@@ -55,12 +55,12 @@ times a b | x:xs <- bits a = do
     add xys zs
 
 -- | multiply by 2
-shift :: Number -> SAT Number
+shift :: (MonadSAT m) => Number -> m Number
 shift a = do
     false <- Satchmo.Boolean.constant False 
     return $ make $ false : bits a
 
-times1 :: Boolean -> Number -> SAT Number
+times1 :: (MonadSAT m) => Boolean -> Number -> m Number
 times1 x b = do
     zs <- mapM ( \ y -> and [x,y] ) $ bits b
     return $ make zs

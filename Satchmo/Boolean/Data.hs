@@ -1,8 +1,8 @@
 {-# language MultiParamTypeClasses #-}
 
-module Satchmo.Boolean.Data 
+module Satchmo.Boolean.Data
 
-( Boolean, Booleans
+( Boolean(Constant), Booleans
 , boolean, exists, forall
 , constant
 , not, assert, monadic
@@ -31,6 +31,19 @@ data Boolean = Boolean
              }
      | Constant { value :: Bool }
 
+instance Eq Boolean where
+  b1@Boolean{}  == b2@Boolean{}  = encode b1 == encode b2
+  b1@Constant{} == b2@Constant{} = value  b1 == value  b2
+  _ == _ = False
+
+
+instance Ord Boolean where
+  b1@Boolean{}  `compare` b2@Boolean{}  = encode b1 `compare` encode b2
+  b1@Constant{} `compare` b2@Constant{} = value  b1 `compare` value  b2
+  Boolean{} `compare` Constant{} = GT
+  Constant{} `compare` Boolean{} = LT
+
+
 type Booleans = [ Boolean ]
 
 isConstant :: Boolean -> Bool
@@ -42,10 +55,10 @@ instance C.Decode Boolean Bool where
         Boolean {} -> decode b
         Constant {} -> return $ value b
 
-boolean :: SAT Boolean
+boolean :: MonadSAT m => m Boolean
 boolean = exists
 
-exists :: SAT Boolean
+exists :: MonadSAT m => m Boolean
 exists = do
     x <- fresh
     return $ Boolean 
@@ -53,7 +66,7 @@ exists = do
            , decode = asks $ \ fm -> fromJust $ M.lookup x fm
            }
 
-forall :: SAT Boolean
+forall :: MonadSAT m => m Boolean
 forall = do
     x <- fresh_forall
     return $ Boolean 
@@ -61,7 +74,7 @@ forall = do
            , decode = error "Boolean.forall cannot be decoded"
            }
 
-constant :: Bool -> SAT Boolean
+constant :: MonadSAT m => Bool -> m Boolean
 constant v = do
     return $ Constant { value = v } 
 
@@ -73,7 +86,7 @@ not b = case b of
       }
     Constant {} -> Constant { value = Prelude.not $ value b }
 
-assert :: [ Boolean ] -> SAT ()
+assert :: MonadSAT m => [ Boolean ] -> m ()
 assert bs = do
     let ( con, uncon ) = partition isConstant bs
     let cval = Prelude.or $ map value con

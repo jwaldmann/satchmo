@@ -19,8 +19,8 @@ import Control.Monad ( guard )
 
 data Relation a b = Relation ( Array (a,b) Boolean ) 
 
-relation :: ( Ix a, Ix b ) 
-         => ((a,b),(a,b)) -> SAT ( Relation a b ) 
+relation :: ( Ix a, Ix b, MonadSAT m ) 
+         => ((a,b),(a,b)) -> m ( Relation a b ) 
 relation bnd = do
     pairs <- sequence $ do 
         p <- range bnd

@@ -29,7 +29,7 @@ width :: Number -> Int
 width n = length $ bits n
 
 -- | declare a number variable (bit width)
-number :: Int -> SAT Number
+number :: MonadSAT m => Int -> m Number
 number w = do
     xs <- sequence $ replicate w boolean
     return $ make xs
@@ -50,7 +50,7 @@ toBinary n  =
     in  toEnum ( fromIntegral m ) : toBinary d
 
 -- | declare a number constant 
-constant :: Integer -> SAT Number
+constant :: MonadSAT m => Integer -> m Number
 constant n = do
     xs <- mapM B.constant $ toBinary n
     return $ make xs

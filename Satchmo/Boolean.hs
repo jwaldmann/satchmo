@@ -1,6 +1,6 @@
 module Satchmo.Boolean 
 
-( SAT
+( SAT, MonadSAT(..)
 , module Satchmo.Boolean.Data
 , module Satchmo.Boolean.Op
 ) 

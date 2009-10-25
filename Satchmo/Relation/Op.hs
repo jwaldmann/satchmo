@@ -30,17 +30,17 @@ complement :: ( Ix a , Ix b ) => Relation a b -> Relation a b
 complement r = 
     build (bounds r) $ do i <- indices r ; return ( i, not $ r!i )
 
-union :: ( Ix a , Ix b ) 
+union :: ( Ix a , Ix b, MonadSAT m ) 
       => Relation a b -> Relation a b 
-      -> SAT ( Relation a b )
+      -> m ( Relation a b )
 union r s = do
     pairs <- sequence $ do
         i <- indices r
         return $ do o <- or [ r!i, s!i ] ; return ( i, o )
     return $ build ( bounds r ) pairs
 
-product :: ( Ix a , Ix b, Enum b, Ix c ) 
-        => Relation a b -> Relation b c -> SAT ( Relation a c )
+product :: ( Ix a , Ix b, Enum b, Ix c, MonadSAT m ) 
+        => Relation a b -> Relation b c -> m ( Relation a c )
 product a b = do
     let ((ao,al),(au,ar)) = bounds a
         ((bo,bl),(bu,br)) = bounds b

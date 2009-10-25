@@ -29,7 +29,7 @@ import Satchmo.Counting
 
 -- | give only lower k bits, upper bits must be zero,
 -- (else unsatisfiable)
-restricted :: Int -> Number -> SAT Number
+restricted :: (MonadSAT m) => Int -> Number -> m Number
 restricted w a = do
     let ( low, high ) = splitAt w $ bits a
     sequence $ do x <- high ; return $ assert [ not x ]
@@ -37,14 +37,14 @@ restricted w a = do
 
 -- | result bit width is max of argument bit widths.
 -- if overflow occurs, then formula is unsatisfiable.
-add :: Number -> Number -> SAT Number
+add :: (MonadSAT m) => Number -> Number -> m Number
 add a b = do
     false <- Satchmo.Boolean.constant False
     let w = max ( width a ) ( width b )
     zs <- add_with_carry w false ( bits a ) ( bits b )
     return $ make zs 
 
-add_with_carry :: Int -> Boolean -> Booleans -> Booleans -> SAT Booleans
+add_with_carry :: (MonadSAT m) => Int -> Boolean -> Booleans -> Booleans -> m Booleans
 add_with_carry w c xxs yys = case ( xxs, yys ) of
     _ | w <= 0 -> do
         sequence_ $ do p <- c : xxs ++ yys ; return $ assert [ not p ]
@@ -66,12 +66,12 @@ add_with_carry w c xxs yys = case ( xxs, yys ) of
 
 -- | result bit width is at most max of argument bit widths.
 -- if overflow occurs, then formula is unsatisfiable.
-times :: Number -> Number -> SAT Number
+times :: (MonadSAT m) => Number -> Number -> m Number
 times a b = do 
     let w = max ( width a ) ( width b ) 
     restricted_times w a b
 
-restricted_times :: Int -> Number -> Number -> SAT Number
+restricted_times :: (MonadSAT m) => Int -> Number -> Number -> m Number
 restricted_times w a b = case bits a of
     [] -> return $ make []
     _ | w <= 0 -> do

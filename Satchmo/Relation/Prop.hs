@@ -21,22 +21,22 @@ import Satchmo.Relation.Op
 import Control.Monad ( guard )
 import Data.Ix
 
-implies :: ( Ix a, Ix b ) => Relation a b -> Relation a b -> SAT Boolean
+implies :: ( Ix a, Ix b, MonadSAT m ) => Relation a b -> Relation a b -> m Boolean
 implies r s = monadic and $ do
     i <- indices r
     return $ or [ not $ r ! i, s ! i ]
 
 
-symmetric :: (Enum a, Ix a) => Relation a a -> SAT Boolean
+symmetric :: (Enum a, Ix a, MonadSAT m) => Relation a a -> m Boolean
 symmetric r = implies r ( mirror r )
 
-irreflexive :: (Enum a, Ix a) => Relation a a -> SAT Boolean
+irreflexive :: (Enum a, Ix a, MonadSAT m) => Relation a a -> m Boolean
 irreflexive r = and $ do
     let ((a,b),(c,d)) = bounds r
     x <- [a .. c]
     return $ Satchmo.Boolean.not $ r ! (x,x) 
 
-regular :: (Enum a, Ix a) => Int -> Relation a a -> SAT Boolean
+regular :: (Enum a, Ix a, MonadSAT m) => Int -> Relation a a -> m Boolean
 regular deg r = monadic and $ do
     let ((a,b),(c,d)) = bounds r
     x <- [ a .. c ]
@@ -44,8 +44,8 @@ regular deg r = monadic and $ do
         y <- [ b .. d ]
         return $ r !(x,y)
 
-transitive :: ( Enum a, Ix a ) 
-           => Relation a a -> SAT Boolean
+transitive :: ( Enum a, Ix a, MonadSAT m ) 
+           => Relation a a -> m Boolean
 transitive r = do
     r2 <- product r r
     implies r2 r
