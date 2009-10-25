@@ -1,4 +1,4 @@
-module Satchmo.Boolean.Op 
+module Satchmo.Boolean.Op
 
 ( constant
 , and, or, xor
@@ -11,13 +11,15 @@ where
 import Prelude hiding ( and, or, not )
 import qualified Prelude
 
-import Satchmo.Internal
+import Satchmo.MonadSAT
 import Satchmo.Code
 import Satchmo.Boolean.Data
 
 import Control.Monad ( foldM )
 
 and :: MonadSAT m => [ Boolean ] -> m Boolean
+and [] = constant True
+and [x]= return x
 and xs = do
     y <- boolean
     sequence_ $ do
@@ -27,6 +29,8 @@ and xs = do
     return y
 
 or :: MonadSAT m => [ Boolean ] -> m Boolean
+or [] = constant False
+or [x]= return x
 or xs = do
     y <- and $ map not xs
     return $ not y

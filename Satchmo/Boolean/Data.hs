@@ -15,8 +15,8 @@ import qualified Prelude
 
 import qualified Satchmo.Code as C
 
-import Satchmo.Data 
-import Satchmo.Internal
+import Satchmo.Data
+import Satchmo.MonadSAT
 
 import Data.Map ( Map )
 import qualified Data.Map as M
@@ -86,11 +86,18 @@ not b = case b of
       }
     Constant {} -> Constant { value = Prelude.not $ value b }
 
+
 assert :: MonadSAT m => [ Boolean ] -> m ()
 assert bs = do
     let ( con, uncon ) = partition isConstant bs
     let cval = Prelude.or $ map value con
     when ( Prelude.not cval ) $ emit $ clause $ map encode uncon
+
+assertW :: MonadSAT m => Weight -> [ Boolean ] -> m ()
+assertW w bs = do
+    let ( con, uncon ) = partition isConstant bs
+    let cval = Prelude.or $ map value con
+    when ( Prelude.not cval ) $ emitW w $ clause $ map encode uncon
 
 monadic :: Monad m
         => ( [ a ] -> m b )
