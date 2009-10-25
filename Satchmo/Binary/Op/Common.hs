@@ -60,7 +60,7 @@ compare' (x:xs) (y:ys) = do
     return ( l', e' )
 compare' xs [] = do
     x <- or xs
-    return ( not x, not x )
+    return ( x, not x )
 compare' [] ys = do
     y <- or ys
     return ( y, not y )
