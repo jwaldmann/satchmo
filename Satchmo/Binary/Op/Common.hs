@@ -56,7 +56,8 @@ compare' (x:xs) (y:ys) = do
     e <- fmap not $ xor [ x, y ]
     ( ll, ee ) <- compare' xs ys
     lee <- and [l,ee]
-    l' <- or [ l, lee ] ; e' <- and [ e, ee ]
+    l' <- or [ ll, lee ]
+    e' <- and [ e, ee ]
     return ( l', e' )
 compare' xs [] = do
     x <- or xs
