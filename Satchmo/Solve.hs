@@ -14,19 +14,19 @@ import Satchmo.Data
 import Satchmo.Code
 import Satchmo.Internal
 
+import qualified Data.ByteString.Lazy.Char8 as BS
 import Data.Map ( Map )
 import qualified Data.Map as M
 
-import Control.Monad.State
 import Control.Monad.Reader
 
-type Implementation = String -> IO ( Maybe ( Map Literal Bool ) )
+type Implementation = BS.ByteString -> IO ( Maybe ( Map Literal Bool ) )
 
 solve :: Implementation
       -> SAT ( Decoder a )
     -> IO ( Maybe a )
 solve implementation build = do
-    let (s, a) = sat build
+    (s, a) <- sat build
     mfm <- implementation s
     case mfm of
         Nothing -> do
@@ -34,6 +34,4 @@ solve implementation build = do
             return Nothing
         Just fm -> do
             putStrLn "satisfiable"
-            -- print fm
             return $ Just $ runReader a fm
-                

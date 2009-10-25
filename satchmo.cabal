@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        1.4
+Version:        1.4.1
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -11,7 +11,7 @@ description:	Encoding for boolean and integral constraints into (QBF-)CNF-SAT.
 		The encoder is provided as a State monad (hence the "mo" in "satchmo").
 		requires a backend (e.g. satchmo-backends, satchmo-funsat)
 Category:	Algorithms
-Build-depends:  mtl, process, containers, base, array
+Build-depends:  mtl, process, containers, base, array, bytestring, directory
 Exposed-modules:
 	Satchmo.Data
         Satchmo.Solve
@@ -26,11 +26,13 @@ Exposed-modules:
 	Satchmo.Relation.Data
 	Satchmo.Relation.Op
 	Satchmo.Relation.Prop
+	Satchmo.Internal
 Other-modules:
 	Satchmo.Binary.Data
         Satchmo.Boolean.Op
         Satchmo.Boolean.Data
-	Satchmo.Internal
 hs-source-dirs:	.
 extensions: 
 build-type: Simple
+ghc-options: -funbox-strict-fields -O2
+ghc-prof-options: -auto
