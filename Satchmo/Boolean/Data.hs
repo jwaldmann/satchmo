@@ -43,6 +43,13 @@ instance Ord Boolean where
   Boolean{} `compare` Constant{} = GT
   Constant{} `compare` Boolean{} = LT
 
+instance Enum Boolean where
+  fromEnum (Constant True)  = -1
+  fromEnum (Constant False) = 0
+  fromEnum (Boolean (Literal lit) dec) = lit
+  toEnum 0    = Constant False
+  toEnum (-1) = Constant True
+  toEnum l    = let x = literal l in Boolean x (asks $ \fm -> fromJust (M.lookup x fm))
 
 type Booleans = [ Boolean ]
 
