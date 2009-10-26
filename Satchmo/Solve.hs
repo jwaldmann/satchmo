@@ -21,6 +21,8 @@ import qualified Data.Map as M
 
 import Control.Monad.Reader
 
+import System.IO
+
 type Implementation = BS.ByteString -> Header -> IO ( Maybe ( Map Literal Bool ) )
 type WeightedImplementation = BS.ByteString -> Weighted.Header -> IO ( Maybe ( Map Literal Bool ) )
 
@@ -42,8 +44,8 @@ solveW maxW implementation build = do
     mfm <- implementation s h
     case mfm of
         Nothing -> do
-            putStrLn "not satisfiable"
+            hPutStrLn stderr "not satisfiable"
             return Nothing
         Just fm -> do
-            putStrLn "satisfiable"
+            hPutStrLn stderr "satisfiable"
             return $ Just $ runReader a fm
