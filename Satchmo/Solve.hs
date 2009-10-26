@@ -4,7 +4,7 @@
 module Satchmo.Solve
 
 ( solve, solveW
-, Implementation
+, Implementation, WeightedImplementation
 , Decoder
 )
 

@@ -5,7 +5,7 @@ module Satchmo.Boolean.Data
 ( Boolean(Constant), Booleans
 , boolean, exists, forall
 , constant
-, not, assert, monadic
+, not, assert, assertW, monadic
 )
 
 where
