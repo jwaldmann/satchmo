@@ -1,8 +1,8 @@
 module Satchmo.Data 
 
 ( CNF, cnf, clauses
-, Clause, clause, literals
-, Literal, literal, nicht
+, Clause(..), clause, literals
+, Literal(..), literal, nicht
 )
 
 where
