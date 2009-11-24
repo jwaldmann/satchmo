@@ -61,7 +61,8 @@ compare' (x:xs) (y:ys) = do
     return ( l', e' )
 compare' xs [] = do
     x <- or xs
-    return ( x, not x )
+    never <- B.constant False
+    return ( never, not x )
 compare' [] ys = do
     y <- or ys
     return ( y, not y )
