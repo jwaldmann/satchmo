@@ -1,8 +1,10 @@
 module Satchmo.Data 
 
 ( CNF, cnf, clauses
+-- FIXME: exports should be abstract
 , Clause(..), clause, literals
 , Literal(..), literal, nicht
+, Variable, variable, positive
 )
 
 where
@@ -27,7 +29,7 @@ clause :: [ Literal ] -> Clause
 clause ls = Clause { literals = ls }
 
 
-newtype Literal = Literal Int
+newtype Literal = Literal Variable
     deriving ( Eq, Ord )
 
 instance Show Literal where 
@@ -39,4 +41,13 @@ literal i | i /= 0 = Literal i
 
 nicht :: Literal -> Literal
 nicht ( Literal i ) = Literal $ negate i
+
+-- FIXME: should be newtype
+type Variable = Int
+
+variable :: Literal -> Variable
+variable ( Literal v ) = abs v
+
+positive :: Literal -> Bool
+positive ( Literal v ) = 0 < v
 

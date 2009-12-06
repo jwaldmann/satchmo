@@ -3,7 +3,7 @@
 module Satchmo.Relation.Data
 
 ( Relation, relation, build
-, bounds, (!), indices
+, bounds, (!), indices, assocs
 , table
 ) 
 
@@ -13,7 +13,7 @@ import Satchmo.Code
 import Satchmo.Boolean
 
 import qualified Data.Array as A
-import Data.Array hiding ( bounds, (!), indices )
+import Data.Array hiding ( bounds, (!), indices, assocs )
 
 import Control.Monad ( guard )
 
@@ -39,6 +39,9 @@ bounds :: (Ix a, Ix b) => Relation a b -> ((a,b),(a,b))
 bounds ( Relation r ) = A.bounds r
 
 indices ( Relation r ) = A.indices r
+
+assocs ( Relation r ) = A.assocs r
+
 
 Relation r ! p = r A.! p
 

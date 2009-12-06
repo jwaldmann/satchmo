@@ -6,6 +6,7 @@ module Satchmo.Relation.Op
 , union
 , complement
 , product
+, intersection
 ) 
 
 where
@@ -39,7 +40,7 @@ union r s = do
         return $ do o <- or [ r!i, s!i ] ; return ( i, o )
     return $ build ( bounds r ) pairs
 
-product :: ( Ix a , Ix b, Enum b, Ix c, MonadSAT m ) 
+product :: ( Ix a , Ix b, Ix c, MonadSAT m ) 
         => Relation a b -> Relation b c -> m ( Relation a c )
 product a b = do
     let ((ao,al),(au,ar)) = bounds a
@@ -49,9 +50,18 @@ product a b = do
         i @ (x,z) <- range bnd
         return $ do
             o <- monadic or $ do
-                y <- [ al .. ar ]
+                y <- range ( al, ar )
                 return $ and [ a!(x,y), b!(y,z) ]
             return ( i, o )
     return $ build bnd pairs
+
+intersection :: ( Ix a , Ix b, MonadSAT m ) 
+      => Relation a b -> Relation a b 
+      -> m ( Relation a b )
+intersection r s = do
+    pairs <- sequence $ do
+        i <- indices r
+        return $ do a <- and [ r!i, s!i ] ; return ( i, a )
+    return $ build ( bounds r ) pairs
 
 
