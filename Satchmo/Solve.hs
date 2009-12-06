@@ -39,10 +39,10 @@ solve implementation build = do
     mfm <- implementation s h
     case mfm of
         Nothing -> do
-            putStrLn "not satisfiable"
+            hPutStrLn stderr "not satisfiable"
             return Nothing
         Just fm -> do
-            putStrLn "satisfiable"
+            hPutStrLn stderr "satisfiable"
             return $ Just $ runReader a fm
 
 solveW :: Weighted.MaxWeight 
