@@ -20,7 +20,7 @@ import Control.Monad.Reader
 
 class Decode c a | c -> a where decode :: c -> Decoder a
 
-type Decoder a = Reader ( Map Literal Bool ) a
+type Decoder a = Reader ( Map Variable Bool ) a
 
 instance Decode () () where
     decode () = return ()

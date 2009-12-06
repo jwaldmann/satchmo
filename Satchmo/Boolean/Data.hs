@@ -31,11 +31,14 @@ data Boolean = Boolean
              }
      | Constant { value :: Bool }
 
+{-
+
+-- FIXME: @Pepe: what is the reason for these instances?
+
 instance Eq Boolean where
   b1@Boolean{}  == b2@Boolean{}  = encode b1 == encode b2
   b1@Constant{} == b2@Constant{} = value  b1 == value  b2
   _ == _ = False
-
 
 instance Ord Boolean where
   b1@Boolean{}  `compare` b2@Boolean{}  = encode b1 `compare` encode b2
@@ -47,9 +50,12 @@ instance Enum Boolean where
   fromEnum (Constant True)  = -1
   fromEnum (Constant False) = 0
   fromEnum (Boolean (Literal lit) dec) = lit
+
   toEnum 0    = Constant False
   toEnum (-1) = Constant True
   toEnum l    = let x = literal l in Boolean x (asks $ \fm -> fromJust (M.lookup x fm))
+
+-}
 
 type Booleans = [ Boolean ]
 
@@ -70,7 +76,10 @@ exists = do
     x <- fresh
     return $ Boolean 
            { encode = x
-           , decode = asks $ \ fm -> fromJust $ M.lookup x fm
+           , decode = asks $ \ fm -> 
+                      ( positive x == )
+                    $ fromJust
+                    $ M.lookup ( variable x ) fm
            }
 
 forall :: MonadSAT m => m Boolean

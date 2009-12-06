@@ -23,10 +23,17 @@ import Control.Monad.Reader
 
 import System.IO
 
-type Implementation = BS.ByteString -> Header -> IO ( Maybe ( Map Literal Bool ) )
-type WeightedImplementation = BS.ByteString -> Weighted.Header -> IO ( Maybe ( Map Literal Bool ) )
+type Implementation = BS.ByteString 
+                    -> Header 
+                    -> IO ( Maybe ( Map Variable Bool ) )
 
-solve :: Implementation -> SAT ( Decoder a ) -> IO ( Maybe a )
+type WeightedImplementation = BS.ByteString 
+                            -> Weighted.Header 
+                            -> IO ( Maybe ( Map Variable Bool ) )
+
+solve :: Implementation 
+      -> SAT ( Decoder a ) 
+      -> IO ( Maybe a )
 solve implementation build = do
     (s, h, a) <- sat build
     mfm <- implementation s h
@@ -38,7 +45,10 @@ solve implementation build = do
             putStrLn "satisfiable"
             return $ Just $ runReader a fm
 
-solveW :: Weighted.MaxWeight -> WeightedImplementation -> Weighted.SAT (Decoder a) -> IO (Maybe a)
+solveW :: Weighted.MaxWeight 
+       -> WeightedImplementation 
+       -> Weighted.SAT (Decoder a) 
+       -> IO (Maybe a)
 solveW maxW implementation build = do
     (s, h, a) <- Weighted.sat maxW build
     mfm <- implementation s h

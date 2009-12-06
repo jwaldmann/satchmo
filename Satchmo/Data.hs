@@ -29,14 +29,20 @@ clause :: [ Literal ] -> Clause
 clause ls = Clause { literals = ls }
 
 
-newtype Literal = Literal Variable
+newtype Literal = Literal Int
     deriving ( Eq, Ord )
 
 instance Show Literal where 
     show ( Literal i ) = show i
 
-literal :: Int -> Literal
-literal i | i /= 0 = Literal i
+instance Read Literal where
+    readsPrec p = \ cs -> do
+        ( i, cs') <- readsPrec p cs
+        return ( Literal i , cs' )
+
+literal :: Bool -> Variable -> Literal
+literal p v | v /= 0 = 
+    Literal $ if p then v else negate v
 
 
 nicht :: Literal -> Literal

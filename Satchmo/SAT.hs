@@ -77,7 +77,7 @@ satfresh = do
     a <- get
     let n = next a
     put $ a { next = n + 1 }
-    return $ literal n
+    return $ literal True n
 
 -- | universally quantified
 satfresh_forall :: SAT Literal
@@ -85,7 +85,7 @@ satfresh_forall = do
     a <- get
     let n = next a
     put $ a { next = n + 1, universal = n : universal a }
-    return $ literal n
+    return $ literal True n
 
 satemit :: Clause -> SAT ()
 satemit clause = do
