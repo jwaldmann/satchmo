@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        1.6
+Version:        1.6.1
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -10,7 +10,8 @@ Homepage:       http://dfa.imn.htwk-leipzig.de/satchmo/
 Synopsis:       SAT encoding monad
 description:	Encoding for boolean and integral constraints into (QBF-)CNF-SAT.
 		The encoder is provided as a State monad (hence the "mo" in "satchmo").
-		requires a backend (e.g. satchmo-backends, satchmo-funsat)
+		This package contains functions that construct problems,
+                to solve them, you need package satchmo-backends.
 Category:	Algorithms
 Build-depends:  mtl, process, containers, base, array, bytestring, directory
 Exposed-modules:
