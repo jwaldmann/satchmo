@@ -24,7 +24,8 @@ import Satchmo.Counting
 add :: (MonadSAT m) => Number -> Number -> m Number
 add a b = do
     false <- Satchmo.Boolean.constant False
-    ( zs, carry ) <- add_with_carry false (bits a) (bits b)
+    ( zs, carry ) <- 
+        add_with_carry false (bits a) (bits b)
     return $ make $ zs ++ [carry]
 
 add_with_carry :: (MonadSAT m) => Boolean 
@@ -32,16 +33,12 @@ add_with_carry :: (MonadSAT m) => Boolean
                -> m ( Booleans, Boolean )
 add_with_carry cin [] [] = return ( [], cin )
 add_with_carry cin (x:xs) [] = do
-    -- z <- xor [ cin, x ]
-    -- c <- and [ cin, x ]
     (z, c) <- half_adder cin x
     ( zs, cout ) <- add_with_carry c xs []
     return ( z : zs, cout )
 add_with_carry cin [] (y:ys) = do
     add_with_carry cin (y:ys) []
 add_with_carry cin (x:xs ) (y:ys) = do
-    -- z  <- xor [ cin, x, y ]
-    -- c <- atleast 2 [ cin, x, y ]
     (z, c) <- full_adder cin x y
     ( zs, cout ) <- add_with_carry c xs ys
     return ( z : zs, cout )
