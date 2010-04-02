@@ -30,6 +30,7 @@ Exposed-modules:
 	Satchmo.Relation.Prop
 	Satchmo.MonadSAT
 	Satchmo.SAT
+	Satchmo.Simple
 	Satchmo.SAT.Weighted
 Other-modules:
 	Satchmo.Binary.Data

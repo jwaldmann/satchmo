@@ -14,7 +14,7 @@ data Accu = Accu { next :: ! Int
 start = Accu { next = 0, pool = [] }
 
 sat (SAT m) = flip evalState start
-            $ do x <- m; a <- get ; return (x, a) 
+            $ do x <- m; a <- get ; return (cnf $ pool a, x) 
 
 newtype SAT a = SAT { unsat :: State Accu a } 
     deriving ( Functor, Monad )

@@ -2,7 +2,7 @@
 
 module Satchmo.Boolean.Data
 
-( Boolean(Constant), Booleans
+( Boolean(Constant), Booleans, encode
 , boolean, exists, forall
 , constant
 , not, assert, assertW, monadic
