@@ -27,6 +27,9 @@ import qualified Satchmo.Binary.Op.Flexible as Flexible
 
 import Satchmo.Counting
 
+import Data.Map ( Map )
+import qualified Data.Map as M
+
 -- | give only lower k bits, upper bits must be zero,
 -- (else unsatisfiable)
 restricted :: (MonadSAT m) => Int -> Number -> m Number
@@ -51,15 +54,11 @@ add_with_carry w c xxs yys = case ( xxs, yys ) of
         return []
     ( [] , [] ) -> return [ c ]
     ( [], y : ys) -> do
-        -- r <- xor [ c, y ]
-        -- d <- and [ c, y ]
         (r,d) <- half_adder c y
         rest <- add_with_carry (w-1) d [] ys
         return $ r : rest
     ( x : xs, [] ) -> add_with_carry w c yys xxs
     (x : xs, y:ys) -> do
-        -- r <- xor [c,x,y]
-        -- d <- atleast 2 [c,x,y]
         (r,d) <- full_adder c x y
         rest <- add_with_carry (w-1) d xs ys
         return $ r : rest
@@ -69,9 +68,12 @@ add_with_carry w c xxs yys = case ( xxs, yys ) of
 times :: (MonadSAT m) => Number -> Number -> m Number
 times a b = do 
     let w = max ( width a ) ( width b ) 
-    restricted_times w a b
+    -- restricted_times w a b
+    better_times w a b
 
-restricted_times :: (MonadSAT m) => Int -> Number -> Number -> m Number
+restricted_times :: (MonadSAT m) 
+                 => Int 
+                 -> Number -> Number -> m Number
 restricted_times w a b = case bits a of
     [] -> return $ make []
     _ | w <= 0 -> do
@@ -87,8 +89,41 @@ restricted_times w a b = case bits a of
         s <- Flexible.add xys xsys
         restricted w s
 
-        
+-------------------------------------------------- 
+
+better_times w a b = do
+    kzs <- sequence $ do
+          ( i , x ) <- zip [ 0 .. ] $ bits a
+          ( j , y ) <- zip [ 0 .. ] $ bits b
+          return $ 
+              if i+j >= w 
+              then do 
+                  assert [ not x, not y ]
+                  return ( i+j, [] )
+              else do 
+                  z <- and [ x, y ]
+                  return ( i+j , [z] ) 
+    zs <- reduce $ take w
+                 $ M.elems $ M.fromListWith (++) kzs
+    return $ make zs
 
 
+reduce ( ( x:y:z:ps) : qss ) = do
+    ( r, c ) <- full_adder x y z
+    qss' <- plugin c qss
+    reduce $ ( ps ++ [r] ) : qss' 
+reduce ( ( x:y:[]) : qss ) = do
+    ( r, c ) <- half_adder x y 
+    qss' <- plugin c qss
+    reduce $ [r] : qss' 
+reduce ( ( x:[]) : qss ) = do
+    xs <- reduce qss
+    return $ x : xs
+reduce [] = return []
 
+plugin c [] = do
+    assert [ not c ]
+    return []
+plugin c (qs : qss) = 
+    return ((c:qs) : qss)
 
