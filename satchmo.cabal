@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        1.6.1
+Version:        1.7
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -24,6 +24,7 @@ Exposed-modules:
 	Satchmo.Binary.Op.Common
 	Satchmo.Binary.Op.Fixed
 	Satchmo.Binary.Op.Flexible
+	Satchmo.Polynomial
 	Satchmo.Relation
 	Satchmo.Relation.Data
 	Satchmo.Relation.Op
