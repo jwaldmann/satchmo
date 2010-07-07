@@ -31,6 +31,10 @@ instance ( Decode c a, Decode d b ) => Decode ( c,d) (a,b) where
 instance ( Decode c a ) => Decode [c] [a] where
     decode = mapM decode 
 
+instance Decode a b => Decode ( Maybe a ) ( Maybe b ) where
+    decode ( Just b ) = fmap Just $ decode b
+    decode Nothing = return $ Nothing
+
 instance (Ix i, Decode c a) => Decode ( Array i c) ( Array i a ) where
     decode x = do
         pairs <- sequence $ do
