@@ -18,7 +18,7 @@ import Data.Array
 import Control.Monad.Reader
 
 
-class Decode c a | c -> a where decode :: c -> Decoder a
+class Decode c a where decode :: c -> Decoder a
 
 type Decoder a = Reader ( Map Variable Bool ) a
 
