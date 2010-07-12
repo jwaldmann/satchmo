@@ -21,6 +21,8 @@ import Satchmo.Binary.Data
 import Satchmo.Binary.Op.Common
 import Satchmo.Counting
 
+import qualified Data.Map as M
+
 add :: (MonadSAT m) => Number -> Number -> m Number
 add a b = do
     false <- Satchmo.Boolean.constant False
@@ -44,13 +46,16 @@ add_with_carry cin (x:xs ) (y:ys) = do
     return ( z : zs, cout )
 
 times :: (MonadSAT m) => Number -> Number -> m Number
-times a b | [] <- bits a = return a
-times a b | [] <- bits b = return b
-times a b | [x] <- bits a = times1 x b
-times a b | [y] <- bits b = times1 y a
-times a b | x:xs <- bits a = do
+times = better_times
+
+plain_times :: (MonadSAT m) => Number -> Number -> m Number
+plain_times a b | [] <- bits a = return a
+plain_times a b | [] <- bits b = return b
+plain_times a b | [x] <- bits a = times1 x b
+plain_times a b | [y] <- bits b = times1 y a
+plain_times a b | x:xs <- bits a = do
     xys  <- times1 x b
-    xsys <- times (make xs) b
+    xsys <- plain_times (make xs) b
     zs <- shift xsys
     add xys zs
 
@@ -65,3 +70,33 @@ times1 x b = do
     zs <- mapM ( \ y -> and [x,y] ) $ bits b
     return $ make zs
 
+
+better_times a b = do
+    kzs <- sequence $ do
+          ( i , x ) <- zip [ 0 .. ] $ bits a
+          ( j , y ) <- zip [ 0 .. ] $ bits b
+          return $ do
+                  z <- and [ x, y ]
+                  return ( i+j , [z] ) 
+    zs <- reduce $ M.elems $ M.fromListWith (++) kzs
+    return $ make zs
+
+
+reduce ( ( x:y:z:ps) : qss ) = do
+    ( r, c ) <- full_adder x y z
+    qss' <- plugin c qss
+    reduce $ ( ps ++ [r] ) : qss' 
+reduce ( ( x:y:[]) : qss ) = do
+    ( r, c ) <- half_adder x y 
+    qss' <- plugin c qss
+    reduce $ [r] : qss' 
+reduce ( ( x:[]) : qss ) = do
+    xs <- reduce qss
+    return $ x : xs
+reduce [] = return []
+
+plugin c [] = do
+    assert [ not c ]
+    return []
+plugin c (qs : qss) = 
+    return ((c:qs) : qss)
