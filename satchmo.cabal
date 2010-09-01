@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        1.7
+Version:        1.8.0
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -13,7 +13,7 @@ description:	Encoding for boolean and integral constraints into (QBF-)CNF-SAT.
 		This package contains functions that construct problems,
                 to solve them, you need package satchmo-backends.
 Category:	Algorithms
-Build-depends:  mtl, process, containers, base, array, bytestring, directory
+Build-depends:  mtl, process, containers, base >= 3 && <= 4, array, bytestring, directory
 Exposed-modules:
 	Satchmo.Data
         Satchmo.Solve
@@ -43,5 +43,5 @@ Other-modules:
 hs-source-dirs:	.
 extensions: 
 build-type: Simple
-ghc-options: -funbox-strict-fields -O2
+ghc-options: -funbox-strict-fields
 ghc-prof-options: -auto
