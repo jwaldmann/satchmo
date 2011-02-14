@@ -3,7 +3,7 @@
 module Satchmo.Binary.Data
 
 ( Number, bits, make
-, width, number, constant
+, width, number, constant, constantBits
 )
 
 where
@@ -55,3 +55,10 @@ constant n = do
     xs <- mapM B.constant $ toBinary n
     return $ make xs
 
+-- | declare a number constant using a specified number of bits
+constantBits :: MonadSAT m => Int -> Integer -> m Number
+constantBits bits n = do
+  x <- B.constant False
+  xs <- mapM B.constant $ toBinary n
+  let leadingZeros = max 0 $ bits - (length xs)
+  return $ make $ xs ++ (replicate leadingZeros x)

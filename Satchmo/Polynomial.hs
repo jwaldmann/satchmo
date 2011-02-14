@@ -1,11 +1,11 @@
 {-# language MultiParamTypeClasses #-}
 {-# language FlexibleContexts      #-}
 {-# language UndecidableInstances  #-}
+{-# language FlexibleInstances #-}
 
 module Satchmo.Polynomial 
 
-( Number ()
-, number, constant
+( Poly (), number, constant, constPolynom
 , iszero, equals, ge, gt
 , add, times
 )
@@ -14,10 +14,11 @@ where
 
 import Data.Map ( Map )
 import qualified Data.Map as M
+import Control.Applicative ((<$>))
 
 import Satchmo.SAT
 import Satchmo.Boolean hiding ( constant )
-import qualified Satchmo.Boolean 
+import qualified Satchmo.Boolean as B
 import Satchmo.Code
 
 import qualified Satchmo.Binary.Op.Fixed as F
@@ -28,16 +29,19 @@ import Control.Monad ( forM )
 -- coefficients starting from degree zero
 data Poly a = Poly [a] deriving ( Eq, Ord, Show )
 
-type Number = Poly F.Number
+type NumPoly = Poly F.Number
 
--- Hohoho:
-instance Decode a Integer => Decode ( Poly a ) Integer where
-    decode ( Poly xs ) = do
-        ys <- forM xs decode 
-        let base = 1000 -- well
-        return $ if all ( < base ) ys
-                 then foldr ( \ y o -> o * base + y ) 0 ys
-                 else error "Satchmo.Polynomial.decode"
+instance Decode a Integer => Decode (Poly a) (Poly Integer) where
+    decode (Poly xs) = do
+      decodedXs <- forM xs decode 
+      return $ Poly decodedXs
+
+constPolynom :: MonadSAT m 
+                => Int    -- ^ bits
+             -> [Integer] -- ^ coefficients
+             -> m NumPoly
+constPolynom bits coefficients = 
+    Poly <$> (forM coefficients $ F.constantBits bits)
 
 -- | this is sort of wrong:
 -- null polynomial should have degree -infty
@@ -45,93 +49,92 @@ instance Decode a Integer => Decode ( Poly a ) Integer where
 degree :: Poly a -> Int
 degree ( Poly xs ) = pred $ length xs
 
-
 number :: MonadSAT m
        => Int -- ^ bits
        -> Int -- ^ degree
-       -> m ( Poly F.Number )
-number bits deg = do 
-    xs <- forM [ 0 .. deg ] $ \ i -> F.number bits
-    return $ Poly xs
+       -> m NumPoly
+number bits deg = 
+    Poly <$> (forM [ 0 .. deg ] $ \ i -> F.number bits)
 
 constant :: MonadSAT m
          => Integer
-         -> m ( Poly F.Number )
+         -> m NumPoly
 constant 0 = return $ Poly []
-constant c = do
-    z <- F.constant 0
-    o <- F.constant c
-    return $ Poly [ z, o ]
+constant const = do
+    c <- F.constant const
+    return $ Poly [c]
 
+iszero :: MonadSAT m 
+          => NumPoly
+          -> m Boolean
 iszero  ( Poly xs ) = do
     ns <- forM xs $ F.iszero
     Satchmo.Boolean.and ns
 
-equals ( Poly xs ) ( Poly ys ) = do
-          z <- F.constant 0
-          let n = max ( length xs ) ( length ys )
-              fill xs = take n $ xs ++ repeat z
-          let handle xs ys = case ( xs, ys ) of
-                  ( [], [] ) -> Satchmo.Boolean.constant True
-                  (x:xs, y:ys) -> do
-                      e <- F.equals x y
-                      later <- handle xs ys
-                      Satchmo.Boolean.and [ e, later ]
-          handle ( reverse $ fill xs ) ( reverse $ fill ys )
+binaryOp :: ([a] -> b) -> ([a] -> [a] -> b) -> [a] -> [a] -> b
+binaryOp unary binary p1 p2 =
+    case (p1,p2) of
+      ([],ys) -> unary ys
+      (xs,[]) -> unary xs
+      (xs,ys) -> binary xs ys
 
-ge ( Poly xs ) ( Poly ys ) = do
-          z <- F.constant 0
-          let n = max ( length xs ) ( length ys )
-              fill xs = take n $ xs ++ repeat z
-          let handle xs ys = case ( xs, ys ) of
-                  ( [], [] ) -> Satchmo.Boolean.constant True
-                  (x:xs, y:ys) -> do
-                      gt <- F.gt x y
-                      e <- F.equals x y
-                      later <- handle xs ys
-                      monadic Satchmo.Boolean.or 
-                              [ return gt
-                              , Satchmo.Boolean.and [ e, later ]
-                              ]
-          handle ( reverse $ fill xs ) ( reverse $ fill ys )
+fill :: MonadSAT m => NumPoly -> NumPoly -> m ([F.Number],[F.Number])
+fill (Poly p1) (Poly p2) = do
+  zero <- F.constant 0
+  let maxL = max (length p1) (length p2)
+      fill' xs = take maxL $ xs ++ repeat zero
+  return (fill' p1, fill' p2)
 
-gt  ( Poly xs ) ( Poly ys ) = do
-          z <- F.constant 0
-          let n = max ( length xs ) ( length ys )
-              fill xs = take n $ xs ++ repeat z
-          let handle xs ys = case ( xs, ys ) of
-                  ( [], [] ) -> Satchmo.Boolean.constant False
-                  (x:xs, y:ys) -> do
-                      gt <- F.gt x y
-                      e <- F.equals x y
-                      later <- handle xs ys
-                      monadic Satchmo.Boolean.or 
-                              [ return gt
-                              , Satchmo.Boolean.and [ e, later ]
-                              ]
-          handle ( reverse $ fill xs ) ( reverse $ fill ys )
+reverseBoth :: ([a],[b]) -> ([a], [b])
+reverseBoth (p1, p2) = (reverse p1, reverse p2)
 
+equals,  ge,  gt  :: MonadSAT m => NumPoly -> NumPoly -> m Boolean
+equals', ge', gt' :: MonadSAT m => [F.Number] -> [F.Number] -> m Boolean
 
-add ( Poly xs ) ( Poly ys ) = do
-          let handle xs ys = case ( xs, ys ) of
-                  ( [] , ys ) ->  return ys
-                  ( xs, [] ) -> return xs
-                  (x:xs, y:ys) -> do
-                      z <- F.add x y
-                      zs <- handle xs ys
-                      return $ z : zs
-          zs <- handle xs ys
-          return $ Poly zs
+equals p1 p2 = fill p1 p2 >>= uncurry equals'
 
-times p q = do
-          let handle ( Poly xs ) ( Poly ys ) = 
-                  case ( xs, ys ) of
-                      ( [], ys ) -> return $ Poly []
-                      ( xs, [] ) -> return $ Poly []
-                      ( x : xs, ys ) -> do
-                          Poly zs <- handle ( Poly xs ) ( Poly ys )
-                          f : fs  <- forM ys $ F.times x
-                          Poly rest <- add ( Poly zs ) ( Poly fs )
-                          return $ Poly $ f : rest
-          handle p q
+equals' = binaryOp (\_ -> B.constant True)
+          (\(x:xs) (y:ys) -> do e <- F.equals x y
+                                rest <- equals' xs ys
+                                B.and [e,rest]
+          )
 
+ge p1 p2 = fill p1 p2 >>= uncurry ge' . reverseBoth
+
+ge' = binaryOp (\_ -> B.constant True)
+      (\(x:xs) (y:ys) -> do gt <- F.gt x y
+                            eq <- F.equals x y
+                            rest <- ge' xs ys
+                            monadic B.or [ return gt
+                                         , B.and [ eq, rest ]]
+      )
+
+gt p1 p2 = fill p1 p2 >>= uncurry gt' . reverseBoth
+
+gt' = binaryOp (\_ -> B.constant False)
+      (\(x:xs) (y:ys) -> do gt <- F.gt x y
+                            eq <- F.equals x y
+                            rest <- gt' xs ys
+                            monadic B.or [ return gt
+                                         , B.and [ eq, rest ]]
+      )
+
+add,  times  :: MonadSAT m => NumPoly -> NumPoly -> m NumPoly
+add', times' :: MonadSAT m => [F.Number] -> [F.Number] -> m [F.Number]
+
+add (Poly p1) (Poly p2) = Poly <$> add' p1 p2
+
+add' = binaryOp return 
+       (\(x:xs) (y:ys) -> do z  <- F.add x y
+                             zs <- add' xs ys
+                             return $ z : zs
+       )
+
+times (Poly p1) (Poly p2) = Poly <$> times' p1 p2
+
+times' = binaryOp (\_ -> return [])
+         (\(x:xs) ys -> do zs   <- times' xs ys
+                           f:fs <- forM ys $ F.times x
+                           rest <- add' zs fs
+                           return $ f : rest
+         )
