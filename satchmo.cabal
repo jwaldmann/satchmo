@@ -30,6 +30,7 @@ Library
         Satchmo.Binary.Op.Fixed
         Satchmo.Binary.Op.Flexible
         Satchmo.Polynomial
+        Satchmo.PolynomialN
         Satchmo.Relation
         Satchmo.Relation.Data
         Satchmo.Relation.Op
