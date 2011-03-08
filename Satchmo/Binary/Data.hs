@@ -3,7 +3,8 @@
 module Satchmo.Binary.Data
 
 ( Number, bits, make
-, width, number, constant, constantBits
+, width, number, constant, constantWidth
+, fromBinary, toBinary, toBinaryWidth
 )
 
 where
@@ -49,16 +50,22 @@ toBinary n  =
     let (d,m) = divMod n 2
     in  toEnum ( fromIntegral m ) : toBinary d
 
--- | declare a number constant 
+-- | @toBinaryWidth w@ converts to binary using at least @w@ bits
+toBinaryWidth :: Int -> Integer -> [Bool]
+toBinaryWidth width n =
+    let bs = toBinary n
+        leadingZeros = max 0 $ width - (length bs)
+    in
+      bs ++ (replicate leadingZeros False)
+
+-- | Declare a number constant 
 constant :: MonadSAT m => Integer -> m Number
 constant n = do
     xs <- mapM B.constant $ toBinary n
     return $ make xs
 
--- | declare a number constant using a specified number of bits
-constantBits :: MonadSAT m => Int -> Integer -> m Number
-constantBits bits n = do
-  x <- B.constant False
-  xs <- mapM B.constant $ toBinary n
-  let leadingZeros = max 0 $ bits - (length xs)
-  return $ make $ xs ++ (replicate leadingZeros x)
+-- | @constantWidth w@ declares a number constant using at least @w@ bits
+constantWidth :: MonadSAT m => Int -> Integer -> m Number
+constantWidth width n = do
+  xs <- mapM B.constant $ toBinaryWidth width n
+  return $ make xs

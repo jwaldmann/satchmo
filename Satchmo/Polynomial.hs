@@ -5,7 +5,7 @@
 
 module Satchmo.Polynomial 
 
-( Poly (), number, constant, constPolynom
+( Poly (), number, constant, fromCoefficients
 , iszero, equals, ge, gt
 , add, times
 )
@@ -16,8 +16,8 @@ import Data.Map ( Map )
 import qualified Data.Map as M
 import Control.Applicative ((<$>))
 
-import Satchmo.SAT
-import Satchmo.Boolean hiding ( constant )
+import Satchmo.MonadSAT (MonadSAT)
+import Satchmo.Boolean (Boolean,monadic)
 import qualified Satchmo.Boolean as B
 import Satchmo.Code
 
@@ -36,12 +36,12 @@ instance Decode a Integer => Decode (Poly a) (Poly Integer) where
       decodedXs <- forM xs decode 
       return $ Poly decodedXs
 
-constPolynom :: MonadSAT m 
+fromCoefficients :: MonadSAT m 
                 => Int    -- ^ bits
-             -> [Integer] -- ^ coefficients
-             -> m NumPoly
-constPolynom bits coefficients = 
-    Poly <$> (forM coefficients $ F.constantBits bits)
+                -> [Integer] -- ^ coefficients
+                -> m NumPoly
+fromCoefficients width coefficients = 
+    Poly <$> (forM coefficients $ F.constantWidth width)
 
 -- | this is sort of wrong:
 -- null polynomial should have degree -infty
@@ -69,7 +69,7 @@ iszero :: MonadSAT m
           -> m Boolean
 iszero  ( Poly xs ) = do
     ns <- forM xs $ F.iszero
-    Satchmo.Boolean.and ns
+    B.and ns
 
 binaryOp :: ([a] -> b) -> ([a] -> [a] -> b) -> [a] -> [a] -> b
 binaryOp unary binary p1 p2 =

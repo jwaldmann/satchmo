@@ -14,7 +14,7 @@ import Prelude hiding ( and, or, not, product )
 import qualified Prelude
 
 import Satchmo.Code
-import Satchmo.Boolean
+import Satchmo.Boolean hiding (implies)
 import Satchmo.Counting
 import Satchmo.Relation.Data
 import Satchmo.Relation.Op

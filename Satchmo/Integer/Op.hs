@@ -26,7 +26,7 @@ negate n = do
     let ys = map B.not $ bits n 
     o <- B.constant True
     ( zs, c ) <- increment ys o
-    assert [ last $ ys, B.not $ last zs ]
+    assertOr [ last $ ys, B.not $ last zs ]
     return $ make zs
 
 increment [] z = return ( [], z )
@@ -44,7 +44,7 @@ add a b = do
     cin <- B.constant False
     ( zs, cout ) <- 
         F.add_with_carry cin ( bits a ) ( bits b )
-    monadic assert [ fun2 (==) cout $ last zs ]
+    monadic assertOr [ fun2 (==) cout $ last zs ]
     return $ make zs
 
 sub :: MonadSAT m 
@@ -65,7 +65,7 @@ times a b = do
     c <- F.times ( F.make $ bits a ) 
       	 	 ( F.make $ bits b )
     let ( pre, post ) = splitAt ( width a ) $ F.bits c
-    monadic assert [ fun2 (==) ( head post) $ last pre ]
+    monadic assertOr [ fun2 (==) ( head post) $ last pre ]
     return $ make pre
 
 ----------------------------------------------------

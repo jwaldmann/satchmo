@@ -5,7 +5,8 @@ module Satchmo.Boolean.Data
 ( Boolean(Constant), Booleans, encode
 , boolean, exists, forall
 , constant
-, not, assert, assertW, monadic
+, not, monadic
+, assertOr, assertOrW, assertAnd, assertAndW
 )
 
 where
@@ -103,17 +104,21 @@ not b = case b of
     Constant {} -> Constant { value = Prelude.not $ value b }
 
 
-assert :: MonadSAT m => [ Boolean ] -> m ()
-assert bs = do
+assertOr, assertAnd :: MonadSAT m => [ Boolean ] -> m ()
+assertOr bs = do
     let ( con, uncon ) = partition isConstant bs
     let cval = Prelude.or $ map value con
     when ( Prelude.not cval ) $ emit $ clause $ map encode uncon
 
-assertW :: MonadSAT m => Weight -> [ Boolean ] -> m ()
-assertW w bs = do
+assertAnd bs = forM_ bs $ assertOr . return
+
+assertOrW, assertAndW :: MonadSAT m => Weight -> [ Boolean ] -> m ()
+assertOrW w bs = do
     let ( con, uncon ) = partition isConstant bs
     let cval = Prelude.or $ map value con
     when ( Prelude.not cval ) $ emitW w $ clause $ map encode uncon
+
+assertAndW w bs = forM_ bs $ assertOrW w . return
 
 monadic :: Monad m
         => ( [ a ] -> m b )

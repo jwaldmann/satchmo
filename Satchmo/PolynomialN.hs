@@ -41,7 +41,7 @@ fromMonomials :: MonadSAT m
               -> m NumPolynomialN
 fromMonomials bits monomials = do
   monomials' <- forM monomials $ \(c,es) -> do
-                                 coefficient <- F.constantBits bits c
+                                 coefficient <- F.constantWidth bits c
                                  return $ Monomial (coefficient,es)
   reduce $ PolynomialN monomials'
 

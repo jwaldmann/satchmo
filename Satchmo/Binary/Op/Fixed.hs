@@ -35,7 +35,7 @@ import qualified Data.Map as M
 restricted :: (MonadSAT m) => Int -> Number -> m Number
 restricted w a = do
     let ( low, high ) = splitAt w $ bits a
-    sequence $ do x <- high ; return $ assert [ not x ]
+    sequence $ do x <- high ; return $ assertOr [ not x ]
     return $ make low
 
 -- | result bit width is max of argument bit widths.
@@ -50,7 +50,7 @@ add a b = do
 add_with_carry :: (MonadSAT m) => Int -> Boolean -> Booleans -> Booleans -> m Booleans
 add_with_carry w c xxs yys = case ( xxs, yys ) of
     _ | w <= 0 -> do
-        sequence_ $ do p <- c : xxs ++ yys ; return $ assert [ not p ]
+        sequence_ $ do p <- c : xxs ++ yys ; return $ assertOr [ not p ]
         return []
     ( [] , [] ) -> return [ c ]
     ( [], y : ys) -> do
@@ -77,7 +77,7 @@ restricted_times :: (MonadSAT m)
 restricted_times w a b = case bits a of
     [] -> return $ make []
     _ | w <= 0 -> do
-        monadic assert [ Flexible.iszero a, Flexible.iszero b ]
+        monadic assertOr [ Flexible.iszero a, Flexible.iszero b ]
         return $ make []
     x : xs -> do 
         xys  <- Flexible.times1 x b
@@ -98,7 +98,7 @@ better_times w a b = do
           return $ 
               if i+j >= w 
               then do 
-                  assert [ not x, not y ]
+                  assertOr [ not x, not y ]
                   return ( i+j, [] )
               else do 
                   z <- and [ x, y ]
@@ -122,7 +122,7 @@ reduce ( ( x:[]) : qss ) = do
 reduce [] = return []
 
 plugin c [] = do
-    assert [ not c ]
+    assertOr [ not c ]
     return []
 plugin c (qs : qss) = 
     return ((c:qs) : qss)

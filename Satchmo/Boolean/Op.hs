@@ -1,16 +1,16 @@
 module Satchmo.Boolean.Op
 
 ( constant
-, and, or, xor
+, and, or, xor, equals2, equals, implies
 , fun2, fun3
-, monadic
+, ifThenElse, ifThenElseM
 )
 
 where
 
 import Prelude hiding ( and, or, not )
 import qualified Prelude
-
+import Control.Applicative ((<$>))
 import Satchmo.MonadSAT
 import Satchmo.Code
 import Satchmo.Boolean.Data
@@ -24,8 +24,8 @@ and xs = do
     y <- boolean
     sequence_ $ do
         x <- xs
-        return $ assert [ not y, x ]
-    assert $ y : map not xs
+        return $ assertOr [ not y, x ]
+    assertOr $ y : map not xs
     return y
 
 or :: MonadSAT m => [ Boolean ] -> m Boolean
@@ -39,6 +39,28 @@ xor :: MonadSAT m => [ Boolean ] -> m Boolean
 xor [] = constant False
 xor (x:xs) = foldM xor2 x xs
 
+equals :: MonadSAT m => [ Boolean ] -> m Boolean
+equals [] = constant True
+equals [x] = constant True
+equals (x:xs) = foldM equals2 x xs
+
+equals2 :: MonadSAT m => Boolean -> Boolean -> m Boolean
+equals2 a b = not <$> xor2 a b
+
+implies :: MonadSAT m => Boolean -> Boolean -> m Boolean
+implies a b = or [not a, b]
+
+ifThenElse :: MonadSAT m => Boolean -> m Boolean -> m Boolean -> m Boolean
+ifThenElse condition ifTrue ifFalse = do
+  trueBranch <- ifTrue
+  falseBranch <- ifFalse
+  monadic and [ condition `implies` trueBranch
+              , not condition `implies` falseBranch ]
+
+ifThenElseM :: MonadSAT m => m Boolean -> m Boolean -> m Boolean -> m Boolean
+ifThenElseM conditionM ifTrue ifFalse = do
+  c <- conditionM
+  ifThenElse c ifTrue ifFalse
 
 -- | implement the function by giving a full CNF
 -- that determines the outcome
@@ -52,7 +74,7 @@ fun2 f x y = do
         a <- [ False, True ]
         b <- [ False, True ]
         let pack flag var = if flag then not var else var
-        return $ assert 
+        return $ assertOr
             [ pack a x, pack b y, pack (Prelude.not $ f a b) r ]
     return r
 
@@ -69,7 +91,7 @@ fun3 f x y z = do
         b <- [ False, True ]
         c <- [ False, True ]
         let pack flag var = if flag then not var else var
-        return $ assert 
+        return $ assertOr
             [ pack a x, pack b y, pack c z
             , pack (Prelude.not $ f a b c) r 
             ]
@@ -84,5 +106,4 @@ xor2_orig x y = do
     a <- and [ x, not y ]
     b <- and [ not x, y ]
     or [ a, b ]
-
 

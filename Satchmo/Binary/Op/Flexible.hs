@@ -46,7 +46,7 @@ add_with_carry cin (x:xs ) (y:ys) = do
     return ( z : zs, cout )
 
 times :: (MonadSAT m) => Number -> Number -> m Number
-times = better_times
+times = plain_times -- better_times
 
 plain_times :: (MonadSAT m) => Number -> Number -> m Number
 plain_times a b | [] <- bits a = return a
@@ -96,7 +96,7 @@ reduce ( ( x:[]) : qss ) = do
 reduce [] = return []
 
 plugin c [] = do
-    assert [ not c ]
+    assertOr [ not c ]
     return []
 plugin c (qs : qss) = 
     return ((c:qs) : qss)
