@@ -38,7 +38,7 @@ add a b = do
   flexibleResult <- fromUnsigned <$> F.add (toUnsigned a') (toUnsigned b')
   let (low, high) = splitAt maxWidth $ bits flexibleResult
           
-  e <- Boolean.equals (last low : high)
+  e <- Boolean.equals [last low, head high]
   assertOr [ e ]
   return $ fromBooleans low
 
