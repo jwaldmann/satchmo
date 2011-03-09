@@ -11,7 +11,9 @@ import Prelude hiding ( and, or, not, compare )
 
 import qualified Satchmo.Code as C
 
-import Satchmo.Boolean (MonadSAT, Boolean, Booleans, fun2, fun3, and, or, not, xor, assertOr, boolean)
+import Satchmo.Boolean 
+   (MonadSAT, Boolean, Booleans
+   , fun2, fun3, and, or, not, xor, assertOr, boolean)
 import qualified  Satchmo.Boolean as B
 import Satchmo.Binary.Data (Number, make, bits)
 
