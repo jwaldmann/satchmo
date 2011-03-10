@@ -46,8 +46,8 @@ add_with_carry cin (x:xs ) (y:ys) = do
     return ( z : zs, cout )
 
 times :: (MonadSAT m) => Number -> Number -> m Number
-times = -- plain_times 
-        better_times
+times = plain_times 
+        -- better_times
 
 plain_times :: (MonadSAT m) => Number -> Number -> m Number
 plain_times a b | [] <- bits a = return a
