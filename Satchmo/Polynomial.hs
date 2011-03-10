@@ -6,12 +6,13 @@
 module Satchmo.Polynomial 
 
 ( Poly (), number, constant, fromCoefficients
-, iszero, equals, ge, gt
-, add, times
+, equals, ge, gt
+, add, times, subtract, compose, apply
 )
 
 where
 
+import Prelude hiding (subtract)
 import Data.Map ( Map )
 import qualified Data.Map as M
 import Control.Applicative ((<$>))
@@ -21,7 +22,8 @@ import Satchmo.Boolean (Boolean,monadic)
 import qualified Satchmo.Boolean as B
 import Satchmo.Code
 
-import qualified Satchmo.Binary.Op.Fixed as F
+import qualified Satchmo.BinaryTwosComplement.Op.Fixed as F
+--import qualified Satchmo.Binary.Op.Fixed as F
 
 import Control.Monad ( forM )
 
@@ -64,20 +66,6 @@ constant const = do
     c <- F.constant const
     return $ Poly [c]
 
-iszero :: MonadSAT m 
-          => NumPoly
-          -> m Boolean
-iszero  ( Poly xs ) = do
-    ns <- forM xs $ F.iszero
-    B.and ns
-
-binaryOp :: ([a] -> b) -> ([a] -> [a] -> b) -> [a] -> [a] -> b
-binaryOp unary binary p1 p2 =
-    case (p1,p2) of
-      ([],ys) -> unary ys
-      (xs,[]) -> unary xs
-      (xs,ys) -> binary xs ys
-
 fill :: MonadSAT m => NumPoly -> NumPoly -> m ([F.Number],[F.Number])
 fill (Poly p1) (Poly p2) = do
   zero <- F.constant 0
@@ -87,6 +75,13 @@ fill (Poly p1) (Poly p2) = do
 
 reverseBoth :: ([a],[b]) -> ([a], [b])
 reverseBoth (p1, p2) = (reverse p1, reverse p2)
+
+binaryOp :: ([a] -> b) -> ([a] -> [a] -> b) -> [a] -> [a] -> b
+binaryOp unary binary p1 p2 =
+    case (p1,p2) of
+      ([],ys) -> unary ys
+      (xs,[]) -> unary xs
+      (xs,ys) -> binary xs ys
 
 equals,  ge,  gt  :: MonadSAT m => NumPoly -> NumPoly -> m Boolean
 equals', ge', gt' :: MonadSAT m => [F.Number] -> [F.Number] -> m Boolean
@@ -119,11 +114,10 @@ gt' = binaryOp (\_ -> B.constant False)
                                          , B.and [ eq, rest ]]
       )
 
-add,  times  :: MonadSAT m => NumPoly -> NumPoly -> m NumPoly
+add,  times, subtract, compose :: MonadSAT m => NumPoly -> NumPoly -> m NumPoly
 add', times' :: MonadSAT m => [F.Number] -> [F.Number] -> m [F.Number]
 
 add (Poly p1) (Poly p2) = Poly <$> add' p1 p2
-
 add' = binaryOp return 
        (\(x:xs) (y:ys) -> do z  <- F.add x y
                              zs <- add' xs ys
@@ -131,10 +125,27 @@ add' = binaryOp return
        )
 
 times (Poly p1) (Poly p2) = Poly <$> times' p1 p2
-
 times' = binaryOp (\_ -> return [])
          (\(x:xs) ys -> do zs   <- times' xs ys
                            f:fs <- forM ys $ F.times x
                            rest <- add' zs fs
                            return $ f : rest
          )
+
+subtract (Poly p1) (Poly p2) = do
+  p2' <- forM p2 F.negate
+  Poly <$> add' p1 p2'
+
+
+compose (Poly p1) (Poly p2) = 
+    let p:ps = reverse p1
+    in do
+      Poly <$> compose' [p] ps p2
+
+compose' zs = binaryOp (\_  -> return zs)
+              (\(x:xs) ys -> do zs' <- zs `times'` ys >>= add' [x] 
+                                compose' zs' xs ys
+              )
+
+apply :: MonadSAT m => NumPoly -> F.Number -> m F.Number
+apply = undefined

@@ -101,3 +101,4 @@ reduce m = case M.minViewWithKey m of
             reduce $ M.unionWith (++) rest
                    $ M.fromList [ (k, more ++ [r]), (k+1, [c]) ] 
 
+

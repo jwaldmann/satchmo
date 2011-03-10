@@ -15,7 +15,9 @@ import Satchmo.Boolean
    (MonadSAT, Boolean, Booleans
    , fun2, fun3, and, or, not, xor, assertOr, boolean)
 import qualified  Satchmo.Boolean as B
-import Satchmo.Binary.Data (Number, make, bits)
+import Satchmo.Binary.Data (Number, make, bits, width)
+
+import Control.Monad ( forM )
 
 import Satchmo.Counting
 
@@ -24,15 +26,19 @@ iszero a = equals a $ make []
 
 equals :: (MonadSAT m) =>  Number -> Number -> m Boolean
 equals a b = do
-    equals' ( bits a ) ( bits b )
-
-
+    -- equals' ( bits a ) ( bits b )
+    let m = min ( width a ) ( width b )
+    let ( a1, a2 ) = splitAt m $ bits a
+    let ( b1, b2 ) = splitAt m $ bits b
+    common <- forM ( zip a1 b1 ) $ \ (x,y) -> fun2 (==) x y
+    and $ common ++ map not ( a2 ++ b2 ) 
+    
 equals' :: (MonadSAT m) =>  Booleans -> Booleans -> m Boolean
 equals' [] [] = B.constant True
 equals' (x:xs) (y:ys) = do
-    z <- xor [x, y]
+    z <- fun2 (==) x y
     rest <- equals' xs ys
-    and [ not z, rest ]
+    and [ z, rest ]
 equals' xs [] = and $ map not xs
 equals' [] ys = and $ map not ys
 

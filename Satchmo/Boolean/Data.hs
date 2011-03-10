@@ -7,6 +7,7 @@ module Satchmo.Boolean.Data
 , constant
 , not, monadic
 , assertOr, assertOrW, assertAnd, assertAndW
+, assert -- for legacy code
 )
 
 where
@@ -103,6 +104,9 @@ not b = case b of
       }
     Constant {} -> Constant { value = Prelude.not $ value b }
 
+assert ::  MonadSAT m => [ Boolean ] -> m ()
+{-# deprecated assert "use assertOr" #-}
+assert = assertOr
 
 assertOr, assertAnd :: MonadSAT m => [ Boolean ] -> m ()
 assertOr bs = do
