@@ -1,10 +1,10 @@
 module Satchmo.BinaryTwosComplement.Op.Common
-    (equals, eq, lt, le, ge, gt)
+    (equals, eq, lt, le, ge, gt, positive, negative, nonNegative)
 where
 
 import Prelude hiding (and,or,not)
 import Satchmo.MonadSAT (MonadSAT)
-import Satchmo.BinaryTwosComplement.Data (Number,toUnsigned,msb)
+import Satchmo.BinaryTwosComplement.Data (Number,toUnsigned,msb,bits)
 import Satchmo.Boolean (Boolean,and,or,not,ifThenElseM)
 import qualified Satchmo.Boolean as Boolean
 import qualified Satchmo.Binary.Op.Common as B
@@ -27,3 +27,12 @@ le a b = ifThenElseM ( sameSign a b )
 
 ge = flip le
 gt = flip lt
+
+positive,negative,nonNegative :: MonadSAT m => Number -> m Boolean
+positive a = do
+  one <- or $ bits a
+  and [not $ msb a, one]
+
+negative = return . msb
+
+nonNegative = return . not . msb

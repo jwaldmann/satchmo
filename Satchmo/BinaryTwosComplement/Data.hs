@@ -13,6 +13,8 @@ import qualified Satchmo.Boolean as Boolean
 import qualified Satchmo.Code as C
 import qualified Satchmo.Binary.Data as B 
 
+import Debug.Trace
+
 data Number = Number 
             { bits :: [Boolean] -- LSB first
             , decode :: C.Decoder Integer
@@ -70,12 +72,20 @@ toBinary :: Maybe Int -- ^ Minimal bit width
 toBinary width i = 
     let i' = abs i
         binary = maybe (B.toBinary i') (B.toBinaryWidth `flip` i') width
-        toTwosComplement (firstOne,result) x =
+        flipBits (firstOne,result) x =
             if firstOne then (True, result ++ [not x]) 
             else (x, result ++ [x])
     in
-      if i < 0 then snd $ foldl toTwosComplement (False,[]) binary
-      else binary
+      if i == 0 then
+          replicate (maybe 1 id width) False
+      else if i < 0 then 
+               let flipped = snd $ foldl flipBits (False,[]) binary
+               in
+                 if last flipped == False then flipped ++ [True]
+                 else flipped
+           else 
+               if i > 0 && last binary == True then binary ++ [False]
+               else binary
 
 -- | Get a number constant
 constant :: MonadSAT m => Integer -> m Number
