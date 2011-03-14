@@ -3,7 +3,7 @@ Version:        1.8.1
 
 License:        GPL
 License-file:	gpl-2.0.txt
-Author:         Pepe Iborra, Johannes Waldmann
+Author:         Pepe Iborra, Johannes Waldmann, Alexander Bau
 Maintainer:	Johannes Waldmann
 Homepage:       http://dfa.imn.htwk-leipzig.de/satchmo/
 		http://github.com/pepeiborra/satchmo/
@@ -30,6 +30,7 @@ Library
         Satchmo.Binary.Op.Fixed
         Satchmo.Binary.Op.Flexible
         Satchmo.BinaryTwosComplement.Op.Fixed
+        Satchmo.BinaryTwosComplement
         Satchmo.Polynomial
         Satchmo.PolynomialN
         Satchmo.PolynomialSOS
