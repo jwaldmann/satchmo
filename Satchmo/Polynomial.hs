@@ -5,17 +5,19 @@
 
 module Satchmo.Polynomial 
 
-( Poly (), number, constant, fromCoefficients
+( Poly (Poly), NumPoly, polynomial, constant, fromCoefficients
+, isNull, null, constantTerm, coefficients
 , equals, ge, gt
-, add, times, subtract, compose, apply
+, add, times, subtract, compose, apply, derive
 )
 
 where
 
-import Prelude hiding (subtract)
+import Prelude hiding (subtract,null)
 import Data.Map ( Map )
 import qualified Data.Map as M
 import Control.Applicative ((<$>))
+import Control.Monad (foldM)
 
 import Satchmo.MonadSAT (MonadSAT)
 import Satchmo.Boolean (Boolean,monadic)
@@ -38,24 +40,16 @@ instance Decode a Integer => Decode (Poly a) (Poly Integer) where
       decodedXs <- forM xs decode 
       return $ Poly decodedXs
 
-fromCoefficients :: MonadSAT m 
-                => Int    -- ^ bits
-                -> [Integer] -- ^ coefficients
-                -> m NumPoly
+fromCoefficients :: MonadSAT m => Int -- ^ Bits
+                 -> [Integer]         -- ^ Coefficients
+                 -> m NumPoly
 fromCoefficients width coefficients = 
     Poly <$> (forM coefficients $ F.constantWidth width)
 
--- | this is sort of wrong:
--- null polynomial should have degree -infty
--- but this function will return -1
-degree :: Poly a -> Int
-degree ( Poly xs ) = pred $ length xs
-
-number :: MonadSAT m
-       => Int -- ^ bits
-       -> Int -- ^ degree
-       -> m NumPoly
-number bits deg = 
+polynomial :: MonadSAT m => Int -- ^ Bits
+           -> Int -- ^ Degree
+           -> m NumPoly
+polynomial bits deg = 
     Poly <$> (forM [ 0 .. deg ] $ \ i -> F.number bits)
 
 constant :: MonadSAT m
@@ -65,6 +59,25 @@ constant 0 = return $ Poly []
 constant const = do
     c <- F.constant const
     return $ Poly [c]
+
+-- | this is sort of wrong:
+-- null polynomial should have degree -infty
+-- but this function will return -1
+degree :: Poly a -> Int
+degree ( Poly xs ) = pred $ length xs
+
+isNull :: Poly a -> Bool
+isNull (Poly []) = True
+isNull _         = False
+
+null :: Poly a
+null = Poly []
+
+constantTerm :: Poly a -> a
+constantTerm (Poly (c:_)) = c
+
+coefficients :: Poly a -> [a]
+coefficients (Poly cs) = cs
 
 fill :: MonadSAT m => NumPoly -> NumPoly -> m ([F.Number],[F.Number])
 fill (Poly p1) (Poly p2) = do
@@ -136,7 +149,7 @@ subtract (Poly p1) (Poly p2) = do
   p2' <- forM p2 F.negate
   Poly <$> add' p1 p2'
 
-
+-- | @compose p(x) q(x) = p(q(x))@
 compose (Poly p1) (Poly p2) = 
     let p:ps = reverse p1
     in do
@@ -147,5 +160,18 @@ compose' zs = binaryOp (\_  -> return zs)
                                 compose' zs' xs ys
               )
 
+-- | @apply p x@ applies number @x@ to polynomial @p@
 apply :: MonadSAT m => NumPoly -> F.Number -> m F.Number
-apply = undefined
+apply (Poly poly) x = 
+    let p:ps = reverse poly
+    in 
+      foldM (\sum -> F.linear sum x) p ps
+
+-- | @derive p@ computes the derivation of @p@
+derive :: MonadSAT m => NumPoly -> m NumPoly
+derive (Poly p) = 
+    let p' = zip p [0..]
+        dx (x,e) = F.constant e >>= F.times x
+    in
+      (Poly . drop 1) <$> forM p' dx
+      

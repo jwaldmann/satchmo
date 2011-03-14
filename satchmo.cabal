@@ -32,6 +32,7 @@ Library
         Satchmo.BinaryTwosComplement.Op.Fixed
         Satchmo.Polynomial
         Satchmo.PolynomialN
+        Satchmo.PolynomialSOS
         Satchmo.Relation
         Satchmo.Relation.Data
         Satchmo.Relation.Op

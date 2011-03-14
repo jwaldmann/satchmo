@@ -9,7 +9,7 @@
 module Satchmo.Binary.Op.Fixed
 
 ( restricted
-, add, times
+, add, times, restrictedTimes
 , module Satchmo.Binary.Data
 , module Satchmo.Binary.Op.Common
 )
@@ -17,6 +17,7 @@ module Satchmo.Binary.Op.Fixed
 where
 
 import Prelude hiding ( and, or, not )
+import Control.Monad (foldM)
 
 import qualified Satchmo.Code as C
 
@@ -68,13 +69,34 @@ add_with_carry w c xxs yys = case ( xxs, yys ) of
 times :: (MonadSAT m) => Number -> Number -> m Number
 times a b = do 
     let w = max ( width a ) ( width b ) 
-    -- restricted_times w a b
     better_times w a b
 
-restricted_times :: (MonadSAT m) 
-                 => Int 
-                 -> Number -> Number -> m Number
-restricted_times w a b = case bits a of
+-- Ignores overflows
+restrictedAdd :: (MonadSAT m) => Number -> Number -> m Number
+restrictedAdd a b = do 
+  zero <- Satchmo.Boolean.constant False
+  (result, _) <- Flexible.add_with_carry zero (bits a) (bits b)
+  return $ make result
+
+-- Ignores overflows
+restrictedShift :: (MonadSAT m) => Number -> m Number
+restrictedShift a = do
+  zero <- Satchmo.Boolean.constant False
+  return $ make $ zero : (take (width a - 1) $ bits a)
+
+-- Ignores overflows
+restrictedTimes :: (MonadSAT m) => Number -> Number -> m Number
+restrictedTimes as bs = do
+  result <- foldM (\(as',sum) b -> do
+                       summand <- Flexible.times1 b as'
+                       sum'    <- sum `restrictedAdd` summand
+                       nextAs' <- restrictedShift as'
+                       return (nextAs', sum')
+                  ) (as, make []) $ bits bs
+  return $ snd result
+
+{-
+case bits a of
     [] -> return $ make []
     _ | w <= 0 -> do
         monadic assertOr [ Flexible.iszero a, Flexible.iszero b ]
@@ -88,7 +110,7 @@ restricted_times w a b = case bits a of
                        Flexible.shift zs
         s <- Flexible.add xys xsys
         restricted w s
-
+-}
 -------------------------------------------------- 
 
 better_times w a b = do
