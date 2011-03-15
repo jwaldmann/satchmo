@@ -44,15 +44,6 @@ add a b = do
   assertOr [ e ]
   return $ fromBooleans low
 
--- Give only lower k bits, upper bits must be equal, else unsatisfiable
-restricted :: (MonadSAT m) => Int -> Number -> m Number
-restricted w a = do
-  let (low, high) = splitAt w $ bits a
-  allOne  <- Boolean.and $ high
-  allZero <- Boolean.and $ map not high
-  assertOr [allOne, allZero]
-  return $ fromBooleans low
-
 times :: MonadSAT m => Number -> Number -> m Number
 times a b = do
   let a' = extendMsb (width b) a
@@ -62,7 +53,14 @@ times a b = do
 
   unsignedResult <- fromUnsigned <$> 
                     restrictedTimes (toUnsigned a') (toUnsigned b')
-  restricted resultWidth unsignedResult
+  let (low, high) = splitAt resultWidth $ bits unsignedResult
+  allHighOne  <- Boolean.and $ high
+  allHighZero <- Boolean.and $ map not high
+  assertOr [allHighOne, allHighZero]
+
+  e <- Boolean.equals [ last low, head high ]
+  assertOr [e]
+  return $ fromBooleans low
 
 increment :: MonadSAT m => Number -> m Number
 increment n =
