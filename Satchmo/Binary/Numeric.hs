@@ -1,6 +1,8 @@
 module Satchmo.Binary.Numeric where
 
-import qualified Satchmo.Binary.Op.Flexible as F
+-- import qualified Satchmo.Binary.Op.Flexible as F
+import qualified Satchmo.Binary.Op.Fixed as F
+
 import qualified Satchmo.Numeric as N
 
 instance N.Constant F.Number where

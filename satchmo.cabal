@@ -45,7 +45,7 @@ Library
         Satchmo.Numeric
         Satchmo.Binary.Numeric
         Satchmo.BinaryTwosComplement.Numeric
-        Satchmo.Integer.Naive
+        Satchmo.Integer.Difference
         Satchmo.Polynomial.Numeric
     Other-modules:
         Satchmo.Binary.Data
