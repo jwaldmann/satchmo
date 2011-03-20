@@ -82,8 +82,14 @@ better_times a b = do
                   z <- and [ x, y ]
                   return ( i+j , [z] ) 
     m <- reduce $ M.fromListWith (++) kzs
-    let Just ((k,_) , _) = M.maxViewWithKey m
-    return $ make $ do i <- [ 0 .. k ] ; let { [ b ] = m M.! i } ; return b
+    case M.maxViewWithKey m of
+        Nothing -> return $ make []
+        Just ((k,_) , _) -> do 
+              return $ make $ do 
+                    i <- [ 0 .. k ] 
+                    let { [ b ] = m M.! i }  
+                    return b
+
 
 reduce m = case M.minViewWithKey m of
     Nothing -> return M.empty
