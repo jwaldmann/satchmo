@@ -7,13 +7,13 @@
 -- is the max of the bit width of the inputs.
 
 module Satchmo.BinaryTwosComplement.Op.Fixed
-    ( add, times, increment, negate, linear
+    ( add, subtract, times, increment, negate, linear
     , module Satchmo.BinaryTwosComplement.Data
     , module Satchmo.BinaryTwosComplement.Op.Common
     )
 where
 
-import Prelude hiding (not,negate)
+import Prelude hiding (not,negate, subtract)
 import Control.Applicative ((<$>))
 import Satchmo.MonadSAT (MonadSAT)
 import Satchmo.BinaryTwosComplement.Op.Common
@@ -75,6 +75,11 @@ increment n =
       e <- (not $ msb n) `implies` (not $ last n')
       assertOr [ e ]
       return $ fromBooleans n'
+
+subtract :: MonadSAT m => Number -> Number -> m Number
+subtract a b = do
+    b' <- negate b
+    add a b'
 
 negate :: MonadSAT m => Number -> m Number
 negate n =

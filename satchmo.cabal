@@ -3,7 +3,7 @@ Version:        1.8.1
 
 License:        GPL
 License-file:	gpl-2.0.txt
-Author:         Pepe Iborra, Johannes Waldmann
+Author:         Pepe Iborra, Johannes Waldmann, Alexander Bau
 Maintainer:	Johannes Waldmann
 Homepage:       http://dfa.imn.htwk-leipzig.de/satchmo/
 		http://github.com/pepeiborra/satchmo/
@@ -41,6 +41,11 @@ Library
         Satchmo.SAT
         Satchmo.Simple
         Satchmo.SAT.Weighted
+        Satchmo.Numeric
+        Satchmo.Binary.Numeric
+        Satchmo.BinaryTwosComplement.Numeric
+        Satchmo.Integer.Naive
+        Satchmo.Polynomial.Numeric
     Other-modules:
         Satchmo.Binary.Data
         Satchmo.BinaryTwosComplement.Data
