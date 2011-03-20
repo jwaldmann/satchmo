@@ -8,12 +8,35 @@ import Satchmo.Numeric
 
 import Control.Monad ( forM )
 
-data Poly a = Poly [a]
+data Poly a = Poly [a] deriving Show
 
 instance Decode a b => Decode ( Poly a ) ( Poly b ) where
     decode ( Poly xs ) = do
         ys <- forM xs decode
         return $ Poly ys
+
+derive ( Poly xs ) = do
+    ys <- forM ( drop 1 $ zip [ 0 .. ] xs ) $ \ (k,x) -> do
+        f <- constant k
+        times f x
+    return $ Poly ys
+    
+constantTerm ( Poly xs ) = head xs    
+
+polynomial :: ( Create a , B.MonadSAT m )
+           => Int -> Int 
+           -> m ( Poly a )
+polynomial bits degree = do
+    xs <- forM [ 0 .. degree ] $ \ k -> create bits
+    return $ Poly xs
+    
+compose ( Poly xs ) q = case xs of
+    [] -> return $ Poly []
+    x : xs -> do
+        p <- compose ( Poly xs ) q
+        pq <- times p q
+        plus ( Poly [x] ) pq
+    
 
 instance ( Create a, Constant a, Numeric a )
          => Numeric ( Poly a ) where
