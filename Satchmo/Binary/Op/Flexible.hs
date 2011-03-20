@@ -46,8 +46,8 @@ add_with_carry cin (x:xs ) (y:ys) = do
     return ( z : zs, cout )
 
 times :: (MonadSAT m) => Number -> Number -> m Number
-times = plain_times 
-        -- better_times
+times = -- plain_times 
+      better_times
 
 plain_times :: (MonadSAT m) => Number -> Number -> m Number
 plain_times a b | [] <- bits a = return a
@@ -72,6 +72,8 @@ times1 x b = do
     return $ make zs
 
 
+better_times :: (MonadSAT m) 
+             => Number -> Number -> m Number
 better_times a b = do
     kzs <- sequence $ do
           ( i , x ) <- zip [ 0 .. ] $ bits a
@@ -79,25 +81,24 @@ better_times a b = do
           return $ do
                   z <- and [ x, y ]
                   return ( i+j , [z] ) 
-    zs <- reduce $ map snd $ M.toAscList $ M.fromListWith (++) kzs
-    return $ make zs
+    m <- reduce $ M.fromListWith (++) kzs
+    let Just ((k,_) , _) = M.maxViewWithKey m
+    return $ make $ do i <- [ 0 .. k ] ; let { [ b ] = m M.! i } ; return b
+
+reduce m = case M.minViewWithKey m of
+    Nothing -> return M.empty
+    Just ((k, bs), rest ) -> case bs of
+        [x] -> do
+            m' <- reduce rest
+            return $ M.unionWith (error "huh") m' 
+                   $ M.fromList [(k,[x])] 
+        [x,y] -> do
+            (r,c) <- half_adder x y
+            reduce $ M.unionWith (++) rest
+                   $ M.fromList [ (k,[r]), (k+1, [c]) ] 
+        (x:y:z:more) -> do
+            (r,c) <- full_adder x y z
+            reduce $ M.unionWith (++) rest
+                   $ M.fromList [ (k, more ++ [r]), (k+1, [c]) ] 
 
 
-reduce ( ( x:y:z:ps) : qss ) = do
-    ( r, c ) <- full_adder x y z
-    qss' <- plugin c qss
-    reduce $ ( ps ++ [r] ) : qss' 
-reduce ( ( x:y:[]) : qss ) = do
-    ( r, c ) <- half_adder x y 
-    qss' <- plugin c qss
-    reduce $ [r] : qss' 
-reduce ( ( x:[]) : qss ) = do
-    xs <- reduce qss
-    return $ x : xs
-reduce [] = return []
-
-plugin c [] = do
---    assertOr [ not c ] ; return []
-    return [[c]]
-plugin c (qs : qss) = 
-    return ((c:qs) : qss)
