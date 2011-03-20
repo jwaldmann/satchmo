@@ -4,7 +4,7 @@ import qualified Satchmo.BinaryTwosComplement.Op.Fixed as F
 import qualified Satchmo.Numeric as N
 
 instance N.Constant F.Number where
-    constant = F.constant  
+    constant = F.constantWidth 1  
     
 instance N.Create F.Number where    
     create = F.number
