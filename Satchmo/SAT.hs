@@ -48,13 +48,6 @@ start = Accu
 newtype SAT a = SAT {unsat::RWST Handle () Accu IO a}
     deriving (MonadState Accu, MonadReader Handle, Monad, MonadIO, Functor)
 
-type NumClauses = Integer
-type NumVars    = Integer
-
-data Header = Header { numClauses, numVars :: Int
-                     , universals :: [Int]
-                     }
-
 
 sat :: SAT a -> IO (BS.ByteString, Header, a )
 sat (SAT m) =

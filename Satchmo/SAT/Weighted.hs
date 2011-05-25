@@ -2,7 +2,7 @@
 module Satchmo.SAT.Weighted (SAT, sat, MaxWeight, Header(..)) where
 
 import Satchmo.Data
-import Satchmo.MonadSAT
+import Satchmo.MonadSAT hiding ( Header )
 
 import Control.Exception
 import Control.Monad.RWS.Strict

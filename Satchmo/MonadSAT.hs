@@ -5,6 +5,7 @@
 module Satchmo.MonadSAT
 
 ( MonadSAT(..), Weight
+, Header (..)                
 )
 
 where
@@ -30,6 +31,14 @@ class (Functor m, Monad m) => MonadSAT m where
   emit  :: Clause -> m ()
   emitW :: Weight -> Clause -> m ()
 
+type NumClauses = Integer
+type NumVars    = Integer
+
+data Header = 
+     Header { numClauses, numVars :: ! Int
+            , universals :: ! [Int]
+                     }
+     deriving Show
 
 -- -------------------------------------------------------
 -- MonadSAT liftings for standard monad transformers
