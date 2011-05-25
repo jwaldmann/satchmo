@@ -14,7 +14,7 @@ import Satchmo.Data
 import Satchmo.MonadSAT
 
 import Control.Exception
-import Control.Monad.Writer
+import Control.Monad.Writer.Strict
 import Control.Monad.State.Strict
 
 import qualified Data.ByteString.Lazy.Char8 as BS
