@@ -37,6 +37,7 @@ newtype SAT a
       deriving ( Functor, Monad
                , MonadState Header
                , MonadWriter ( S.Seq BS.ByteString )
+               -- , MonadWriter BS.ByteString
                )
 
 
@@ -49,8 +50,7 @@ instance MonadSAT SAT where
   emit cl = do
       a <- get
       put $ a { numClauses = succ $ numClauses a }
-      tell $ S.singleton $ fromString $ show  cl 
-      tell $ S.singleton $ fromString "\n" 
+      tell $  S.singleton $ fromString $ show  cl ++ "\n"
 
      
 start :: Header

@@ -28,9 +28,9 @@ type Weight = Int
 
 class (Functor m, Monad m) => MonadSAT m where
   fresh, fresh_forall :: m Literal
-  {-# INLINE fresh #-}
+  {-# INLINABLE fresh #-}
   emit  :: Clause -> m ()
-  {-# INLINE emit #-}
+  {-# INLINABLE emit #-}
   emitW :: Weight -> Clause -> m ()
 
 type NumClauses = Integer
