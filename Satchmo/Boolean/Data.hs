@@ -18,6 +18,8 @@ import qualified Satchmo.Code as C
 import Satchmo.Data
 import Satchmo.MonadSAT
 
+import Satchmo.SAT (SAT) -- for specializations
+
 import Data.Array
 import Data.Maybe ( fromJust )
 import Data.List ( partition )
@@ -73,8 +75,10 @@ instance C.Decode Boolean Bool where
 boolean :: MonadSAT m => m Boolean
 boolean = exists
 {-# INLINABLE boolean #-}
+{-# specialize inline boolean :: SAT Boolean #-}
 
 exists :: MonadSAT m => m Boolean
+{-# specialize inline exists :: SAT Boolean #-}
 exists = do
     x <- fresh
     return $ Boolean 
@@ -88,6 +92,7 @@ exists = do
            }
 
 forall :: MonadSAT m => m Boolean
+{-# specialize inline forall :: SAT Boolean #-}
 forall = do
     x <- fresh_forall
     return $ Boolean 
@@ -96,6 +101,7 @@ forall = do
            }
 
 constant :: MonadSAT m => Bool -> m Boolean
+{-# specialize inline constant :: Bool -> SAT Boolean #-}
 constant v = do
     return $ Constant { value = v } 
 {-# INLINABLE constant #-}
@@ -109,7 +115,9 @@ not b = case b of
     Constant {} -> Constant { value = Prelude.not $ value b }
 {-# INLINABLE not #-}
 
+
 assert :: MonadSAT m => [ Boolean ] -> m ()
+{-# specialize inline assert :: [ Boolean ] -> SAT () #-}
 assert bs = do
     let ( con, uncon ) = partition isConstant bs
     let cval = Prelude.or $ map value con
@@ -125,6 +133,7 @@ assertW w bs = do
 monadic :: Monad m
         => ( [ a ] -> m b )
         -> ( [ m a ] -> m b )
+{-# specialize inline monadic :: ([a] -> SAT b) -> [SAT a] -> SAT b #-}        
 monadic f ms = do
     xs <- sequence ms
     f xs

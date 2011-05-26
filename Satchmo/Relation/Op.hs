@@ -22,6 +22,8 @@ import Satchmo.Relation.Data
 import Control.Monad ( guard )
 import Data.Ix
 
+import Satchmo.SAT
+
 mirror :: ( Ix a , Ix b ) => Relation a b -> Relation b a
 mirror r = 
     let ((a,b),(c,d)) = bounds r
@@ -34,6 +36,7 @@ complement r =
 union :: ( Ix a , Ix b, MonadSAT m ) 
       => Relation a b -> Relation a b 
       -> m ( Relation a b )
+{-# specialize inline union :: ( Ix a , Ix b ) => Relation a b -> Relation a b -> SAT ( Relation a b ) #-}      
 union r s = do
     pairs <- sequence $ do
         i <- indices r
@@ -42,6 +45,7 @@ union r s = do
 
 product :: ( Ix a , Ix b, Ix c, MonadSAT m ) 
         => Relation a b -> Relation b c -> m ( Relation a c )
+{-# specialize inline product ::  ( Ix a , Ix b, Ix c ) => Relation a b -> Relation b c -> SAT ( Relation a c ) #-}      
 product a b = do
     let ((ao,al),(au,ar)) = bounds a
         ((bo,bl),(bu,br)) = bounds b
@@ -58,6 +62,7 @@ product a b = do
 intersection :: ( Ix a , Ix b, MonadSAT m ) 
       => Relation a b -> Relation a b 
       -> m ( Relation a b )
+{-# specialize inline intersection ::  ( Ix a , Ix b ) => Relation a b -> Relation a b -> SAT ( Relation a b ) #-} 
 intersection r s = do
     pairs <- sequence $ do
         i <- indices r

@@ -12,15 +12,18 @@ where
 import Satchmo.Code
 import Satchmo.Boolean
 
+import Satchmo.SAT
+
 import qualified Data.Array as A
 import Data.Array hiding ( bounds, (!), indices, assocs )
 
 import Control.Monad ( guard )
 
-data Relation a b = Relation ( Array (a,b) Boolean ) 
+newtype Relation a b = Relation ( Array (a,b) Boolean ) 
 
 relation :: ( Ix a, Ix b, MonadSAT m ) 
          => ((a,b),(a,b)) -> m ( Relation a b ) 
+{-# specialize inline relation :: ( Ix a, Ix b) => ((a,b),(a,b)) -> SAT ( Relation a b ) #-} 
 relation bnd = do
     pairs <- sequence $ do 
         p <- range bnd

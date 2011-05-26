@@ -37,6 +37,8 @@ Library
         Satchmo.Relation.Prop
         Satchmo.MonadSAT
         Satchmo.SAT
+        Satchmo.SAT.Tmpfile
+        Satchmo.SAT.BS
         Satchmo.SAT.Seq
         Satchmo.SAT.Sequence
         Satchmo.Simple
