@@ -18,8 +18,7 @@ import qualified Satchmo.Code as C
 import Satchmo.Data
 import Satchmo.MonadSAT
 
-import Data.Map ( Map )
-import qualified Data.Map as M
+import Data.Array
 import Data.Maybe ( fromJust )
 import Data.List ( partition )
 
@@ -27,7 +26,7 @@ import Control.Monad.Reader
 
 data Boolean = Boolean
              { encode :: ! Literal
-             , decode :: ! ( C.Decoder Bool )
+             -- , decode :: ! ( C.Decoder Bool )
              }
      | Constant { value :: ! Bool }
 
@@ -65,7 +64,10 @@ isConstant _ = False
 
 instance C.Decode Boolean Bool where 
     decode b = case b of
-        Boolean {} -> decode b
+        -- Boolean {} -> decode b
+        Boolean {} -> asks $ \ arr -> 
+              let x = encode b
+              in  positive x == arr ! ( variable x )
         Constant {} -> return $ value b
 
 boolean :: MonadSAT m => m Boolean
@@ -77,10 +79,12 @@ exists = do
     x <- fresh
     return $ Boolean 
            { encode = x
+{-                      
            , decode = asks $ \ fm -> 
                       ( positive x == )
                     $ fromJust
                     $ M.lookup ( variable x ) fm
+-}
            }
 
 forall :: MonadSAT m => m Boolean
@@ -88,7 +92,7 @@ forall = do
     x <- fresh_forall
     return $ Boolean 
            { encode = x
-           , decode = error "Boolean.forall cannot be decoded"
+--           , decode = error "Boolean.forall cannot be decoded"
            }
 
 constant :: MonadSAT m => Bool -> m Boolean
@@ -100,7 +104,7 @@ not :: Boolean -> Boolean
 not b = case b of
     Boolean {} -> Boolean 
       { encode = nicht $ encode b
-      , decode = do x <- decode b ; return $ Prelude.not x
+      -- , decode = do x <- decode b ; return $ Prelude.not x
       }
     Constant {} -> Constant { value = Prelude.not $ value b }
 {-# INLINABLE not #-}

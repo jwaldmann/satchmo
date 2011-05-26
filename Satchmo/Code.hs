@@ -10,17 +10,17 @@ where
 
 import Satchmo.Data
 
-
-import Data.Map ( Map )
-import qualified Data.Map as M
 import Data.Array
 
 import Control.Monad.Reader
 
 
-class Decode c a where decode :: c -> Decoder a
+class Decode c a where 
+    {-# INLINABLE decode #-}
+    decode :: c -> Decoder a
 
-type Decoder a = Reader ( Map Variable Bool ) a
+-- type Decoder a = Reader ( Map Variable Bool ) a
+type Decoder a = Reader ( Array Variable Bool ) a
 
 instance Decode () () where
     decode () = return ()

@@ -18,7 +18,8 @@ import Control.Exception
 import Control.Monad.RWS.Strict
 -- import Control.Monad.RWS.Lazy
 
-import qualified Data.Sequence as S
+-- import qualified Data.Sequence as S
+import qualified Satchmo.SAT.Sequence as S
 
 -- import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as BS

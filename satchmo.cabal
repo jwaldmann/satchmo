@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        1.9.0
+Version:        1.9.1
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -17,6 +17,7 @@ cabal-version:  >= 1.6
 build-type: Simple
 
 Library
+    ghc-options: -funbox-strict-fields
     Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory
     Exposed-modules:
         Satchmo.Data
@@ -37,6 +38,7 @@ Library
         Satchmo.MonadSAT
         Satchmo.SAT
         Satchmo.SAT.Seq
+        Satchmo.SAT.Sequence
         Satchmo.Simple
         Satchmo.SAT.Weighted
     Other-modules:

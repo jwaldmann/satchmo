@@ -43,17 +43,20 @@ instance Read Literal where
 literal :: Bool -> Variable -> Literal
 literal p v | v /= 0 = 
     Literal $ if p then v else negate v
-
+{-# INLINE literal #-}
 
 nicht :: Literal -> Literal
 nicht ( Literal i ) = Literal $ negate i
+{-# INLINE nicht #-}
 
 -- FIXME: should be newtype
 type Variable = Int
 
 variable :: Literal -> Variable
 variable ( Literal v ) = abs v
+{-# INLINE variable #-}
 
 positive :: Literal -> Bool
 positive ( Literal v ) = 0 < v
 
+{-# INLINE positive #-}
