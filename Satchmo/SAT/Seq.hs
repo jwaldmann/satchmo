@@ -14,19 +14,29 @@ import Satchmo.Data
 import Satchmo.MonadSAT
 
 import Control.Exception
-import Control.Monad.Writer.Strict
-import Control.Monad.State.Strict
 
+import Control.Monad.RWS.Strict
+-- import Control.Monad.RWS.Lazy
+
+import qualified Data.Sequence as S
+
+-- import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as BS
+
+import Data.Foldable
 import Data.String
 
 newtype SAT a 
-      = SAT { unSAT :: WriterT BS.ByteString
-                       ( State Header ) a
+      = SAT { unSAT :: -- WriterT BS.ByteString ( StateT Header Identity ) 
+                       -- StateT Header ( WriterT BS.ByteString Identity )
+                       -- RWS () BS.ByteString Header
+                       RWS () ( S.Seq BS.ByteString ) Header
+                       a
             } 
       deriving ( Functor, Monad
                , MonadState Header
-               , MonadWriter BS.ByteString ) 
+               , MonadWriter ( S.Seq BS.ByteString )
+               )
 
 
 instance MonadSAT SAT where
@@ -38,8 +48,8 @@ instance MonadSAT SAT where
   emit cl = do
       a <- get
       put $ a { numClauses = succ $ numClauses a }
-      tell $ fromString $ show  cl 
-      tell $ fromString "\n"
+      tell $ S.singleton $ fromString $ show  cl 
+      tell $ S.singleton $ fromString "\n" 
 
      
 start :: Header
@@ -50,8 +60,9 @@ start = Header { numClauses = 0, numVars = 0
 
 sat :: SAT a -> IO (BS.ByteString, Header, a )
 sat (SAT m) = do
-    let ((res,bs),accu) = 
-            runState (runWriterT m) start
-    return ( bs, accu, res )
+    let -- ((res,bs),accu) = runState (runWriterT m) start
+        -- ((res,accu),bs) = runWriter ( runStateT m  start )
+        (res, accu, bs) = runRWS m () start 
+    return ( fold bs , accu, res )
 
 

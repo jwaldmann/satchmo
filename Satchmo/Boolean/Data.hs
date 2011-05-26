@@ -26,10 +26,10 @@ import Data.List ( partition )
 import Control.Monad.Reader
 
 data Boolean = Boolean
-             { encode :: Literal
-             , decode :: C.Decoder Bool
+             { encode :: ! Literal
+             , decode :: ! ( C.Decoder Bool )
              }
-     | Constant { value :: Bool }
+     | Constant { value :: ! Bool }
 
 {-
 
@@ -70,6 +70,7 @@ instance C.Decode Boolean Bool where
 
 boolean :: MonadSAT m => m Boolean
 boolean = exists
+{-# INLINABLE boolean #-}
 
 exists :: MonadSAT m => m Boolean
 exists = do
@@ -93,6 +94,7 @@ forall = do
 constant :: MonadSAT m => Bool -> m Boolean
 constant v = do
     return $ Constant { value = v } 
+{-# INLINABLE constant #-}
 
 not :: Boolean -> Boolean
 not b = case b of
@@ -101,13 +103,14 @@ not b = case b of
       , decode = do x <- decode b ; return $ Prelude.not x
       }
     Constant {} -> Constant { value = Prelude.not $ value b }
-
+{-# INLINABLE not #-}
 
 assert :: MonadSAT m => [ Boolean ] -> m ()
 assert bs = do
     let ( con, uncon ) = partition isConstant bs
     let cval = Prelude.or $ map value con
     when ( Prelude.not cval ) $ emit $ clause $ map encode uncon
+{-# INLINABLE assert #-}
 
 assertW :: MonadSAT m => Weight -> [ Boolean ] -> m ()
 assertW w bs = do
@@ -121,4 +124,4 @@ monadic :: Monad m
 monadic f ms = do
     xs <- sequence ms
     f xs
-
+{-# INLINABLE monadic #-}
