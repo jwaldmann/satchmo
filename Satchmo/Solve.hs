@@ -15,7 +15,9 @@ import Satchmo.Code
 import Satchmo.SAT
 import qualified Satchmo.SAT.Weighted as Weighted
 
-import qualified Data.ByteString.Lazy.Char8 as BS
+-- import qualified Data.ByteString.Lazy.Char8 as BS
+import qualified Data.ByteString.Char8 as BS
+
 import Data.Map ( Map )
 import qualified Data.Map as M
 import Data.Array

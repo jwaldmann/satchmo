@@ -16,17 +16,25 @@ import Satchmo.MonadSAT
 import Control.Exception
 import Control.Monad.RWS.Strict
 import qualified  Data.Set as Set
-import qualified Data.ByteString.Lazy.Char8 as BS
+
+-- import qualified Data.ByteString.Lazy.Char8 as BS
+import qualified Data.ByteString.Char8 as BS
+
 import System.Directory
 import System.Environment
 import System.IO
 
+import qualified Data.Map as M
+
+import Data.List ( sortBy )
+import Data.Ord ( comparing )
 
 instance MonadSAT SAT where
   fresh = satfresh
   fresh_forall = satfresh_forall
   emit    = satemit
   emitW _ _ = return ()
+  note msg = do a <- get ; put $ a { notes = msg : notes a }
 
 -- ---------------
 -- Implementation
@@ -36,6 +44,8 @@ data Accu = Accu
           { next :: ! Int
           , universal :: [Int]
           , size :: ! Int
+          , notes :: ! [ String ]
+          , census :: ! ( M.Map Int Int )
           }
 
 start :: Accu
@@ -43,6 +53,8 @@ start = Accu
       { next = 1
       , universal = []
       , size = 0
+      , notes = [ "Satchmo.SAT.Tmpfile implementation" ]
+      , census = M.empty          
       }
 
 newtype SAT a = SAT {unsat::RWST Handle () Accu IO a}
@@ -58,6 +70,14 @@ sat (SAT m) =
        hSetBuffering h (BlockBuffering Nothing)
        ~(a, accu, _) <- runRWST m h start
        hClose h
+       
+       forM ( reverse $ notes accu ) $ hPutStrLn stderr 
+       hPutStrLn stderr $ unlines 
+           [ "(clause length, frequency)"
+           , show $ sortBy ( comparing ( negate . snd )) 
+                        $ M.toList $ census accu
+           ]  
+       
        let header = Header (size accu) (next accu - 1) universals
            universals = reverse $ universal accu
 
@@ -82,10 +102,12 @@ satfresh_forall = do
 
 satemit :: Clause -> SAT ()
 satemit clause = do
+    h <- ask ; liftIO $ hPutStrLn h $ show clause
     a <- get
-    tellSat (bshowClause clause)
+    -- tellSat (bshowClause clause)
     put $ a
         { size = size a + 1
+        , census = M.insertWith (+) (length $ literals clause) 1 $ census a         
         }
   where bshowClause c = BS.pack (show c) `mappend` BS.pack "\n"
 

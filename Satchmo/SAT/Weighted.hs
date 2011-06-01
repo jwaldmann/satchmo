@@ -8,7 +8,8 @@ import Control.Exception
 import Control.Monad.RWS.Strict
 import Data.Maybe
 import qualified  Data.Set as Set
-import qualified Data.ByteString.Lazy.Char8 as BS
+-- import qualified Data.ByteString.Lazy.Char8 as BS
+import qualified Data.ByteString.Char8 as BS
 import System.Directory
 import System.Environment
 import System.IO

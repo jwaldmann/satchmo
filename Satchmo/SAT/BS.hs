@@ -18,7 +18,8 @@ import Control.Exception
 import Control.Monad.RWS.Strict
 -- import Control.Monad.RWS.Lazy
 
-import qualified Data.ByteString.Lazy.Char8 as BS
+-- import qualified Data.ByteString.Lazy.Char8 as BS
+import qualified Data.ByteString.Char8 as BS
 
 import Data.Foldable
 import Data.String
@@ -47,7 +48,8 @@ instance MonadSAT SAT where
       a <- get
       put $ a { numClauses = succ $ numClauses a }
       tell $  fromString $ show  cl ++ "\n"
-
+  note msg = do
+      return ()
      
 start :: Header
 start = Header { numClauses = 0, numVars = 0

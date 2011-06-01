@@ -32,6 +32,8 @@ class (Functor m, Monad m) => MonadSAT m where
   emit  :: Clause -> m ()
   {-# INLINABLE emit #-}
   emitW :: Weight -> Clause -> m ()
+  -- | emit some note (could be printed by the backend)
+  note :: String -> m ()
 
 type NumClauses = Integer
 type NumVars    = Integer
