@@ -71,8 +71,34 @@ compare' [] ys = do
 
 full_adder :: (MonadSAT m) 
            => Boolean -> Boolean -> Boolean
-           -> m ( Boolean, Boolean )
-full_adder p1 p2 p3 = do
+           -> m ( Boolean , Boolean ) -- ^ (result, carry)
+full_adder = full_adder_1
+
+full_adder_1 p1 p2 p3 = do
+    p4 <- boolean ; p5 <- boolean
+    assert [not p1, not p2, p5]
+    assert [not p1, not p3, p5]
+    assert [not p1, p4, p5]
+    assert [p1, p2, not p5]
+    assert [p1, p3, not p5]
+    assert [p1, not p4, not p5]
+    assert [not p2, not p3, p5]
+    assert [not p2, p4, p5]
+    assert [p2, p3, not p5]
+    assert [p2, not p4, not p5]
+    assert [not p3, p4, p5]
+    assert [p3, not p4, not p5]
+    assert [not p1, not p2, not p3, p4]
+    assert [not p1, not p2, p3, not p4]
+    assert [not p1, p2, not p3, not p4]
+    assert [not p1, p2, p3, p4]
+    assert [p1, not p2, not p3, not p4]
+    assert [p1, not p2, p3, p4]
+    assert [p1, p2, not p3, p4]
+    assert [p1, p2, p3, not p4]
+    return ( p4, p5 )
+       
+full_adder_0 p1 p2 p3 = do
     p4 <- boolean ; p5 <- boolean
     assert [not p2,p4,p5]
     assert [p2,not p4,not p5]
@@ -94,8 +120,24 @@ full_adder_plain a b c = do
 
 half_adder :: (MonadSAT m) 
            => Boolean -> Boolean 
-           -> m ( Boolean, Boolean )
-half_adder p1 p2 = do
+           -> m ( Boolean, Boolean ) -- ^ (result, carry)
+half_adder = half_adder_1
+
+half_adder_1 p1 p2 = do
+    p3 <- boolean ; p4 <- boolean
+    assert [p1, not p4]
+    assert [p2, not p4]
+    assert [not p3, not p4]
+    assert [not p1, not p2, not p3]
+    assert [not p1, not p2, p4]
+    assert [not p1, p2, p3]
+    assert [not p1, p3, p4]
+    assert [p1, not p2, p3]
+    assert [p1, p2, not p3]
+    assert [not p2, p3, p4]
+    return (p3,p4)
+
+half_adder_0 p1 p2 = do
     p3 <- boolean ; p4 <- boolean
     assert [not p2,p3,p4]
     assert [p2,not p4]
