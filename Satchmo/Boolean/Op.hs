@@ -85,6 +85,7 @@ fun3 f x y z = do
 xor2 :: MonadSAT m => Boolean -> Boolean -> m Boolean
 {-# specialize inline  xor2 :: Boolean -> Boolean -> SAT Boolean #-}
 xor2 = fun2 (/=)
+-- xor2 = xor2_orig
 
 -- for historic reasons:
 xor2_orig :: MonadSAT m => Boolean -> Boolean -> m Boolean
