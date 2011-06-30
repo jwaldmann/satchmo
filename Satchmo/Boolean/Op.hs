@@ -3,6 +3,7 @@ module Satchmo.Boolean.Op
 ( constant
 , and, or, xor
 , fun2, fun3
+, assert_fun2, assert_fun3
 , monadic
 )
 
@@ -17,7 +18,7 @@ import Satchmo.Boolean.Data
 
 import Satchmo.SAT ( SAT) -- for specializations
 
-import Control.Monad ( foldM )
+import Control.Monad ( foldM, when )
 
 and :: MonadSAT m => [ Boolean ] -> m Boolean
 {-# specialize inline and :: [ Boolean ] -> SAT Boolean #-}
@@ -62,6 +63,19 @@ fun2 f x y = do
             [ pack a x, pack b y, pack (Prelude.not $ f a b) r ]
     return r
 
+assert_fun2 :: MonadSAT m => 
+        ( Bool -> Bool -> Bool )
+     -> Boolean -> Boolean 
+     -> m ()
+{-# specialize inline assert_fun2 :: (Bool -> Bool -> Bool) -> Boolean -> Boolean -> SAT () #-}
+assert_fun2 f x y = sequence_ $ do
+        a <- [ False, True ]
+        b <- [ False, True ]
+        let pack flag var = if flag then not var else var
+        return $ when ( Prelude.not $ f a b ) $ assert 
+            [ pack a x, pack b y ]
+     
+
 -- | implement the function by giving a full CNF
 -- that determines the outcome
 fun3 :: MonadSAT m => 
@@ -81,6 +95,20 @@ fun3 f x y z = do
             , pack (Prelude.not $ f a b c) r 
             ]
     return r
+
+assert_fun3 :: MonadSAT m => 
+        ( Bool -> Bool -> Bool -> Bool )
+     -> Boolean -> Boolean -> Boolean
+     -> m ()
+{-# specialize inline assert_fun3 :: (Bool -> Bool -> Bool -> Bool) -> Boolean -> Boolean -> Boolean -> SAT () #-}
+assert_fun3 f x y z = sequence_ $ do
+        a <- [ False, True ]
+        b <- [ False, True ]
+        c <- [ False, True ]
+        let pack flag var = if flag then not var else var
+        return $ when ( Prelude.not $ f a b c ) $ assert 
+            [ pack a x, pack b y, pack c z ]
+     
 
 xor2 :: MonadSAT m => Boolean -> Boolean -> m Boolean
 {-# specialize inline  xor2 :: Boolean -> Boolean -> SAT Boolean #-}
