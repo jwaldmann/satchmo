@@ -10,6 +10,7 @@ module Satchmo.Binary.Op.Fixed
 
 ( restricted
 , add, times
+, dot_product
 , module Satchmo.Binary.Data
 , module Satchmo.Binary.Op.Common
 )
@@ -26,6 +27,8 @@ import Satchmo.Binary.Op.Common
 import qualified Satchmo.Binary.Op.Flexible as Flexible
 
 import Satchmo.Counting
+
+import Control.Monad ( forM, when )
 
 import Data.Map ( Map )
 import qualified Data.Map as M
@@ -89,10 +92,32 @@ restricted_times w a b = case bits a of
         s <- Flexible.add xys xsys
         restricted w s
 
+-- | this is used in matrix multiplication,
+-- so we try to provide an optimized implementation here.
+-- argument vectors must have equal length
+dot_product :: ( MonadSAT m )
+            => Int -- ^ result bit width
+            -> [ Number ] 
+            -> [ Number ] 
+            -> m Number
+dot_product w xs ys = do
+    when ( length xs /= length ys ) 
+         $ error "Satchmo.Binary.Op.Fixed.dot_product: vector lengths differ"
+    kzss <- forM ( zip xs ys ) $ \ (a,b) -> particles w a b
+    combine w $ concat kzss
+
+combine w kzs = do
+    zs <- reduce $ take w
+                 $ M.elems $ M.fromListWith (++) kzs
+    return $ make zs    
+
 -------------------------------------------------- 
 
 better_times w a b = do
-    kzs <- sequence $ do
+    kzs <- particles w a b
+    combine w kzs
+
+particles w a b = sequence $ do
           ( i , x ) <- zip [ 0 .. ] $ bits a
           ( j , y ) <- zip [ 0 .. ] $ bits b
           return $ 
@@ -103,10 +128,6 @@ better_times w a b = do
               else do 
                   z <- and [ x, y ]
                   return ( i+j , [z] ) 
-    zs <- reduce $ take w
-                 $ M.elems $ M.fromListWith (++) kzs
-    return $ make zs
-
 
 reduce ( ( x:y:z:ps) : qss ) = do
     ( r, c ) <- full_adder x y z

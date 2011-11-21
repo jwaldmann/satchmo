@@ -15,8 +15,8 @@ import Data.Array
 import Control.Monad.Reader
 
 
+{-# INLINABLE decode #-}
 class Decode c a where 
-    {-# INLINABLE decode #-}
     decode :: c -> Decoder a
 
 -- type Decoder a = Reader ( Map Variable Bool ) a
