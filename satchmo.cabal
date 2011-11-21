@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        1.8.1
+Version:        1.10.0
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -17,6 +17,7 @@ cabal-version:  >= 1.6
 build-type: Simple
 
 Library
+    ghc-options: -funbox-strict-fields
     Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory
     Exposed-modules:
         Satchmo.Data
@@ -24,13 +25,17 @@ Library
         Satchmo.Boolean
         Satchmo.Counting
         Satchmo.Code
-        Satchmo.Binary
         Satchmo.Integer
+        Satchmo.Binary
         Satchmo.Binary.Op.Common
         Satchmo.Binary.Op.Fixed
         Satchmo.Binary.Op.Flexible
         Satchmo.BinaryTwosComplement.Op.Fixed
         Satchmo.BinaryTwosComplement
+        Satchmo.Unary
+        Satchmo.Unary.Op.Common
+        Satchmo.Unary.Op.Fixed
+        Satchmo.Unary.Op.Flexible
         Satchmo.Polynomial
         Satchmo.PolynomialN
         Satchmo.PolynomialSOS
@@ -40,6 +45,10 @@ Library
         Satchmo.Relation.Prop
         Satchmo.MonadSAT
         Satchmo.SAT
+        Satchmo.SAT.Tmpfile
+        Satchmo.SAT.BS
+        Satchmo.SAT.Seq
+        Satchmo.SAT.Sequence
         Satchmo.Simple
         Satchmo.SAT.Weighted
         Satchmo.Numeric
@@ -51,6 +60,7 @@ Library
         Satchmo.Binary.Data
         Satchmo.BinaryTwosComplement.Data
         Satchmo.BinaryTwosComplement.Op.Common
+        Satchmo.Unary.Data
         Satchmo.Integer.Data
         Satchmo.Boolean.Op
         Satchmo.Integer.Op

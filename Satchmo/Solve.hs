@@ -15,23 +15,25 @@ import Satchmo.Code
 import Satchmo.SAT
 import qualified Satchmo.SAT.Weighted as Weighted
 
-import qualified Data.ByteString.Lazy.Char8 as BS
+-- import qualified Data.ByteString.Lazy.Char8 as BS
+import qualified Data.ByteString.Char8 as BS
+
 import Data.Map ( Map )
 import qualified Data.Map as M
-
+import Data.Array
 import Control.Monad.Reader
 
 import System.IO
 
 type Implementation = BS.ByteString 
                     -> Header 
-                    -> IO ( Maybe ( Map Variable Bool ) )
+                    -> IO ( Maybe ( Array Variable Bool ) )
 
 type WeightedImplementation = BS.ByteString 
-                            -> Weighted.Header 
-                            -> IO ( Maybe ( Map Variable Bool ) )
+    -> Weighted.Header 
+    -> IO ( Maybe ( Array Variable Bool ) )
 
-solve :: Implementation 
+solve :: Implementation
       -> SAT ( Decoder a ) 
       -> IO ( Maybe a )
 solve implementation build = do

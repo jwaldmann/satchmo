@@ -5,6 +5,7 @@
 module Satchmo.MonadSAT
 
 ( MonadSAT(..), Weight
+, Header (..)                
 )
 
 where
@@ -25,11 +26,24 @@ import Data.Monoid
 
 type Weight = Int
 
+{-# INLINABLE fresh #-}
+{-# INLINABLE emit #-}
+
 class (Functor m, Monad m) => MonadSAT m where
   fresh, fresh_forall :: m Literal
   emit  :: Clause -> m ()
   emitW :: Weight -> Clause -> m ()
+  -- | emit some note (could be printed by the backend)
+  note :: String -> m ()
 
+type NumClauses = Integer
+type NumVars    = Integer
+
+data Header = 
+     Header { numClauses, numVars :: ! Int
+            , universals :: ! [Int]
+                     }
+     deriving Show
 
 -- -------------------------------------------------------
 -- MonadSAT liftings for standard monad transformers
