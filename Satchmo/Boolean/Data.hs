@@ -1,12 +1,16 @@
 {-# language MultiParamTypeClasses #-}
+{-# language TypeSynonymInstances #-}
+{-# language FlexibleInstances #-}
+{-# language NoMonomorphismRestriction #-}
 
 module Satchmo.Boolean.Data
 
-( Boolean(Constant), Booleans, encode
+( Boolean(..), Booleans, encode
 , boolean, exists, forall
 , constant
 , not, monadic
-, assertOr, assertOrW, assertAnd, assertAndW
+, assertOr -- , assertOrW
+, assertAnd -- , assertAndW
 , assert -- for legacy code
 )
 
@@ -20,7 +24,7 @@ import qualified Satchmo.Code as C
 import Satchmo.Data
 import Satchmo.MonadSAT
 
-import Satchmo.SAT (SAT) -- for specializations
+
 
 import Data.Array
 import Data.Maybe ( fromJust )
@@ -28,11 +32,9 @@ import Data.List ( partition )
 
 import Control.Monad.Reader
 
-data Boolean = Boolean
-             { encode :: ! Literal
-             -- , decode :: ! ( C.Decoder Bool )
-             }
+data Boolean = Boolean { encode :: Literal }
      | Constant { value :: ! Bool }
+
 
 {-
 
@@ -66,21 +68,11 @@ isConstant :: Boolean -> Bool
 isConstant ( Constant {} ) = True
 isConstant _ = False
 
-instance C.Decode Boolean Bool where 
-    decode b = case b of
-        -- Boolean {} -> decode b
-        Boolean {} -> asks $ \ arr -> 
-              let x = encode b
-              in  positive x == arr ! ( variable x )
-        Constant {} -> return $ value b
 
-boolean :: MonadSAT m => m Boolean
+boolean :: MonadSAT m => m ( Boolean )
 boolean = exists
-{-# INLINABLE boolean #-}
-{-# specialize inline boolean :: SAT Boolean #-}
 
-exists :: MonadSAT m => m Boolean
-{-# specialize inline exists :: SAT Boolean #-}
+exists :: MonadSAT m => m ( Boolean )
 exists = do
     x <- fresh
     return $ Boolean 
@@ -93,8 +85,7 @@ exists = do
 -}
            }
 
-forall :: MonadSAT m => m Boolean
-{-# specialize inline forall :: SAT Boolean #-}
+forall :: MonadSAT m => m ( Boolean )
 forall = do
     x <- fresh_forall
     return $ Boolean 
@@ -102,13 +93,12 @@ forall = do
 --           , decode = error "Boolean.forall cannot be decoded"
            }
 
-constant :: MonadSAT m => Bool -> m Boolean
-{-# specialize inline constant :: Bool -> SAT Boolean #-}
+constant :: MonadSAT m => Bool -> m (Boolean)
 constant v = do
     return $ Constant { value = v } 
 {-# INLINABLE constant #-}
 
-not :: Boolean -> Boolean
+-- not :: Boolean -> Boolean
 not b = case b of
     Boolean {} -> Boolean 
       { encode = nicht $ encode b
@@ -117,18 +107,20 @@ not b = case b of
     Constant {} -> Constant { value = Prelude.not $ value b }
 {-# INLINABLE not #-}
 
-assertOr, assertAnd :: MonadSAT m => [ Boolean ] -> m ()
+-- assertOr, assertAnd :: MonadSAT m => [ Boolean (Literal m ) ] -> m ()
 assertOr = assert
 
 assert :: MonadSAT m => [ Boolean ] -> m ()
-{-# specialize inline assert :: [ Boolean ] -> SAT () #-}
 assert bs = do
     let ( con, uncon ) = partition isConstant bs
     let cval = Prelude.or $ map value con
     when ( Prelude.not cval ) $ emit $ clause $ map encode uncon
 {-# INLINABLE assert #-}
 
+-- assertAnd :: MonadSAT m => [ Boolean ] -> m ()
 assertAnd bs = forM_ bs $ assertOr . return
+
+{-
 
 assertOrW, assertAndW :: MonadSAT m => Weight -> [ Boolean ] -> m ()
 assertOrW w bs = do
@@ -138,11 +130,12 @@ assertOrW w bs = do
 
 assertAndW w bs = forM_ bs $ assertOrW w . return
 
+-}
+
 monadic :: Monad m
         => ( [ a ] -> m b )
         -> ( [ m a ] -> m b )
-{-# specialize inline monadic :: ([a] -> SAT b) -> [SAT a] -> SAT b #-}        
 monadic f ms = do
     xs <- sequence ms
     f xs
-{-# INLINABLE monadic #-}
+

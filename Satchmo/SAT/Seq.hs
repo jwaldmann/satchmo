@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Satchmo.SAT.Seq
 
@@ -11,6 +12,7 @@ module Satchmo.SAT.Seq
 where
 
 import Satchmo.Data
+import qualified Satchmo.Data.Default as D
 import Satchmo.MonadSAT
 
 import Control.Exception
@@ -42,6 +44,7 @@ newtype SAT a
 
 
 instance MonadSAT SAT where
+  type Literal SAT = D.Literal
   note msg = do return ()
   fresh = do 
       a <- get 

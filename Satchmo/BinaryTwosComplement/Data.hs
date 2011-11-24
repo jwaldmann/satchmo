@@ -1,4 +1,4 @@
-{-# language MultiParamTypeClasses #-}
+{-# language MultiParamTypeClasses, FlexibleInstances, FlexibleContexts, UndecidableInstances #-}
 
 module Satchmo.BinaryTwosComplement.Data
     ( Number, bits, fromBooleans, number, toUnsigned, fromUnsigned
@@ -17,18 +17,16 @@ import Debug.Trace
 
 data Number = Number 
             { bits :: [Boolean] -- LSB first
-            , decode :: C.Decoder Integer
             }
 
-instance C.Decode Number Integer where
-    decode = decode
+
+instance C.Decode m Boolean Bool => C.Decode m Number Integer where
+    decode n = do bs <- C.decode $ bits n ; return $ fromBinary bs
 
 -- | Make a number from its binary representation
 fromBooleans :: [Boolean] -> Number
-fromBooleans xs = 
-    let decodeToInteger = fromBinary <$> mapM C.decode xs
-    in 
-      Number xs decodeToInteger
+fromBooleans xs = Number xs
+
 
 -- | Convert to unsigned number (see "Satchmo.Binary.Op.Flexible")
 toUnsigned :: Number -> B.Number

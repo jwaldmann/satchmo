@@ -1,4 +1,4 @@
-{-# language MultiParamTypeClasses #-}
+{-# language MultiParamTypeClasses, FlexibleInstances #-}
 
 module Satchmo.Polynomial.Numeric where
 
@@ -10,7 +10,7 @@ import Control.Monad ( forM )
 
 data Poly a = Poly [a] deriving Show
 
-instance Decode a b => Decode ( Poly a ) ( Poly b ) where
+instance Decode m a b => Decode m ( Poly a ) ( Poly b ) where
     decode ( Poly xs ) = do
         ys <- forM xs decode
         return $ Poly ys

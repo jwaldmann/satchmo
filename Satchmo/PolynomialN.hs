@@ -25,12 +25,12 @@ type NumMonomial = Monomial F.Number
 data PolynomialN a  = PolynomialN [Monomial a] deriving (Show)
 type NumPolynomialN = PolynomialN F.Number
 
-instance Decode a Integer => Decode (Monomial a) (Monomial Integer) where
+instance Decode m a Integer => Decode m (Monomial a) (Monomial Integer) where
     decode (Monomial (coeff,vars)) = do
       decodedCoeff <- decode coeff
       return $ Monomial (decodedCoeff,vars)
 
-instance Decode a Integer => Decode (PolynomialN a) (PolynomialN Integer) where
+instance Decode m a Integer => Decode m (PolynomialN a) (PolynomialN Integer) where
     decode (PolynomialN monomials) = do
         decodedMonomials <- forM monomials decode
         return $ PolynomialN decodedMonomials

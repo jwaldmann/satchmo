@@ -1,4 +1,7 @@
 {-# language MultiParamTypeClasses #-}
+{-# language FlexibleInstances #-}
+{-# language FlexibleContexts #-}
+{-# language UndecidableInstances #-}
 
 module Satchmo.Unary.Data 
        
@@ -22,7 +25,7 @@ data Number = Number
             -- number of 1 is value of number  
             }  
             
-instance C.Decode Number Int where            
+instance C.Decode m Boolean Bool => C.Decode m Number Int where            
     decode n = do
         bs <- forM ( bits n ) C.decode
         return $ length $ filter id bs
@@ -31,17 +34,17 @@ width :: Number -> Int
 width n = length $ bits n
 
 -- | declare a number with range (0, w)
-number :: MonadSAT m => Int -> m Number
+number :: MonadSAT m => Int -> m  Number 
 number w = do
     xs <- sequence $ replicate w boolean
     forM ( zip xs $ tail xs ) $ \ (p, q) ->
         assert [ p, not q ]
     return $ make xs
     
-make :: [ Boolean ] -> Number
+make :: [ Boolean ] -> Number 
 make xs = Number { bits = xs }
 
-constant :: MonadSAT m => Integer -> m Number
+constant :: MonadSAT m => Integer -> m Number 
 constant k = do
     xs <- forM [ 1 .. k ] $ \ i -> B.constant True
     return $ make xs

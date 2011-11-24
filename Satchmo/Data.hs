@@ -1,62 +1,50 @@
+{-# language TypeFamilies #-}
+
 module Satchmo.Data 
 
 ( CNF, cnf, clauses
 -- FIXME: exports should be abstract
 , Clause(..), clause, literals
-, Literal(..), literal, nicht
-, Variable, variable, positive
+, Literal (..), nicht, positive, variable
+, Variable 
 )
 
 where
 
 import Control.Monad.State.Strict
 
-newtype CNF     = CNF { clauses :: [ Clause  ] }
+type Variable = Int
 
-instance Show CNF where
+type Literal =  Int -- variable multiplied by polarity
+
+
+literal :: Bool -> Variable -> Literal
+literal pos v  | v > 0  = if pos then v else negate v 
+
+nicht :: Literal -> Literal 
+nicht x = negate x
+
+positive :: Literal -> Bool
+positive x = x > 0
+
+variable :: Literal -> Variable
+variable l = abs l
+
+newtype CNF     = CNF { clauses :: [ Clause ] }
+
+instance Show ( CNF  ) where
     show ( CNF cs ) = unlines $ map show cs
 
-cnf :: [ Clause ] -> CNF
+cnf :: [ Clause ] -> CNF 
 cnf cs = CNF cs
 
 
-newtype Clause  = Clause { literals :: [ Literal ] }
+newtype Clause = Clause { literals :: [ Literal ] }
 
-instance Show Clause where
+instance Show ( Clause ) where
     show ( Clause xs ) = unwords ( map show xs ++ [ "0" ] )
 
-clause :: [ Literal ] -> Clause
+clause ::  [ Literal ] -> Clause 
 clause ls = Clause { literals = ls }
 
 
-newtype Literal = Literal Int
-    deriving ( Eq, Ord )
-
-instance Show Literal where 
-    show ( Literal i ) = show i
-
-instance Read Literal where
-    readsPrec p = \ cs -> do
-        ( i, cs') <- readsPrec p cs
-        return ( Literal i , cs' )
-
-literal :: Bool -> Variable -> Literal
-literal p v | v /= 0 = 
-    Literal $ if p then v else negate v
-{-# INLINE literal #-}
-
-nicht :: Literal -> Literal
-nicht ( Literal i ) = Literal $ negate i
-{-# INLINE nicht #-}
-
--- FIXME: should be newtype
-type Variable = Int
-
-variable :: Literal -> Variable
-variable ( Literal v ) = abs v
-{-# INLINE variable #-}
-
-positive :: Literal -> Bool
-positive ( Literal v ) = 0 < v
-
-{-# INLINE positive #-}

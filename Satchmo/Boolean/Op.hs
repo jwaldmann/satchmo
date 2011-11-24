@@ -17,12 +17,12 @@ import Satchmo.MonadSAT
 import Satchmo.Code
 import Satchmo.Boolean.Data
 
-import Satchmo.SAT ( SAT) -- for specializations
+-- import Satchmo.SAT ( SAT) -- for specializations
 
 import Control.Monad ( foldM, when )
 
 and :: MonadSAT m => [ Boolean ] -> m Boolean
-{-# specialize inline and :: [ Boolean ] -> SAT Boolean #-}
+
 and [] = constant True
 and [x]= return x
 and xs = do
@@ -34,7 +34,6 @@ and xs = do
     return y
 
 or :: MonadSAT m => [ Boolean ] -> m Boolean
-{-# specialize inline or :: [ Boolean ] -> SAT Boolean #-}
 or [] = constant False
 or [x]= return x
 or xs = do
@@ -42,7 +41,6 @@ or xs = do
     return $ not y
 
 xor :: MonadSAT m => [ Boolean ] -> m Boolean
-{-# specialize inline xor :: [ Boolean ] -> SAT Boolean #-}
 xor [] = constant False
 xor (x:xs) = foldM xor2 x xs
 
@@ -75,7 +73,6 @@ fun2 :: MonadSAT m =>
         ( Bool -> Bool -> Bool )
      -> Boolean -> Boolean 
      -> m Boolean
-{-# specialize inline fun2 :: (Bool -> Bool -> Bool) -> Boolean -> Boolean -> SAT Boolean #-}
 fun2 f x y = do
     r <- boolean
     sequence_ $ do
@@ -90,7 +87,6 @@ assert_fun2 :: MonadSAT m =>
         ( Bool -> Bool -> Bool )
      -> Boolean -> Boolean 
      -> m ()
-{-# specialize inline assert_fun2 :: (Bool -> Bool -> Bool) -> Boolean -> Boolean -> SAT () #-}
 assert_fun2 f x y = sequence_ $ do
         a <- [ False, True ]
         b <- [ False, True ]
@@ -105,7 +101,6 @@ fun3 :: MonadSAT m =>
         ( Bool -> Bool -> Bool -> Bool )
      -> Boolean -> Boolean -> Boolean
      -> m Boolean
-{-# specialize inline fun3 :: (Bool -> Bool -> Bool -> Bool) -> Boolean -> Boolean -> Boolean -> SAT Boolean #-}
 fun3 f x y z = do
     r <- boolean
     sequence_ $ do
@@ -123,7 +118,6 @@ assert_fun3 :: MonadSAT m =>
         ( Bool -> Bool -> Bool -> Bool )
      -> Boolean -> Boolean -> Boolean
      -> m ()
-{-# specialize inline assert_fun3 :: (Bool -> Bool -> Bool -> Bool) -> Boolean -> Boolean -> Boolean -> SAT () #-}
 assert_fun3 f x y z = sequence_ $ do
         a <- [ False, True ]
         b <- [ False, True ]
@@ -134,7 +128,6 @@ assert_fun3 f x y z = sequence_ $ do
      
 
 xor2 :: MonadSAT m => Boolean -> Boolean -> m Boolean
-{-# specialize inline  xor2 :: Boolean -> Boolean -> SAT Boolean #-}
 xor2 = fun2 (/=)
 -- xor2 = xor2_orig
 

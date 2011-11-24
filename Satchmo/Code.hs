@@ -1,9 +1,10 @@
-{-# language MultiParamTypeClasses, FunctionalDependencies, UndecidableInstances #-}
+{-# language MultiParamTypeClasses, FunctionalDependencies #-}
+{-# language FlexibleInstances, UndecidableInstances, FlexibleContexts #-}
 
 module Satchmo.Code 
 
 ( Decode (..)
-, Decoder
+-- , Decoder
 )
 
 where
@@ -16,26 +17,26 @@ import Control.Monad.Reader
 
 
 {-# INLINABLE decode #-}
-class Decode c a where 
-    decode :: c -> Decoder a
+class Monad m => Decode m c a where 
+    decode :: c -> m a
 
 -- type Decoder a = Reader ( Map Variable Bool ) a
-type Decoder a = Reader ( Array Variable Bool ) a
+-- type Decoder a = Reader ( Array Variable Bool ) a
 
-instance Decode () () where
+instance Monad m => Decode m () () where
     decode () = return ()
 
-instance ( Decode c a, Decode d b ) => Decode ( c,d) (a,b) where
+instance (  Decode m c a, Decode m d b ) => Decode m ( c,d) (a,b) where
     decode (c,d) = do a <- decode c; b <- decode d; return ( a,b)
 
-instance ( Decode c a ) => Decode [c] [a] where
+instance (  Decode m c a ) => Decode m [c] [a] where
     decode = mapM decode 
 
-instance Decode a b => Decode ( Maybe a ) ( Maybe b ) where
-    decode ( Just b ) = fmap Just $ decode b
+instance Decode m a b => Decode m ( Maybe a ) ( Maybe b ) where
+    decode ( Just b ) = do a <- decode b ; return $ Just a
     decode Nothing = return $ Nothing
 
-instance (Ix i, Decode c a) => Decode ( Array i c) ( Array i a ) where
+instance (Ix i, Decode m c a) => Decode m ( Array i c) ( Array i a ) where
     decode x = do
         pairs <- sequence $ do
             (i,e) <- assocs x

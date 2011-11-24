@@ -1,4 +1,4 @@
-{-# language FlexibleInstances, MultiParamTypeClasses #-}
+{-# language FlexibleInstances, MultiParamTypeClasses, FlexibleContexts #-}
 
 module Satchmo.Relation.Data
 
@@ -48,7 +48,8 @@ assocs ( Relation r ) = A.assocs r
 
 Relation r ! p = r A.! p
 
-instance (Ix a, Ix b) => Decode ( Relation a b ) ( Array (a,b) Bool ) where
+instance (Ix a, Ix b, Decode m Boolean Bool) 
+    => Decode m  ( Relation a b ) ( Array (a,b) Bool ) where
     decode ( Relation r ) = do
         decode r
 

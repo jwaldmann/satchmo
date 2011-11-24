@@ -1,4 +1,4 @@
-{-# language MultiParamTypeClasses, FlexibleContexts #-}
+{-# language MultiParamTypeClasses, FlexibleContexts, FlexibleInstances #-}
 
 module Satchmo.Integer.Difference where
 
@@ -7,8 +7,8 @@ import Satchmo.Numeric
 
 data Number a = Difference { top :: a, bot :: a }
 
-instance Decode a Integer 
-         => Decode ( Number a ) Integer where
+instance Decode m a Integer 
+         => Decode m ( Number a ) Integer where
     decode n = do
         t <- decode $ top n
         b <- decode $ bot n

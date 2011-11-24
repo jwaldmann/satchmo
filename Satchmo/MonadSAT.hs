@@ -1,6 +1,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts, FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
+
 
 module Satchmo.MonadSAT
 
@@ -11,6 +13,7 @@ module Satchmo.MonadSAT
 where
 
 import Satchmo.Data
+import Satchmo.Code
 
 import Control.Monad.Trans (lift)
 import Control.Monad.Cont  (ContT)
@@ -29,12 +32,21 @@ type Weight = Int
 {-# INLINABLE fresh #-}
 {-# INLINABLE emit #-}
 
+
+
+
 class (Functor m, Monad m) => MonadSAT m where
-  fresh, fresh_forall :: m Literal
-  emit  :: Clause -> m ()
-  emitW :: Weight -> Clause -> m ()
+  fresh, fresh_forall :: m  Literal
+
+  emit  :: Clause  -> m ()
+  -- emitW :: Weight -> Clause (Literal m) -> m ()
+
   -- | emit some note (could be printed by the backend)
   note :: String -> m ()
+
+  type Decoder m :: * -> * 
+  decode_variable :: Variable -> Decoder m Bool
+
 
 type NumClauses = Integer
 type NumVars    = Integer
@@ -44,6 +56,8 @@ data Header =
             , universals :: ! [Int]
                      }
      deriving Show
+
+{-
 
 -- -------------------------------------------------------
 -- MonadSAT liftings for standard monad transformers
@@ -102,3 +116,5 @@ instance (Monad m, MonadSAT m) => MonadSAT (ContT s m) where
   fresh_forall = lift fresh_forall
   emit  = lift . emit
   emitW = (lift.) . emitW
+
+-}

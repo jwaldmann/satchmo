@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Satchmo.SAT.BS
 
@@ -11,6 +12,7 @@ module Satchmo.SAT.BS
 where
 
 import Satchmo.Data
+import qualified Satchmo.Data.Default as D
 import Satchmo.MonadSAT
 
 import Control.Exception
@@ -39,6 +41,7 @@ newtype SAT a
 
 
 instance MonadSAT SAT where
+  type Literal SAT = D.Literal
   fresh = do 
       a <- get 
       let v = numVars a

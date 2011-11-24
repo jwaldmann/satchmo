@@ -1,4 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
 module Satchmo.SAT.Tmpfile
 
@@ -11,6 +14,9 @@ module Satchmo.SAT.Tmpfile
 where
 
 import Satchmo.Data
+import Satchmo.Code
+import Satchmo.Boolean
+import Satchmo.Boolean.Data
 import Satchmo.MonadSAT
 
 import Control.Exception
@@ -28,13 +34,48 @@ import qualified Data.Map as M
 
 import Data.List ( sortBy )
 import Data.Ord ( comparing )
+import Data.Array
+import Control.Monad.Reader
+
+instance Decode (Reader (Array Variable Bool)) Boolean Bool where
+    decode b = case b of
+        Constant c -> return c
+        Boolean l -> asks $ \ arr -> positive l == arr ! variable l 
 
 instance MonadSAT SAT where
-  fresh = satfresh
-  fresh_forall = satfresh_forall
-  emit    = satemit
-  emitW _ _ = return ()
+  fresh = do
+    a <- get
+    let n = next a
+    put $ a { next = n + 1 }
+    return $ n
+  fresh_forall = do
+    a <- get
+    let n = next a
+    put $ a { next = n + 1, universal = n : universal a }
+    return $ n
+  emit clause = do
+    h <- ask 
+    liftIO $ hPutStrLn h $ show clause
+    a <- get
+    -- bshowClause c = BS.pack (show c) `mappend` BS.pack "\n"
+    -- tellSat (bshowClause clause)
+    put $ a
+        { size = size a + 1
+        , census = M.insertWith (+) (length $ literals clause) 1 $ census a 
+        }
+  -- emitW _ _ = return ()
+
   note msg = do a <- get ; put $ a { notes = msg : notes a }
+
+  type Decoder SAT = Reader (Array Int Bool) 
+  decode_variable v | v > 0 = asks $ \ arr ->  arr ! v
+
+{-
+    readsPrec p = \ cs -> do
+        ( i, cs') <- readsPrec p cs
+        return ( Literal i , cs' )
+-}
+
 
 -- ---------------
 -- Implementation
@@ -84,32 +125,6 @@ sat (SAT m) =
        bs <- BS.readFile fp
        return (bs, header, a))
 
--- | existentially quantified (implicitely so, before first fresh_forall)
-satfresh :: SAT Literal
-satfresh = do
-    a <- get
-    let n = next a
-    put $ a { next = n + 1 }
-    return $ literal True n
-
--- | universally quantified
-satfresh_forall :: SAT Literal
-satfresh_forall = do
-    a <- get
-    let n = next a
-    put $ a { next = n + 1, universal = n : universal a }
-    return $ literal True n
-
-satemit :: Clause -> SAT ()
-satemit clause = do
-    h <- ask ; liftIO $ hPutStrLn h $ show clause
-    a <- get
-    -- tellSat (bshowClause clause)
-    put $ a
-        { size = size a + 1
-        , census = M.insertWith (+) (length $ literals clause) 1 $ census a         
-        }
-  where bshowClause c = BS.pack (show c) `mappend` BS.pack "\n"
 
 
 tellSat x = do {h <- ask; liftIO $ BS.hPut h x}

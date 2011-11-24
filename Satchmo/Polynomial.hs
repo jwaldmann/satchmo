@@ -35,7 +35,7 @@ data Poly a = Poly [a] deriving ( Eq, Ord, Show )
 
 type NumPoly = Poly F.Number
 
-instance Decode a Integer => Decode (Poly a) (Poly Integer) where
+instance Decode m a Integer => Decode m (Poly a) (Poly Integer) where
     decode (Poly xs) = do
       decodedXs <- forM xs decode 
       return $ Poly decodedXs

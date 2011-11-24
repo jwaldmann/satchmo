@@ -1,4 +1,4 @@
-{-# language MultiParamTypeClasses #-}
+{-# language MultiParamTypeClasses, FlexibleInstances, FlexibleContexts, UndecidableInstances #-}
 
 module Satchmo.Integer.Data 
 
@@ -21,11 +21,10 @@ import Satchmo.Counting
 data Number = Number 
             { bits :: [ Boolean ] -- ^ lsb first,
 	         -- using two's complement
-            , decode :: C.Decoder Integer
             }
 
-instance C.Decode Number Integer where
-    decode = decode
+instance C.Decode m Boolean Bool => C.Decode m Number Integer where
+    decode n = do ys <- mapM C.decode (bits n) ; return $ fromBinary ys
 
 width :: Number -> Int
 width n = length $ bits n
@@ -39,7 +38,6 @@ number w = do
 make :: [ Boolean ] -> Number
 make xs = Number
            { bits = xs
-           , decode = do ys <- mapM C.decode xs ; return $ fromBinary ys
            }
 
 fromBinary :: [ Bool ] -> Integer

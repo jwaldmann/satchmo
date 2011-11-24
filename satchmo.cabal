@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        1.10.0
+Version:        2.0.0
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -21,6 +21,7 @@ Library
     Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory
     Exposed-modules:
         Satchmo.Data
+        Satchmo.Data.Default
         Satchmo.Solve
         Satchmo.Boolean
         Satchmo.Counting
@@ -46,11 +47,11 @@ Library
         Satchmo.MonadSAT
         Satchmo.SAT
         Satchmo.SAT.Tmpfile
-        Satchmo.SAT.BS
-        Satchmo.SAT.Seq
-        Satchmo.SAT.Sequence
-        Satchmo.Simple
-        Satchmo.SAT.Weighted
+        -- Satchmo.SAT.BS
+        -- Satchmo.SAT.Seq
+        -- Satchmo.SAT.Sequence
+        -- Satchmo.Simple
+        -- Satchmo.SAT.Weighted
         Satchmo.Numeric
         Satchmo.Binary.Numeric
         Satchmo.BinaryTwosComplement.Numeric

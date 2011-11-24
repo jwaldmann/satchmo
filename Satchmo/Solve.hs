@@ -3,17 +3,20 @@
 
 module Satchmo.Solve
 
-( solve, solveW
-, Implementation, WeightedImplementation
-, Decoder
+( solve 
+, Implementation
+-- , solveW
+-- , WeightedImplementation
 )
 
 where
 
 import Satchmo.Data
+import qualified Satchmo.Data.Default as D
 import Satchmo.Code
 import Satchmo.SAT
-import qualified Satchmo.SAT.Weighted as Weighted
+
+-- import qualified Satchmo.SAT.Weighted as Weighted
 
 -- import qualified Data.ByteString.Lazy.Char8 as BS
 import qualified Data.ByteString.Char8 as BS
@@ -29,12 +32,9 @@ type Implementation = BS.ByteString
                     -> Header 
                     -> IO ( Maybe ( Array Variable Bool ) )
 
-type WeightedImplementation = BS.ByteString 
-    -> Weighted.Header 
-    -> IO ( Maybe ( Array Variable Bool ) )
 
-solve :: Implementation
-      -> SAT ( Decoder a ) 
+solve :: Implementation 
+      -> SAT ( Reader ( Array Variable Bool ) a ) 
       -> IO ( Maybe a )
 solve implementation build = do
     (s, h, a) <- sat build
@@ -46,6 +46,12 @@ solve implementation build = do
         Just fm -> do
             hPutStrLn stderr "satisfiable"
             return $ Just $ runReader a fm
+
+{-
+
+type WeightedImplementation = BS.ByteString 
+    -> Weighted.Header 
+    -> IO ( Maybe ( Array Variable Bool ) )
 
 solveW :: Weighted.MaxWeight 
        -> WeightedImplementation 
@@ -61,3 +67,5 @@ solveW maxW implementation build = do
         Just fm -> do
             hPutStrLn stderr "satisfiable"
             return $ Just $ runReader a fm
+
+-}
