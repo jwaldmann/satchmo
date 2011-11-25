@@ -5,7 +5,7 @@ module Satchmo.Data
 ( CNF, cnf, clauses
 -- FIXME: exports should be abstract
 , Clause(..), clause, literals
-, Literal (..), nicht, positive, variable
+, Literal (..), literal, nicht, positive, variable
 , Variable 
 )
 
@@ -15,20 +15,16 @@ import Control.Monad.State.Strict
 
 type Variable = Int
 
-type Literal =  Int -- variable multiplied by polarity
+data Literal = Literal { variable :: Variable , positive :: Bool }
 
+instance Show Literal where
+    show l = ( if positive l then "" else "-" ) ++ show ( variable l )
 
 literal :: Bool -> Variable -> Literal
-literal pos v  | v > 0  = if pos then v else negate v 
+literal pos v  = Literal { positive = pos, variable = v }
 
 nicht :: Literal -> Literal 
-nicht x = negate x
-
-positive :: Literal -> Bool
-positive x = x > 0
-
-variable :: Literal -> Variable
-variable l = abs l
+nicht x = x { positive = not $ positive x }
 
 newtype CNF     = CNF { clauses :: [ Clause ] }
 

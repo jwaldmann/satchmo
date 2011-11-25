@@ -47,12 +47,7 @@ instance MonadSAT SAT where
     a <- get
     let n = next a
     put $ a { next = n + 1 }
-    return $ n
-  fresh_forall = do
-    a <- get
-    let n = next a
-    put $ a { next = n + 1, universal = n : universal a }
-    return $ n
+    return $ literal True n
   emit clause = do
     h <- ask 
     liftIO $ hPutStrLn h $ show clause

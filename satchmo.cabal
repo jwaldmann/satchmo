@@ -18,7 +18,7 @@ build-type: Simple
 
 Library
     ghc-options: -funbox-strict-fields
-    Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory
+    Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory, minisat
     Exposed-modules:
         Satchmo.Data
         Satchmo.Data.Default
@@ -47,6 +47,7 @@ Library
         Satchmo.MonadSAT
         Satchmo.SAT
         Satchmo.SAT.Tmpfile
+        Satchmo.SAT.Mini
         -- Satchmo.SAT.BS
         -- Satchmo.SAT.Seq
         -- Satchmo.SAT.Sequence
