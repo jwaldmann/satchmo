@@ -1,6 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving, TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DoAndIfThenElse #-}
+{-# LANGUAGE PatternSignatures #-}
 
 
 module Satchmo.SAT.Mini 
@@ -74,17 +75,27 @@ run_with_timeout :: Maybe Int -> SAT (SAT a) -> IO (Maybe a)
 run_with_timeout mto action = do
     accu <- newEmptyMVar 
     worker <- forkIO $ do res <- run action ; putMVar accu res
-    case mto of
-        to -> forkIO $ do 
-          threadDelay ( 10^6 * to ) ; killThread worker ; putMVar accu Nothing
+    timer <- forkIO $ case mto of
+        Just to -> do 
+              threadDelay ( 10^6 * to ) 
+              killThread worker 
+              putMVar accu Nothing
         _  -> return ()
-    takeMVar accu
+    takeMVar accu `Control.Exception.catch` \ ( _ :: AsyncException ) -> do
+        hPutStrLn stderr "caught"
+        killThread worker
+        killThread timer
+        return Nothing
 
 run :: SAT (SAT a) -> IO (Maybe a)
 run ( SAT m ) = API.withNewSolver $ \ s -> do
     hPutStrLn stderr $ "start producing CNF"
     SAT decoder <- m s
-    hPutStrLn stderr $ "CNF finished, starting solver"
+    v <- API.minisat_num_vars s
+    c <- API.minisat_num_clauses s
+    hPutStrLn stderr 
+        $ unwords [ "CNF finished", "vars", show v, "clauses", show c ]
+    hPutStrLn stderr $ "starting solver"
     b <- API.solve s []
     hPutStrLn stderr $ "solver finished, result: " ++ show b
     if b then do
