@@ -70,12 +70,14 @@ instance Decode SAT Boolean Bool where
             v <- dv $ variable l
             return $ if positive l then v else not v
 
-run_with_timeout :: Int -> SAT (SAT a) -> IO (Maybe a)
-run_with_timeout to action = do
+run_with_timeout :: Maybe Int -> SAT (SAT a) -> IO (Maybe a)
+run_with_timeout mto action = do
     accu <- newEmptyMVar 
     worker <- forkIO $ do res <- run action ; putMVar accu res
-    forkIO $ do 
-        threadDelay ( 10^6 * to ) ; killThread worker ; putMVar accu Nothing
+    case mto of
+        to -> forkIO $ do 
+          threadDelay ( 10^6 * to ) ; killThread worker ; putMVar accu Nothing
+        _  -> return ()
     takeMVar accu
 
 run :: SAT (SAT a) -> IO (Maybe a)
