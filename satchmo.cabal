@@ -21,8 +21,8 @@ Library
     Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory, minisat
     Exposed-modules:
         Satchmo.Data
-        Satchmo.Data.Default
-        Satchmo.Solve
+        -- Satchmo.Data.Default
+        -- Satchmo.Solve
         Satchmo.Boolean
         Satchmo.Counting
         Satchmo.Code
