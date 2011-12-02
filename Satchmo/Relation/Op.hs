@@ -5,7 +5,7 @@ module Satchmo.Relation.Op
 ( mirror
 , union
 , complement
-, product
+, product, power
 , intersection
 ) 
 
@@ -58,6 +58,23 @@ product a b = do
                 return $ and [ a!(x,y), b!(y,z) ]
             return ( i, o )
     return $ build bnd pairs
+
+power  :: ( Ix a , MonadSAT m ) 
+        => Int -> Relation a a -> m ( Relation a a )
+power 0 r = do
+    f <- constant False
+    t <- constant True
+    return $ build ( bounds r ) $ do
+        (x,y) <- range $ bounds r
+        return ((x,y), if x == y then t else f )
+power 1 r = return r
+power e r = do
+    let (d,m) = divMod e 2
+    s <- power d r
+    s2 <- product s s
+    case m of
+        0 -> return s2
+        1 -> product s2 r
 
 intersection :: ( Ix a , Ix b, MonadSAT m ) 
       => Relation a b -> Relation a b 

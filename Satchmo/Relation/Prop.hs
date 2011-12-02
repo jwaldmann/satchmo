@@ -6,6 +6,7 @@ module Satchmo.Relation.Prop
 , irreflexive
 , reflexive
 , regular
+, empty
 )
 
 where
@@ -31,6 +32,11 @@ implies r s = monadic and $ do
     i <- indices r
     return $ or [ not $ r ! i, s ! i ]
 
+empty ::  ( Ix a, Ix b, MonadSAT m ) 
+        => Relation a b -> m Boolean
+empty r = and $ do
+    i <- indices r
+    return $ not $ r ! i
 
 symmetric :: ( Ix a, MonadSAT m) => Relation a a -> m Boolean
 {-# specialize inline symmetric :: ( Ix a ) => Relation a a -> SAT Boolean #-}      

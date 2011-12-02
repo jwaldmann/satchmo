@@ -38,6 +38,7 @@ build :: ( Ix a, Ix b )
       -> Relation a b 
 build bnd pairs = Relation $ array bnd pairs
 
+
 bounds :: (Ix a, Ix b) => Relation a b -> ((a,b),(a,b))
 bounds ( Relation r ) = A.bounds r
 
