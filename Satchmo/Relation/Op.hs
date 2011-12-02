@@ -7,6 +7,7 @@ module Satchmo.Relation.Op
 , complement
 , product, power
 , intersection
+, restrict
 ) 
 
 where
@@ -32,6 +33,7 @@ mirror r =
 complement :: ( Ix a , Ix b ) => Relation a b -> Relation a b
 complement r = 
     build (bounds r) $ do i <- indices r ; return ( i, not $ r!i )
+
 
 union :: ( Ix a , Ix b, MonadSAT m ) 
       => Relation a b -> Relation a b 
