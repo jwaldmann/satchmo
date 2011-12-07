@@ -7,7 +7,6 @@ module Satchmo.Relation.Op
 , complement
 , product, power
 , intersection
-, restrict
 ) 
 
 where
