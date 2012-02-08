@@ -29,12 +29,6 @@ import Data.Monoid
 
 type Weight = Int
 
-{-# INLINABLE fresh #-}
-{-# INLINABLE emit #-}
-
-
-
-
 class (Functor m, Monad m) => MonadSAT m where
   fresh, fresh_forall :: m  Literal
 
