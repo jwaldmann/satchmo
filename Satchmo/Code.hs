@@ -16,7 +16,6 @@ import Data.Array
 import Control.Monad.Reader
 
 
-{-# INLINABLE decode #-}
 class Monad m => Decode m c a where 
     decode :: c -> m a
 
