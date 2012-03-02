@@ -9,7 +9,7 @@ module Satchmo.SAT.Mini
 ( SAT
 , fresh
 , emit
-, run, run_with_timeout
+, solve, solve_with_timeout
 )
 
 where
@@ -71,10 +71,10 @@ instance Decode SAT Boolean Bool where
             v <- dv $ variable l
             return $ if positive l then v else not v
 
-run_with_timeout :: Maybe Int -> SAT (SAT a) -> IO (Maybe a)
-run_with_timeout mto action = do
+solve_with_timeout :: Maybe Int -> SAT (SAT a) -> IO (Maybe a)
+solve_with_timeout mto action = do
     accu <- newEmptyMVar 
-    worker <- forkIO $ do res <- run action ; putMVar accu res
+    worker <- forkIO $ do res <- solve action ; putMVar accu res
     timer <- forkIO $ case mto of
         Just to -> do 
               threadDelay ( 10^6 * to ) 
@@ -87,8 +87,8 @@ run_with_timeout mto action = do
         killThread timer
         return Nothing
 
-run :: SAT (SAT a) -> IO (Maybe a)
-run ( SAT m ) = API.withNewSolver $ \ s -> do
+solve :: SAT (SAT a) -> IO (Maybe a)
+solve ( SAT m ) = API.withNewSolver $ \ s -> do
     hPutStrLn stderr $ "start producing CNF"
     SAT decoder <- m s
     v <- API.minisat_num_vars s

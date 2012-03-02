@@ -1,17 +1,22 @@
 Name:           satchmo
-Version:        2.0.0
+Version:        2.1
 
 License:        GPL
 License-file:	gpl-2.0.txt
 Author:         Pepe Iborra, Johannes Waldmann, Alexander Bau
 Maintainer:	Johannes Waldmann
-Homepage:       http://dfa.imn.htwk-leipzig.de/satchmo/
-		http://github.com/pepeiborra/satchmo/
+Homepage:       <http://dfa.imn.htwk-leipzig.de/satchmo/>
+		<http://github.com/pepeiborra/satchmo/>
 Synopsis:       SAT encoding monad
-description:	Encoding for boolean and integral constraints into (QBF-)CNF-SAT.
+description:	Encoding for boolean and integral constraints into CNF-SAT.
 		The encoder is provided as a State monad (hence the "mo" in "satchmo").
-		This package contains functions that construct problems,
-                to solve them, you need package satchmo-backends.
+
+		This package depends on minisat-haskell-bindings, see
+		<https://github.com/niklasso/minisat-haskell-bindings>,
+		which needs to be patched slightly: in Minisat.hsc,
+		"newtype Lit" needs "deriving ( ..., Enum)"
+		and put GeneralizedNewtypeDeriving pragma on top.
+
 Category:	Algorithms
 cabal-version:  >= 1.6
 build-type: Simple
