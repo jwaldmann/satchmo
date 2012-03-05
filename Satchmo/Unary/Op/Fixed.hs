@@ -1,7 +1,7 @@
 module Satchmo.Unary.Op.Fixed 
 
 ( module Satchmo.Unary.Op.Common 
-, plus
+, add, add_quadratic
 )       
        
 where
@@ -16,9 +16,12 @@ import   Satchmo.Unary.Data
 import Control.Monad ( forM, when )
 import qualified Data.Map as M
 
+add :: MonadSAT m => Number -> Number -> m Number
+add = add_quadratic
+
 -- | Unary addition. Output bit length is sum of input bit lengths.
-plus :: MonadSAT m => Number -> Number -> m Number
-plus a b = do
+add_quadratic :: MonadSAT m => Number -> Number -> m Number
+add_quadratic a b = do
     let width = Prelude.max ( length $ bits a ) 
                             ( length $ bits b ) 
     t <- Satchmo.Boolean.constant True

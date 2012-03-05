@@ -3,11 +3,14 @@ module Satchmo.Binary.Op.Common
 ( iszero
 , equals, lt, le, ge, eq, gt
 , full_adder, half_adder
+, select
+, max, min, maximum
 )
 
 where
 
-import Prelude hiding ( and, or, not, compare )
+import Prelude hiding ( and, or, not, compare, max, min, maximum )
+import qualified Prelude
 
 import qualified Satchmo.Code as C
 
@@ -15,9 +18,9 @@ import Satchmo.Boolean
    (MonadSAT, Boolean, Booleans
    , fun2, fun3, and, or, not, xor, assertOr, assert, boolean)
 import qualified  Satchmo.Boolean as B
-import Satchmo.Binary.Data (Number, make, bits, width)
+import Satchmo.Binary.Data (Number, number, make, bits, width)
 
-import Control.Monad ( forM )
+import Control.Monad ( forM, foldM )
 
 import Satchmo.Counting
 
@@ -29,7 +32,7 @@ iszero a = equals a $ make []
 equals :: (MonadSAT m) =>  Number -> Number -> m Boolean
 equals a b = do
     -- equals' ( bits a ) ( bits b )
-    let m = min ( width a ) ( width b )
+    let m = Prelude.min ( width a ) ( width b )
     let ( a1, a2 ) = splitAt m $ bits a
     let ( b1, b2 ) = splitAt m $ bits b
     common <- forM ( zip a1 b1 ) $ \ (x,y) -> fun2 (==) x y
@@ -50,6 +53,34 @@ lt x y = do (l,e) <- compare x y ; return l
 ge x y = le y x
 gt x y = lt y x
 eq = equals
+
+max :: MonadSAT m => Number -> Number -> m Number
+max a b = do
+    c <- number $ Prelude.max ( width a ) ( width b )
+    ca <- equals c a
+    cb <- equals c b
+    g <- gt a b
+    assert [ not g , ca ]
+    assert [     g , cb ]
+    return c
+
+min :: MonadSAT m => Number -> Number -> m Number
+min a b = do
+    c <- number $ Prelude.max ( width a ) ( width b )
+    ca <- equals c a
+    cb <- equals c b
+    g <- lt a b
+    assert [ not g , ca ]
+    assert [     g , cb ]
+    return c
+
+maximum (x:xs) = foldM max x xs
+
+-- | i flag is True, then the number itself, and zero otherwise.
+select :: MonadSAT m => Boolean -> Number -> m Number
+select flag a = do
+    bs <- forM ( bits a ) $ \ b -> and [ flag, b ]
+    return $ make bs
 
 compare :: MonadSAT m => Number -> Number 
         -> m ( Boolean, Boolean )

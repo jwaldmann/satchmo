@@ -16,7 +16,8 @@ module Satchmo.Binary.Op.Fixed
 
 where
 
-import Prelude hiding ( and, or, not )
+import Prelude hiding ( and, or, not, min, max )
+import qualified Prelude
 import Control.Monad (foldM)
 
 import qualified Satchmo.Code as C
@@ -46,7 +47,7 @@ restricted w a = do
 add :: (MonadSAT m) => Number -> Number -> m Number
 add a b = do
     false <- Satchmo.Boolean.constant False
-    let w = max ( width a ) ( width b )
+    let w = Prelude.max ( width a ) ( width b )
     zs <- add_with_carry w false ( bits a ) ( bits b )
     return $ make zs 
 
@@ -70,7 +71,7 @@ add_with_carry w c xxs yys = case ( xxs, yys ) of
 -- if overflow occurs, then formula is unsatisfiable.
 times :: (MonadSAT m) => Number -> Number -> m Number
 times a b = do 
-    let w = max ( width a ) ( width b ) 
+    let w = Prelude.max ( width a ) ( width b ) 
     better_times w a b
 
 -- Ignores overflows
