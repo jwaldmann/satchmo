@@ -30,6 +30,11 @@ instance C.Decode m Boolean Bool => C.Decode m Number Int where
         bs <- forM ( bits n ) C.decode
         return $ length $ filter id bs
 
+instance C.Decode m Boolean Bool => C.Decode m Number Integer where 
+    decode n = do
+        bs <- forM ( bits n ) C.decode
+        return $ fromIntegral $ length $ filter id bs
+
 width :: Number -> Int
 width n = length $ bits n
 
