@@ -14,7 +14,7 @@ import Satchmo.Data
 import Data.Array
 
 import Control.Monad.Reader
-
+import qualified Data.Map as M
 
 class Monad m => Decode m c a where 
     decode :: c -> m a
@@ -43,3 +43,12 @@ instance (Ix i, Decode m c a) => Decode m ( Array i c) ( Array i a ) where
                 f <- decode e
                 return (i,f)
         return $ array (bounds x) pairs
+
+instance (Ord i, Decode m c a) => Decode m ( M.Map i c) ( M.Map i a ) where
+    decode x = do
+        pairs <- sequence $ do
+            (i,e) <- M.assocs x
+            return $ do
+                f <- decode e
+                return (i,f)
+        return $ M.fromList pairs
