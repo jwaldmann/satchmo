@@ -6,13 +6,15 @@ module Satchmo.Unary.Op.Common
 ( iszero, equals
 , lt, le, ge, eq, gt
 , min, max
+, minimum, maximum
+, select
 )          
        
 where
 
 
 import Prelude 
-  hiding ( and, or, not, compare, min, max )
+  hiding ( and, or, not, compare, min, max, minimum, maximum )
 import qualified Prelude
 
 import qualified Satchmo.Code as C
@@ -23,7 +25,7 @@ import Satchmo.Unary.Data
 import Satchmo.Boolean (MonadSAT, Boolean, Booleans, fun2, fun3, and, or, not, xor, assert, boolean, monadic)
 import qualified  Satchmo.Boolean as B
 
-import Control.Monad ( forM, when )
+import Control.Monad ( forM, when, foldM )
 
 iszero n = case bits n of
     [] -> B.constant True
@@ -70,3 +72,12 @@ max a b = do
     cs <- extended ( \ xys -> 
         forM xys $ \ (x,y) -> or [x,y] ) a b
     return $ make cs                      
+
+minimum (x:xs) = foldM min x xs
+maximum (x:xs) = foldM max x xs
+
+select f a = do
+    bs <- forM ( bits a ) $ \ b -> and [f,b]
+    return $ make bs
+
+    
