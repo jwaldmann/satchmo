@@ -1,7 +1,7 @@
 module Satchmo.Unary.Op.Flexible 
        
 ( module Satchmo.Unary.Op.Common 
-, plus
+, add
 )       
        
 where
@@ -17,13 +17,7 @@ import Control.Monad ( forM )
 import qualified Data.Map as M
 
 -- | Unary addition. Output bit length is sum of input bit lengths.
-plus :: MonadSAT m => Number -> Number -> m Number
-plus a b = do
-    t <- Satchmo.Boolean.constant True
-    pairs <- forM ( zip [0..] $ t : bits a ) $ \ ( i,x) -> 
-             forM ( zip [0..] $ t : bits b ) $ \ ( j,y) -> 
-             do z <- and [x,y] ; return (i+j, [z])
-    cs <- forM ( map snd $ tail $ M.toAscList $ M.fromListWith (++) $ concat pairs ) or
-    return $ make cs
+add :: MonadSAT m => Number -> Number -> m Number
+add a b = add_quadratic (width a + width b) a b
 
-    
+

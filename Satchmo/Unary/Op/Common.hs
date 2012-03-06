@@ -8,6 +8,7 @@ module Satchmo.Unary.Op.Common
 , min, max
 , minimum, maximum
 , select
+, add_quadratic
 )          
        
 where
@@ -20,12 +21,14 @@ import qualified Prelude
 import qualified Satchmo.Code as C
 
 import Satchmo.Unary.Data 
-    (Number, make, bits, constant)
+    (Number, make, bits, width, constant)
 
 import Satchmo.Boolean (MonadSAT, Boolean, Booleans, fun2, fun3, and, or, not, xor, assert, boolean, monadic)
 import qualified  Satchmo.Boolean as B
 
-import Control.Monad ( forM, when, foldM )
+import Control.Monad ( forM, when, foldM, guard )
+import qualified Data.Map as M
+import Data.List ( transpose )
 
 iszero n = case bits n of
     [] -> B.constant True
@@ -73,11 +76,44 @@ max a b = do
         forM xys $ \ (x,y) -> or [x,y] ) a b
     return $ make cs                      
 
-minimum (x:xs) = foldM min x xs
-maximum (x:xs) = foldM max x xs
+-- | maximum (x:xs) = foldM max x xs
+maximum [x] = return x
+maximum xs | Prelude.not ( null xs ) = do
+    f <- B.constant False
+    let w = Prelude.maximum $ map width xs
+        fill x = bits x ++ replicate (w - width x) f
+    ys <- forM ( transpose $ map fill xs ) B.or
+    return $ make ys
+
+-- | minimum (x:xs) = foldM min x xs
+minimum [x] = return x
+minimum xs | Prelude.not ( null xs ) = do
+    f <- B.constant False
+    let w = Prelude.maximum $ map width xs
+        fill x = bits x ++ replicate (w - width x) f
+    ys <- forM ( transpose $ map fill xs ) B.and
+    return $ make ys
+
+
 
 select f a = do
     bs <- forM ( bits a ) $ \ b -> and [f,b]
     return $ make bs
 
+
+add_quadratic :: MonadSAT m => Int -> Number -> Number -> m Number
+add_quadratic width a b = do
+    t <- B.constant True
+    pairs <- sequence $ do
+        (i,x) <- zip [0 .. ] $ t : bits a
+        (j,y) <- zip [0 .. ] $ t : bits b
+        guard $ i+j > 0
+        guard $ i+j <= width + 1
+        return $ do z <- and [x,y] ; return (i+j, [z])
+    cs <- forM ( map snd $ M.toAscList $ M.fromListWith (++) pairs ) or
+    let ( pre, post ) = splitAt width cs
+    case post of
+        [] -> return ()
+        carry : _ -> assert [ not carry ]        
+    return $ make pre
     
