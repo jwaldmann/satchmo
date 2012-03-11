@@ -23,7 +23,7 @@ build-type: Simple
 
 Library
     ghc-options: -funbox-strict-fields
-    Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory, minisat
+    Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory, minisat >= 0.1
     Exposed-modules:
         Satchmo.Data
         -- Satchmo.Data.Default
