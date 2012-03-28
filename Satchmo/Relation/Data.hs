@@ -3,6 +3,7 @@
 module Satchmo.Relation.Data
 
 ( Relation, relation, build
+, identity                      
 , bounds, (!), indices, assocs
 , table
 ) 
@@ -16,8 +17,9 @@ import Satchmo.SAT
 
 import qualified Data.Array as A
 import Data.Array hiding ( bounds, (!), indices, assocs )
+import Data.Functor ((<$>))
 
-import Control.Monad ( guard )
+import Control.Monad ( guard, forM )
 
 newtype Relation a b = Relation ( Array (a,b) Boolean ) 
 
@@ -31,6 +33,16 @@ relation bnd = do
             x <- boolean
             return ( p, x )
     return $ build bnd pairs
+
+identity :: ( Ix a, MonadSAT m) 
+         => ((a,a),(a,a)) -> m ( Relation a a )
+identity bnd = do            
+    f <- constant False
+    t <- constant True
+    return $ build bnd $ for ( A.range bnd ) $ \ (i,j) ->
+        ((i,j), if i == j then t else f )
+
+for = flip map
 
 build :: ( Ix a, Ix b ) 
       => ((a,b),(a,b)) 
