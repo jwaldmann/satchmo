@@ -62,12 +62,7 @@ product a b = do
 
 power  :: ( Ix a , MonadSAT m ) 
         => Int -> Relation a a -> m ( Relation a a )
-power 0 r = do
-    f <- constant False
-    t <- constant True
-    return $ build ( bounds r ) $ do
-        (x,y) <- range $ bounds r
-        return ((x,y), if x == y then t else f )
+power 0 r = identity ( bounds r ) 
 power 1 r = return r
 power e r = do
     let (d,m) = divMod e 2
