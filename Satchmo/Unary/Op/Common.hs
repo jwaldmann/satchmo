@@ -7,8 +7,8 @@ module Satchmo.Unary.Op.Common
 , lt, le, ge, eq, gt
 , min, max
 , minimum, maximum
-, select
-, add_quadratic
+, select, antiselect
+, add_quadratic, add_via_merge
 )          
        
 where
@@ -95,25 +95,74 @@ minimum xs | Prelude.not ( null xs ) = do
     return $ make ys
 
 
-
+-- | when f is False, switch off all bits
 select f a = do
     bs <- forM ( bits a ) $ \ b -> and [f,b]
     return $ make bs
 
+-- | when p is True, switch ON all bits
+antiselect p n = do
+    bs <- forM ( bits n ) $ \ b -> B.or [p, b]
+    return $ make bs
 
-add_quadratic :: MonadSAT m => Int -> Number -> Number -> m Number
-add_quadratic width a b = do
+cutoff :: MonadSAT m => Maybe Int -> [Boolean] -> m Number
+cutoff mwidth bs = case mwidth of
+        Nothing -> return $ make bs
+        Just width -> do
+            let ( pre, post ) = splitAt width bs
+            case post of
+                [] -> return ()
+                carry : _ -> assert [ not carry ]        
+            return $ make pre
+
+-- | for both "add" methods: if first arg is Nothing, 
+-- then result length is sum of argument lengths (cannot overflow).
+-- else result is cut off (overflow => unsatisfiable)
+add_quadratic :: MonadSAT m => Maybe Int -> Number -> Number -> m Number
+add_quadratic mwidth a b = do
     t <- B.constant True
     pairs <- sequence $ do
         (i,x) <- zip [0 .. ] $ t : bits a
         (j,y) <- zip [0 .. ] $ t : bits b
         guard $ i+j > 0
-        guard $ i+j <= width + 1
+        guard $ case mwidth of
+            Just width -> i+j <= width + 1
+            Nothing    -> True
         return $ do z <- and [x,y] ; return (i+j, [z])
     cs <- forM ( map snd $ M.toAscList $ M.fromListWith (++) pairs ) or
-    let ( pre, post ) = splitAt width cs
-    case post of
-        [] -> return ()
-        carry : _ -> assert [ not carry ]        
-    return $ make pre
+    cutoff mwidth cs
+
+add_via_merge :: MonadSAT m => Maybe Int -> Number -> Number -> m Number
+add_via_merge mwidth a b = do
+    zs <- merge' (bits a) (bits b)
+    cutoff mwidth zs
     
+merge'  [] ys = return ys
+merge'  xs [] = return xs
+merge'  [x] [y] = do
+    comparator x y
+merge'  xs ys = do
+    let ( xo, xe ) = divide xs
+        ( yo, ye ) = divide ys
+    m : mo <- merge'  xo yo
+    me <- merge'  xe ye
+    re <- repair me mo
+    return $ m : re
+
+divide (x : xs) = 
+    let ( this, that ) = divide xs
+    in  ( x : that, this )
+divide [] = ( [], [] )
+
+repair (x:xs) (y:ys) = do
+    here <- comparator x y
+    later <- repair xs ys
+    return $ here ++ later
+repair [] [] = return []
+repair [x] [] = return [x]
+repair [] [y] = return [y]
+
+comparator x y = do
+    hi <- Satchmo.Boolean.or [x, y]
+    lo <- Satchmo.Boolean.and [x, y]
+    return [ hi, lo ]

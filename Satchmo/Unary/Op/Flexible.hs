@@ -18,6 +18,6 @@ import qualified Data.Map as M
 
 -- | Unary addition. Output bit length is sum of input bit lengths.
 add :: MonadSAT m => Number -> Number -> m Number
-add a b = add_quadratic (width a + width b) a b
-
-
+add a b = 
+    -- add_quadratic Nothing a b
+    add_via_merge Nothing a b

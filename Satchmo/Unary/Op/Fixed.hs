@@ -17,7 +17,10 @@ import Control.Monad ( forM, when, guard )
 import qualified Data.Map as M
 
 add :: MonadSAT m => Number -> Number -> m Number
-add a b = add_quadratic (Prelude.max ( width a ) ( width b )) a b
+add a b = 
+    -- add_quadratic 
+    add_via_merge
+        (Just $ Prelude.max ( width a ) ( width b )) a b
 
 
     
