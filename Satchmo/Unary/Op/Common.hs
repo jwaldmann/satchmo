@@ -137,12 +137,17 @@ add_via_merge :: MonadSAT m
                   => Maybe Int 
                   -> Number -> Number 
                   -> m Number
-add_via_merge = add_via_bitonic_sort
-
+add_via_merge = 
+  -- add_via_bitonic_sort
+  add_via_odd_even_merge
+  
+-- | works for all widths
 add_via_odd_even_merge mwidth a b = do
     zs <- oe_merge (bits a) (bits b)
     cutoff mwidth zs
     
+-- | will fill up the input 
+-- such that length is a power of two    
 add_via_bitonic_sort mwidth a b = do
     let n = length ( bits a) + length (bits b)
     f <- B.constant False        
