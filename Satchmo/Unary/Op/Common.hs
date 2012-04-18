@@ -147,7 +147,9 @@ add_via_odd_even_merge mwidth a b = do
     cutoff mwidth zs
     
 -- | will fill up the input 
--- such that length is a power of two    
+-- such that length is a power of two.
+-- it seems to be hard to improve this, cf
+-- <http://www.cs.technion.ac.il/users/wwwb/cgi-bin/tr-info.cgi/2009/CS/CS-2009-07>
 add_via_bitonic_sort mwidth a b = do
     let n = length ( bits a) + length (bits b)
     f <- B.constant False        
@@ -162,7 +164,7 @@ fill n = if n <= 1 then 0 else
             let (d,m) = divMod n 2
             in  m + 2*fill (d+m) 
 
--- | <http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/bitonic/bitonicen.htm>
+-- |  <http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/bitonic/bitonicen.htm>
 bitonic_sort [ ] = return [ ]    
 bitonic_sort [z] = return [z]
 bitonic_sort zs = do 
