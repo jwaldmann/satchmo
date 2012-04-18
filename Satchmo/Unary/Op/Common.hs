@@ -132,20 +132,54 @@ add_quadratic mwidth a b = do
     cs <- forM ( map snd $ M.toAscList $ M.fromListWith (++) pairs ) or
     cutoff mwidth cs
 
-add_via_merge :: MonadSAT m => Maybe Int -> Number -> Number -> m Number
-add_via_merge mwidth a b = do
-    zs <- merge' (bits a) (bits b)
+
+add_via_merge :: MonadSAT m 
+                  => Maybe Int 
+                  -> Number -> Number 
+                  -> m Number
+add_via_merge = add_via_bitonic_sort
+
+add_via_odd_even_merge mwidth a b = do
+    zs <- oe_merge (bits a) (bits b)
     cutoff mwidth zs
     
-merge'  [] ys = return ys
-merge'  xs [] = return xs
-merge'  [x] [y] = do
+add_via_bitonic_sort mwidth a b = do
+    let n = length ( bits a) + length (bits b)
+    f <- B.constant False        
+    let input =    (bits a) -- decreasing
+                ++ replicate (fill n) f
+                ++ (reverse $ bits b) -- increasing
+    zs <- bitonic_sort input
+    cutoff mwidth zs
+
+-- | distance to next power of two
+fill n = if n <= 1 then 0 else
+            let (d,m) = divMod n 2
+            in  m + 2*fill (d+m) 
+
+-- | <http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/bitonic/bitonicen.htm>
+bitonic_sort [ ] = return [ ]    
+bitonic_sort [z] = return [z]
+bitonic_sort zs = do 
+    let (h,0) = divMod (length zs) 2
+        (pre, post) = splitAt h zs
+    hi <- forM ( zip pre post ) $ \ (x,y) -> or  [x,y]
+    lo <- forM ( zip pre post ) $ \ (x,y) -> and [x,y]
+    shi <- bitonic_sort hi
+    slo <- bitonic_sort lo
+    return $ shi ++ slo
+    
+-- | <http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/networks/oemen.htm>
+
+oe_merge  [] ys = return ys
+oe_merge  xs [] = return xs
+oe_merge  [x] [y] = do
     comparator x y
-merge'  xs ys = do
+oe_merge  xs ys = do
     let ( xo, xe ) = divide xs
         ( yo, ye ) = divide ys
-    m : mo <- merge'  xo yo
-    me <- merge'  xe ye
+    m : mo <- oe_merge  xo yo
+    me <- oe_merge  xe ye
     re <- repair me mo
     return $ m : re
 
