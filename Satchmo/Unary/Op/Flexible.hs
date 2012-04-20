@@ -2,6 +2,9 @@ module Satchmo.Unary.Op.Flexible
        
 ( module Satchmo.Unary.Op.Common 
 , add
+, add_quadratic
+, add_by_odd_even_merge
+, add_by_bitonic_sort
 )       
        
 where
@@ -11,13 +14,22 @@ import qualified Prelude
 
 import Satchmo.Boolean
 import   Satchmo.Unary.Data
-import Satchmo.Unary.Op.Common 
+import qualified Satchmo.Unary.Op.Common as C
+import Satchmo.Unary.Op.Common hiding
+  (add_quadratic, add_by_odd_even_merge, add_by_bitonic_sort)
 
 import Control.Monad ( forM )
 import qualified Data.Map as M
 
 -- | Unary addition. Output bit length is sum of input bit lengths.
 add :: MonadSAT m => Number -> Number -> m Number
-add a b = 
-    -- add_quadratic Nothing a b
-    add_via_merge Nothing a b
+add = add_by_odd_even_merge
+
+add_quadratic a b = 
+    C.add_quadratic (Just $ Prelude.max ( width a ) ( width b )) a b
+
+add_by_odd_even_merge a b = 
+    C.add_by_odd_even_merge (Just $ Prelude.max ( width a ) ( width b )) a b
+
+add_by_bitonic_sort a b = 
+    C.add_by_bitonic_sort (Just $ Prelude.max ( width a ) ( width b )) a b

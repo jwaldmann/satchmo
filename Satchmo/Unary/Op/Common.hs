@@ -8,7 +8,7 @@ module Satchmo.Unary.Op.Common
 , min, max
 , minimum, maximum
 , select, antiselect
-, add_quadratic, add_via_merge
+, add_quadratic, add_by_odd_even_merge, add_by_bitonic_sort
 )          
        
 where
@@ -133,16 +133,9 @@ add_quadratic mwidth a b = do
     cutoff mwidth cs
 
 
-add_via_merge :: MonadSAT m 
-                  => Maybe Int 
-                  -> Number -> Number 
-                  -> m Number
-add_via_merge = 
-  -- add_via_bitonic_sort
-  add_via_odd_even_merge
   
 -- | works for all widths
-add_via_odd_even_merge mwidth a b = do
+add_by_odd_even_merge mwidth a b = do
     zs <- oe_merge (bits a) (bits b)
     cutoff mwidth zs
     
@@ -150,7 +143,7 @@ add_via_odd_even_merge mwidth a b = do
 -- such that length is a power of two.
 -- it seems to be hard to improve this, cf
 -- <http://www.cs.technion.ac.il/users/wwwb/cgi-bin/tr-info.cgi/2009/CS/CS-2009-07>
-add_via_bitonic_sort mwidth a b = do
+add_by_bitonic_sort mwidth a b = do
     let n = length ( bits a) + length (bits b)
     f <- B.constant False        
     let input =    (bits a) -- decreasing
