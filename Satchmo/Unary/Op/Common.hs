@@ -105,15 +105,24 @@ antiselect p n = do
     bs <- forM ( bits n ) $ \ b -> B.or [p, b]
     return $ make bs
 
-cutoff :: MonadSAT m => Maybe Int -> [Boolean] -> m Number
-cutoff mwidth bs = case mwidth of
-        Nothing -> return $ make bs
+-- | reduce number to given bit width,
+-- and return also the carry bit
+cutoff_with_carry :: MonadSAT m 
+                  => Maybe Int -> Number -> m (Number, Boolean)
+cutoff_with_carry mwidth n = do
+    f <- B.constant False
+    case mwidth of
+        Nothing -> return (n , f )
         Just width -> do
-            let ( pre, post ) = splitAt width bs
-            case post of
-                [] -> return ()
-                carry : _ -> assert [ not carry ]        
-            return $ make pre
+            let ( pre, post ) = splitAt width $ bits n
+            return ( make pre, case post of
+                [] -> f
+                carry : _ -> carry )
+
+cutoff mwidth n = do
+    ( result, carry ) <- cutoff_with_carry mwidth n
+    assert [ not carry ]
+    return result
 
 -- | for both "add" methods: if first arg is Nothing, 
 -- then result length is sum of argument lengths (cannot overflow).
@@ -130,14 +139,14 @@ add_quadratic mwidth a b = do
             Nothing    -> True
         return $ do z <- and [x,y] ; return (i+j, [z])
     cs <- forM ( map snd $ M.toAscList $ M.fromListWith (++) pairs ) or
-    cutoff mwidth cs
+    cutoff mwidth $ make cs
 
 
   
 -- | works for all widths
 add_by_odd_even_merge mwidth a b = do
     zs <- oe_merge (bits a) (bits b)
-    cutoff mwidth zs
+    cutoff mwidth $ make zs
     
 -- | will fill up the input 
 -- such that length is a power of two.
@@ -150,7 +159,7 @@ add_by_bitonic_sort mwidth a b = do
                 ++ replicate (fill n) f
                 ++ (reverse $ bits b) -- increasing
     zs <- bitonic_sort input
-    cutoff mwidth zs
+    cutoff mwidth $ make zs
 
 -- | distance to next power of two
 fill n = if n <= 1 then 0 else
