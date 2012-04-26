@@ -9,9 +9,10 @@
 module Satchmo.Binary.Op.Fixed
 
 ( restricted
-, add, times, restrictedTimes, dot_product
+, add, times, dot_product
 , module Satchmo.Binary.Data
 , module Satchmo.Binary.Op.Common
+, restrictedTimes
 )
 
 where
@@ -25,6 +26,7 @@ import qualified Satchmo.Code as C
 import Satchmo.Boolean
 import Satchmo.Binary.Data
 import Satchmo.Binary.Op.Common
+import qualified Satchmo.Binary.Op.Times as T
 import qualified Satchmo.Binary.Op.Flexible as Flexible
 
 import Satchmo.Counting
@@ -72,11 +74,17 @@ add_with_carry w c xxs yys = case ( xxs, yys ) of
 times :: (MonadSAT m) => Number -> Number -> m Number
 times a b = do 
     let w = Prelude.max ( width a ) ( width b ) 
-    better_times w a b
+    T.times (Just w) a b
+
+dot_product :: (MonadSAT m) 
+             => Int -> [ Number ] -> [ Number ] -> m Number
+dot_product w xs ys = do
+    T.dot_product (Just w) xs ys
+
 
 -- Ignores overflows
 restrictedAdd :: (MonadSAT m) => Number -> Number -> m Number
-restrictedAdd a b = do 
+restrictedAdd a b = do
   zero <- Satchmo.Boolean.constant False
   (result, _) <- Flexible.add_with_carry zero (bits a) (bits b)
   return $ make result
@@ -92,82 +100,9 @@ restrictedTimes :: (MonadSAT m) => Number -> Number -> m Number
 restrictedTimes as bs = do
   result <- foldM (\(as',sum) b -> do
                        summand <- Flexible.times1 b as'
-                       sum'    <- sum `restrictedAdd` summand
+                       sum' <- sum `restrictedAdd` summand
                        nextAs' <- restrictedShift as'
                        return (nextAs', sum')
                   ) (as, make []) $ bits bs
   return $ snd result
-
-{-
-case bits a of
-    [] -> return $ make []
-    _ | w <= 0 -> do
-        monadic assertOr [ Flexible.iszero a, Flexible.iszero b ]
-        return $ make []
-    x : xs -> do 
-        xys  <- Flexible.times1 x b
-        xsys <- if null $ bits b 
-                then return $ make [] 
-                else do
-                       zs <- restricted_times (w-1) b (make xs)
-                       Flexible.shift zs
-        s <- Flexible.add xys xsys
-        restricted w s
--}
-
--- | this is used in matrix multiplication,
--- so we try to provide an optimized implementation here.
--- argument vectors must have equal length
-dot_product :: ( MonadSAT m )
-            => Int -- ^ result bit width
-            -> [ Number ] 
-            -> [ Number ] 
-            -> m Number
-dot_product w xs ys = do
-    when ( length xs /= length ys ) 
-         $ error "Satchmo.Binary.Op.Fixed.dot_product: vector lengths differ"
-    kzss <- forM ( zip xs ys ) $ \ (a,b) -> particles w a b
-    combine w $ concat kzss
-
-combine w kzs = do
-    zs <- reduce $ take w
-                 $ M.elems $ M.fromListWith (++) kzs
-    return $ make zs    
-
--------------------------------------------------- 
-
-better_times w a b = do
-    kzs <- particles w a b
-    combine w kzs
-
-particles w a b = sequence $ do
-          ( i , x ) <- zip [ 0 .. ] $ bits a
-          ( j , y ) <- zip [ 0 .. ] $ bits b
-          return $ 
-              if i+j >= w 
-              then do 
-                  assertOr [ not x, not y ]
-                  return ( i+j, [] )
-              else do 
-                  z <- and [ x, y ]
-                  return ( i+j , [z] ) 
-
-reduce ( ( x:y:z:ps) : qss ) = do
-    ( r, c ) <- full_adder x y z
-    qss' <- plugin c qss
-    reduce $ ( ps ++ [r] ) : qss' 
-reduce ( ( x:y:[]) : qss ) = do
-    ( r, c ) <- half_adder x y 
-    qss' <- plugin c qss
-    reduce $ [r] : qss' 
-reduce ( ( x:[]) : qss ) = do
-    xs <- reduce qss
-    return $ x : xs
-reduce [] = return []
-
-plugin c [] = do
-    assertOr [ not c ]
-    return []
-plugin c (qs : qss) = 
-    return ((c:qs) : qss)
 

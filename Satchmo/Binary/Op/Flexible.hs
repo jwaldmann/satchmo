@@ -5,7 +5,7 @@
 
 module Satchmo.Binary.Op.Flexible
 
-( add, times
+( add, times, dot_product
 , add_with_carry, times1, shift
 , module Satchmo.Binary.Data
 , module Satchmo.Binary.Op.Common
@@ -19,6 +19,7 @@ import Satchmo.Boolean
 import qualified Satchmo.Code as C
 import Satchmo.Binary.Data
 import Satchmo.Binary.Op.Common
+import qualified Satchmo.Binary.Op.Times as T
 import Satchmo.Counting
 
 import qualified Data.Map as M
@@ -47,7 +48,11 @@ add_with_carry cin (x:xs ) (y:ys) = do
 
 times :: (MonadSAT m) => Number -> Number -> m Number
 times = -- plain_times 
-      better_times
+      T.times Nothing
+
+dot_product :: (MonadSAT m) 
+             => [ Number ] -> [ Number ] -> m Number
+dot_product = T.dot_product Nothing
 
 plain_times :: (MonadSAT m) => Number -> Number -> m Number
 plain_times a b | [] <- bits a = return a
@@ -70,41 +75,5 @@ times1 :: (MonadSAT m) => Boolean -> Number -> m Number
 times1 x b = do
     zs <- mapM ( \ y -> and [x,y] ) $ bits b
     return $ make zs
-
-
-better_times :: (MonadSAT m) 
-             => Number -> Number -> m Number
-better_times a b = do
-    kzs <- sequence $ do
-          ( i , x ) <- zip [ 0 .. ] $ bits a
-          ( j , y ) <- zip [ 0 .. ] $ bits b
-          return $ do
-                  z <- and [ x, y ]
-                  return ( i+j , [z] ) 
-    m <- reduce $ M.fromListWith (++) kzs
-    case M.maxViewWithKey m of
-        Nothing -> return $ make []
-        Just ((k,_) , _) -> do 
-              return $ make $ do 
-                    i <- [ 0 .. k ] 
-                    let { [ b ] = m M.! i }  
-                    return b
-
-
-reduce m = case M.minViewWithKey m of
-    Nothing -> return M.empty
-    Just ((k, bs), rest ) -> case bs of
-        [x] -> do
-            m' <- reduce rest
-            return $ M.unionWith (error "huh") m' 
-                   $ M.fromList [(k,[x])] 
-        [x,y] -> do
-            (r,c) <- half_adder x y
-            reduce $ M.unionWith (++) rest
-                   $ M.fromList [ (k,[r]), (k+1, [c]) ] 
-        (x:y:z:more) -> do
-            (r,c) <- full_adder x y z
-            reduce $ M.unionWith (++) rest
-                   $ M.fromList [ (k, more ++ [r]), (k+1, [c]) ] 
 
 
