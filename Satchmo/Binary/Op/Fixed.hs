@@ -118,16 +118,21 @@ case bits a of
 -- | this is used in matrix multiplication,
 -- so we try to provide an optimized implementation here.
 -- argument vectors must have equal length
-dot_product :: ( MonadSAT m )
+dot_product' :: ( MonadSAT m )
             => Int -- ^ result bit width
             -> [ Number ] 
             -> [ Number ] 
             -> m Number
-dot_product w xs ys = do
+dot_product' w xs ys = do
     when ( length xs /= length ys ) 
          $ error "Satchmo.Binary.Op.Fixed.dot_product: vector lengths differ"
     kzss <- forM ( zip xs ys ) $ \ (a,b) -> particles w a b
     combine w $ concat kzss
+
+dot_product xs ys =
+    let l = length . bits
+        w = Prelude.maximum $ 0 : map l ( xs ++ ys )
+    in  dot_product' w xs ys    
 
 combine w kzs = do
     zs <- reduce $ take w
