@@ -2,6 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DoAndIfThenElse #-}
 {-# LANGUAGE PatternSignatures #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 
 module Satchmo.SAT.Mini 
@@ -26,6 +27,8 @@ import Control.Concurrent.MVar
 import Control.Exception
 import Control.Monad ( when )
 import System.IO
+
+deriving instance Enum API.Lit
 
 newtype SAT a 
       = SAT { unSAT :: API.Solver -> IO a

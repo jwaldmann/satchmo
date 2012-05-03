@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        2.2
+Version:        2.3
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -12,18 +12,14 @@ description:	Encoding for boolean and integral constraints into CNF-SAT.
 		The encoder is provided as a State monad (hence the "mo" in "satchmo").
 
 		This package depends on minisat-haskell-bindings, see
-		<https://github.com/niklasso/minisat-haskell-bindings>,
-		which needs to be patched slightly: in Minisat.hsc,
-		"newtype Lit" needs "deriving ( ..., Enum)"
-		and put GeneralizedNewtypeDeriving pragma on top.
-
+		<https://github.com/niklasso/minisat-haskell-bindings>
 Category:	Algorithms
 cabal-version:  >= 1.6
 build-type: Simple
 
 Library
     ghc-options: -funbox-strict-fields
-    Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory, minisat >= 0.1
+    Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory, minisat 
     Exposed-modules:
         Satchmo.Data
         -- Satchmo.Data.Default
@@ -34,6 +30,7 @@ Library
         Satchmo.Integer
         Satchmo.Binary
         Satchmo.Binary.Op.Common
+        Satchmo.Binary.Op.Times
         Satchmo.Binary.Op.Fixed
         Satchmo.Binary.Op.Flexible
         Satchmo.BinaryTwosComplement.Op.Fixed

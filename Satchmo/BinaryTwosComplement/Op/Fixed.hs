@@ -24,7 +24,7 @@ import Satchmo.Binary.Op.Fixed (restrictedTimes)
 import Satchmo.Boolean (Boolean,monadic,assertOr,equals2,implies,not)
 import qualified Satchmo.Boolean as Boolean
 
--- Sign extension
+-- | Sign extension
 extendMsb :: Int -> Number -> Number
 extendMsb i n = fromBooleans $ bits n ++ (replicate i $ msb n)
 
