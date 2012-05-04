@@ -9,7 +9,7 @@
 module Satchmo.Binary.Op.Fixed
 
 ( restricted
-, add, times, dot_product
+, add, times, dot_product, dot_product'
 , module Satchmo.Binary.Data
 , module Satchmo.Binary.Op.Common
 , restrictedTimes
