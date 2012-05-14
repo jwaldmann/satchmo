@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        2.4
+Version:        2.5
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -63,6 +63,7 @@ Library
         Satchmo.SMT.Exotic.Domain
         Satchmo.SMT.Exotic.Dict
         Satchmo.SMT.Exotic.Arctic
+        Satchmo.SMT.Exotic.Arctic.Integer
         Satchmo.SMT.Exotic.Fuzzy
         Satchmo.SMT.Exotic.Tropical
         Satchmo.SMT.Exotic.Natural
