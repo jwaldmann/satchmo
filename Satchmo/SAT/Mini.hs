@@ -26,6 +26,7 @@ import Control.Concurrent
 import Control.Concurrent.MVar
 import Control.Exception
 import Control.Monad ( when )
+import Control.Monad.Fix
 import System.IO
 
 deriving instance Enum API.Lit
@@ -40,6 +41,9 @@ instance Functor SAT where
 instance Monad SAT where
     return x = SAT $ \ s -> return x
     SAT m >>= f = SAT $ \ s -> do x <- m s ; let { SAT n = f x } ; n s
+
+instance MonadFix SAT where
+    mfix f = SAT $ \ s -> mfix ( \ a -> unSAT (f a) s )
 
 instance MonadSAT SAT where
   fresh = SAT $ \ s -> do 

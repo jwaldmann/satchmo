@@ -1,12 +1,11 @@
 Name:           satchmo
-Version:        2.5
+Version:        2.5.1
 
 License:        GPL
 License-file:	gpl-2.0.txt
 Author:         Pepe Iborra, Johannes Waldmann, Alexander Bau
 Maintainer:	Johannes Waldmann
-Homepage:       <http://dfa.imn.htwk-leipzig.de/satchmo/>
-		<http://github.com/pepeiborra/satchmo/>
+Homepage:       <https://github.com/jwaldmann/satchmo>
 Synopsis:       SAT encoding monad
 description:	Encoding for boolean and integral constraints into CNF-SAT.
 		The encoder is provided as a State monad (hence the "mo" in "satchmo").

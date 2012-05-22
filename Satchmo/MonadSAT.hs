@@ -19,6 +19,7 @@ import Control.Monad.Trans (lift)
 import Control.Monad.Cont  (ContT)
 import Control.Monad.List  (ListT)
 import Control.Monad.Reader (ReaderT)
+import Control.Monad.Fix ( MonadFix )
 import qualified Control.Monad.State  as Lazy (StateT)
 import qualified Control.Monad.Writer as Lazy (WriterT)
 import qualified Control.Monad.RWS    as Lazy (RWST)
@@ -29,7 +30,7 @@ import Data.Monoid
 
 type Weight = Int
 
-class (Functor m, Monad m) => MonadSAT m where
+class (MonadFix m, Functor m, Monad m) => MonadSAT m where
   fresh, fresh_forall :: m  Literal
 
   emit  :: Clause  -> m ()
