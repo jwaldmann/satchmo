@@ -1,8 +1,12 @@
+{-# language DeriveDataTypeable #-}
+
 module Satchmo.SMT.Exotic.Semiring.Arctic where
 
 import Satchmo.SMT.Exotic.Semiring.Class
 
-data Arctic a = Minus_Infinite | Finite a deriving (Eq, Ord)
+import Data.Typeable
+
+data Arctic a = Minus_Infinite | Finite a deriving (Eq, Ord, Typeable)
 
 instance Functor Arctic where
     fmap f a = case a of
