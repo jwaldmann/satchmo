@@ -1,8 +1,12 @@
+{-# language DeriveDataTypeable #-}
+
 module Satchmo.SMT.Exotic.Semiring.Tropical where
 
 import Satchmo.SMT.Exotic.Semiring.Class
 
-data Tropical a = Finite a | Plus_Infinite deriving (Eq, Ord)
+import Data.Typeable
+
+data Tropical a = Finite a | Plus_Infinite deriving (Eq, Ord, Typeable)
 
 instance Functor Tropical where
     fmap f a = case a of
