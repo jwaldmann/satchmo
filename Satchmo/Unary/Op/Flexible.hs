@@ -26,10 +26,10 @@ add :: MonadSAT m => Number -> Number -> m Number
 add = add_by_odd_even_merge
 
 add_quadratic a b = 
-    C.add_quadratic (Just $ Prelude.max ( width a ) ( width b )) a b
+    C.add_quadratic (Just $ (+) ( width a ) ( width b )) a b
 
 add_by_odd_even_merge a b = 
-    C.add_by_odd_even_merge (Just $ Prelude.max ( width a ) ( width b )) a b
+    C.add_by_odd_even_merge (Just $ (+) ( width a ) ( width b )) a b
 
 add_by_bitonic_sort a b = 
-    C.add_by_bitonic_sort (Just $ Prelude.max ( width a ) ( width b )) a b
+    C.add_by_bitonic_sort (Just $ (+) ( width a ) ( width b )) a b
