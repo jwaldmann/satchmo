@@ -1,4 +1,5 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, TypeFamilies #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DoAndIfThenElse #-}
 {-# LANGUAGE PatternSignatures #-}
@@ -10,7 +11,8 @@ module Satchmo.SAT.Mini
 ( SAT
 , fresh
 , emit
-, solve, solve_with_timeout
+, solve
+, solve_with_timeout
 )
 
 where
@@ -29,6 +31,7 @@ import Control.Monad ( when )
 import Control.Monad.Fix
 import System.IO
 
+
 deriving instance Enum API.Lit
 
 newtype SAT a 
@@ -40,7 +43,8 @@ instance Functor SAT where
 
 instance Monad SAT where
     return x = SAT $ \ s -> return x
-    SAT m >>= f = SAT $ \ s -> do x <- m s ; let { SAT n = f x } ; n s
+    SAT m >>= f = SAT $ \ s -> do 
+        x <- m s ; let { SAT n = f x } ; n s
 
 instance MonadFix SAT where
     mfix f = SAT $ \ s -> mfix ( \ a -> unSAT (f a) s )
@@ -95,7 +99,10 @@ solve_with_timeout mto action = do
         return Nothing
 
 solve :: SAT (SAT a) -> IO (Maybe a)
-solve ( SAT m ) = API.withNewSolver $ \ s -> do
+solve action = 
+    API.withNewSolverAsync $ solve_helper action
+
+solve_helper (SAT m) s = do
     hPutStrLn stderr $ "start producing CNF"
     SAT decoder <- m s
     v <- API.minisat_num_vars s
@@ -103,9 +110,9 @@ solve ( SAT m ) = API.withNewSolver $ \ s -> do
     hPutStrLn stderr 
         $ unwords [ "CNF finished", "vars", show v, "clauses", show c ]
     hPutStrLn stderr $ "starting solver"
-    b <- API.solve s []
-    hPutStrLn stderr $ "solver finished, result: " ++ show b
-    if b then do
+    status <- API.limited_solve s []
+    hPutStrLn stderr $ "solver finished, result: " ++ show status
+    if status == API.l_True then do
         hPutStrLn stderr $ "starting decoder"    
         out <- decoder s
         hPutStrLn stderr $ "decoder finished"    
