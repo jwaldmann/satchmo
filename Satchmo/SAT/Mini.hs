@@ -99,12 +99,9 @@ solve_with_timeout mto action = do
         return Nothing
 
 solve :: SAT (SAT a) -> IO (Maybe a)
-solve action = 
-    API.withNewSolverAsync $ solve_helper action
-
-solve_helper (SAT m) s = do
+solve action = API.withNewSolverAsync $ \ s -> do
     hPutStrLn stderr $ "start producing CNF"
-    SAT decoder <- m s
+    SAT decoder <- unSAT action s
     v <- API.minisat_num_vars s
     c <- API.minisat_num_clauses s
     hPutStrLn stderr 
