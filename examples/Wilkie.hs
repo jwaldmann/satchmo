@@ -11,6 +11,7 @@ import qualified Satchmo.SAT.Mini
 import qualified Data.Map as M
 import Control.Monad ( forM, forM_, void, when )
 import System.Environment ( getArgs )
+import Test.SmallCheck
 
 main = do
     [ d ] <- getArgs
@@ -69,6 +70,11 @@ tarski =
           , Apply Exp x (Apply Times y z)))
     ] 
 
+test_eqs cs d = forM_ cs $ \ (k, (l,r)) -> 
+    smallCheck d $ \ a b c -> 
+        let xs = map abs [a,b,c]
+        in interN xs l == interN xs r
+
 
 -- | http://en.wikipedia.org/wiki/Tarski%27s_high_school_algebra_problem#Solution
 -- \left((1+x)^y+(1+x+x^2)^y\right)^x
@@ -91,7 +97,7 @@ wilkie  =
           o
         side i o = Apply Times 
            (form a b i o) (form c d o i)
-    in  (2, ( side x y , side x y ))
+    in  (2, ( side x y , side y x ))
 
 data Op = Plus | Times | Exp 
      deriving (Eq,Ord,Show)
@@ -114,6 +120,17 @@ inter plus times exp d k =
         substitute ( case op of
             Plus -> plus ; Times -> times; Exp -> exp
           ) [x,y]
+
+
+interN :: [Integer] -> E -> Integer
+interN xs e = case e of
+    One -> 1
+    Proj j -> xs !! (j-1)
+    Apply op l r -> 
+        let [x,y] = map (interN xs) [l,r]
+        in  ( case op of
+              Plus -> (+) ; Times -> (*); Exp -> (^)
+            ) x y
 
 cached :: (Ord a, Monad m )
        => M.Map a b
