@@ -8,17 +8,22 @@ Maintainer:	Johannes Waldmann
 Homepage:       <https://github.com/jwaldmann/satchmo>
 Synopsis:       SAT encoding monad
 description:	Encoding for boolean and integral constraints into CNF-SAT.
-		The encoder is provided as a State monad (hence the "mo" in "satchmo").
+		The encoder is provided as a State monad 
+		(hence the "mo" in "satchmo").
 
 		This package depends on minisat-haskell-bindings, see
 		<https://github.com/niklasso/minisat-haskell-bindings>
-Category:	Algorithms
+Category:	Logic
 cabal-version:  >= 1.6
 build-type: Simple
+source-repository head
+    type: git
+    location:   https://github.com/jwaldmann/satchmo
 
 Library
     ghc-options: -funbox-strict-fields
-    Build-depends:  mtl, process, containers, base == 4.*, array, bytestring, directory, minisat >= 0.1
+    Build-depends:  mtl, process, containers, base == 4.*,
+               array, bytestring, directory, minisat >= 0.1
     Exposed-modules:
         Satchmo.Data
         -- Satchmo.Data.Default

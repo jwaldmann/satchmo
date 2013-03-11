@@ -21,7 +21,7 @@ run d = do
     Just out <- Satchmo.SAT.Mini.solve $ do
         funs @ [ plus, times, exp ] <- 
             sequence $ replicate 3 $ mkfun d 2
-        forM_ [ plus,times ] $ assert_symmetric 
+        -- forM_ [ plus,times ] $ assert_symmetric 
         -- forM_ [ plus,times ] $ assert_associative 
         let value k e = inter plus times exp d k e
         forM_ tarski $ \ (k, (l,r)) -> do
@@ -45,12 +45,9 @@ fun2form f
 
 tarski =
     let x = Proj 1 ; y = Proj 2 ; z = Proj 3 in
-    [
-{-
-      (2, (Apply Plus x y , Apply Plus y x) )
+    [ (2, (Apply Plus x y , Apply Plus y x) )
     , (2, (Apply Times x y , Apply Times  y x) )
--}
-      (3, ( Apply Plus (Apply Plus x y) z 
+    , (3, ( Apply Plus (Apply Plus x y) z 
           , Apply Plus x (Apply Plus  y z)))
 
     , (3, ( Apply Times (Apply Times x y) z 
@@ -195,12 +192,6 @@ equals f g = do
 assert_equals f g = do
     forM_ ( arguments (dom f)(arity f) ) $ \(y:xs) ->do
         let l = apply f xs y ; r =  apply g xs y
-        B.assert [ l, B.not r ]
-        B.assert [ r, B.not l ]
-
-assert_symmetric f = do
-    forM_ ( arguments (dom f) 2 ) $ \ [y, a, b] -> do
-        let l = apply f [a,b] y ; r = apply f [b,a] y
         B.assert [ l, B.not r ]
         B.assert [ r, B.not l ]
 
