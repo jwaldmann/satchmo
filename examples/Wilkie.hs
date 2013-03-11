@@ -96,8 +96,10 @@ wilkie  =
            (form a b i o) (form c d o i)
     in  (2, ( side x y , side x y ))
 
-data Op = Plus | Times | Exp deriving Show
-data E = One | Proj Int | Apply Op E E deriving Show
+data Op = Plus | Times | Exp 
+     deriving (Eq,Ord,Show)
+data E = One | Proj Int | Apply Op E E 
+     deriving (Eq,Ord,Show)
 
 
 inter :: Fun B.Boolean
@@ -106,14 +108,25 @@ inter :: Fun B.Boolean
       -> Int -> Int 
       -> E
       -> Satchmo.SAT.Mini.SAT (Fun B.Boolean)
-inter plus times exp d k e = case e of
+inter plus times exp d k = 
+  cached M.empty $ \ f -> \ e -> case e of
     One -> constant d k 1
     Proj i -> projection d k i
     Apply op l r -> do
-        [x,y] <- forM [l,r] $ inter plus times exp d k
+        [x,y] <- forM [l,r] f
         substitute ( case op of
             Plus -> plus ; Times -> times; Exp -> exp
           ) [x,y]
+
+cached :: (Ord a, Monad m )
+       => M.Map a b
+       -> ( (a -> m b) -> (a -> m b) )
+       -> a -> m b
+cached c op arg = case M.lookup arg c of
+    Just result -> return result
+    Nothing -> do
+        out <- op (cached c op) arg
+        return out
 
 arguments d k = sequence $ replicate (k+1) [1..d]
 
