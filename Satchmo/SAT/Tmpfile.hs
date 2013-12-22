@@ -21,6 +21,7 @@ import Satchmo.MonadSAT
 
 import Control.Exception
 import Control.Monad.RWS.Strict
+import Control.Applicative
 import qualified  Data.Set as Set
 
 -- import qualified Data.ByteString.Lazy.Char8 as BS
@@ -94,7 +95,7 @@ start = Accu
       }
 
 newtype SAT a = SAT {unsat::RWST Handle () Accu IO a}
-    deriving (MonadState Accu, MonadReader Handle, Monad, MonadIO, Functor, MonadFix)
+    deriving (MonadState Accu, MonadReader Handle, Monad, MonadIO, Functor, Applicative, MonadFix)
 
 
 sat :: SAT a -> IO (BS.ByteString, Header, a )

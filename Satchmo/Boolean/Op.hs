@@ -1,7 +1,7 @@
 module Satchmo.Boolean.Op
 
 ( constant
-, and, or, xor, equals2, equals, implies
+, and, or, xor, equals2, equals, implies, (||), (&&)
 , fun2, fun3
 , ifThenElse, ifThenElseM
 , assert_fun2, assert_fun3
@@ -10,7 +10,7 @@ module Satchmo.Boolean.Op
 
 where
 
-import Prelude hiding ( and, or, not )
+import Prelude hiding ( and, or, not, (&&), (||) )
 import qualified Prelude
 import Control.Applicative ((<$>))
 import Satchmo.MonadSAT
@@ -39,6 +39,9 @@ or [x]= return x
 or xs = do
     y <- and $ map not xs
     return $ not y
+
+x && y = and [x,y]
+x || y = or [x,y]
 
 xor :: MonadSAT m => [ Boolean ] -> m Boolean
 xor [] = constant False

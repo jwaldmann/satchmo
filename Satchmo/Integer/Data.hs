@@ -9,7 +9,8 @@ module Satchmo.Integer.Data
 
 where
 
-import Prelude hiding ( and, or, not )
+import Prelude hiding ( and, or, not, (&&), (||) )
+import qualified Prelude 
 
 import qualified Satchmo.Code as C
 
@@ -55,9 +56,9 @@ constant :: MonadSAT m
 	 -> Integer -- ^ value
 	 -> m Number
 constant w n = do
-    xs <- if 0 <= n && n < 2^(w-1)
+    xs <- if 0 <= n Prelude.&& n < 2^(w-1)
           then mapM B.constant $ toBinary n
-	  else if negate ( 2^(w-1)) <= n && n < 0
+	  else if negate ( 2^(w-1)) <= n Prelude.&& n < 0
 	  then mapM B.constant $ toBinary (n + 2^w)
 	  else error "Satchmo.Integer.Data.constant"
     z <- B.constant False

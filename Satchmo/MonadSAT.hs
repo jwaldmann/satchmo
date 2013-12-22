@@ -15,6 +15,7 @@ where
 import Satchmo.Data
 import Satchmo.Code
 
+import Control.Applicative
 import Control.Monad.Trans (lift)
 import Control.Monad.Cont  (ContT)
 import Control.Monad.List  (ListT)
@@ -30,7 +31,7 @@ import Data.Monoid
 
 type Weight = Int
 
-class (MonadFix m, Functor m, Monad m) => MonadSAT m where
+class (MonadFix m, Applicative m, Monad m) => MonadSAT m where
   fresh, fresh_forall :: m  Literal
 
   emit  :: Clause  -> m ()

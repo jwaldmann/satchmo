@@ -29,6 +29,7 @@ import Control.Concurrent.MVar
 import Control.Exception
 import Control.Monad ( when )
 import Control.Monad.Fix
+import Control.Applicative
 import System.IO
 
 
@@ -45,6 +46,10 @@ instance Monad SAT where
     return x = SAT $ \ s -> return x
     SAT m >>= f = SAT $ \ s -> do 
         x <- m s ; let { SAT n = f x } ; n s
+
+instance Applicative SAT where
+    pure = return
+    a <*> b = a >>= \ f -> fmap f b
 
 instance MonadFix SAT where
     mfix f = SAT $ \ s -> mfix ( \ a -> unSAT (f a) s )
