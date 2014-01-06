@@ -3,7 +3,7 @@
 
 module Satchmo.Set.Data
 
-( Set
+( Set , unknown, constant
 , member, keys, keysSet, elems
 , all2, common2
 ) 
