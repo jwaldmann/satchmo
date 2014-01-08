@@ -4,7 +4,7 @@
 module Satchmo.Set.Data
 
 ( Set , unknown, constant
-, member, keys, keysSet, elems
+, member, keys, keysSet, keys, assocs, elems
 , all2, common2
 ) 
 
@@ -32,6 +32,7 @@ instance ( Functor m, Decode m B.Boolean Bool, Ord a )
 
 keys (Set m) = M.keys m
 keysSet (Set m) = M.keysSet m
+assocs (Set m) = M.assocs m
 elems (Set m) = M.elems m
 
 member x (Set m) = case M.lookup x m of
