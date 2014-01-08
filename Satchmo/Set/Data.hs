@@ -55,7 +55,7 @@ all2 f s t = B.and
  =<< forM ( S.toList $ S.union (keysSet s)(keysSet t))
  ( \ x -> do a <- member x s; b <- member x t; f a b )
 
-common2 f s t = M.fromList <$>
+common2 f s t = Set <$> M.fromList <$>
  forM ( S.toList $ S.union (keysSet s)(keysSet t))
  ( \ x -> do a <- member x s; b <- member x t
              y <- f a b ; return (x,y) )
