@@ -19,5 +19,7 @@ isSubsetOf = all2 $ B.implies
 union s t = common2 (B.||)
 intersection s t = common2 (B.&&)
 
+difference s t = common2 ( \ x y -> x B.&& (B.not y) )
+
 isSingleton s = C.exactly 1 $ elems s
 
