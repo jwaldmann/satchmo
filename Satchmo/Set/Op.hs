@@ -26,6 +26,10 @@ isSupersetOf = flip isSubsetOf
 isSingleton :: (Ord a, B.MonadSAT m) => Set a -> m B.Boolean
 isSingleton s = C.exactly 1 $ elems s
 
+isDisjoint :: (Ord a, B.MonadSAT m) => Set a -> Set a -> m B.Boolean
+isDisjoint = all2 
+    $ \ x y -> B.and [ B.not x, B.not y ]
+
 union :: (Ord a, B.MonadSAT m) => Set a -> Set a -> m (Set a)
 union = common2 (B.||) 
 
