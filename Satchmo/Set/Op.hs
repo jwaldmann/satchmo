@@ -20,6 +20,9 @@ equals = all2 B.equals2
 isSubsetOf :: (Ord a, B.MonadSAT m) => Set a -> Set a -> m B.Boolean
 isSubsetOf = all2 $ B.implies
 
+isSupersetOf :: (Ord a, B.MonadSAT m) => Set a -> Set a -> m B.Boolean
+isSupersetOf = flip isSubsetOf
+
 isSingleton :: (Ord a, B.MonadSAT m) => Set a -> m B.Boolean
 isSingleton s = C.exactly 1 $ elems s
 
