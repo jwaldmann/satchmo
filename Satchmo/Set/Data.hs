@@ -3,7 +3,7 @@
 
 module Satchmo.Set.Data
 
-( Set , unknown, constant
+( Set , unknown, unknownSingleton, constant
 , member, keys, keysSet, keys, assocs, elems
 , all2, common2
 ) 
@@ -22,6 +22,7 @@ import Satchmo.Map
 
 import Control.Monad ( guard, forM )
 import Control.Applicative ( (<$>), (<*>) )
+import Data.List ( tails )
 
 newtype Set a = Set (M.Map a B.Boolean)
 
@@ -45,6 +46,14 @@ unknown :: ( B.MonadSAT m , Ord a )
          => [a] -> m (Set a)
 unknown xs = Set <$> M.fromList 
      <$> ( forM xs $ \ x -> (x,) <$> B.boolean )
+
+unknownSingleton xs = do
+    s <- unknown xs
+    B.assert $ elems s
+    sequence_ $ do 
+       x : ys <- tails $ elems s ; y <- ys
+       return $ B.assert [ B.not x, B.not y ]
+    return s
 
 constant :: ( B.MonadSAT m , Ord a )
          => [a] -> m (Set a)

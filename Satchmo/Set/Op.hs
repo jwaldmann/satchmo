@@ -7,6 +7,7 @@ import qualified Satchmo.Boolean as B
 import qualified Satchmo.Counting as C
 
 import qualified Data.Set as S
+import Data.List ( tails )
 
 import Control.Monad ( guard, forM, liftM2 )
 import Control.Applicative ( (<$>), (<*>) )
@@ -24,7 +25,8 @@ isSupersetOf :: (Ord a, B.MonadSAT m) => Set a -> Set a -> m B.Boolean
 isSupersetOf = flip isSubsetOf
 
 isSingleton :: (Ord a, B.MonadSAT m) => Set a -> m B.Boolean
-isSingleton s = C.exactly 1 $ elems s
+isSingleton s = do
+   C.exactly 1 $ elems s
 
 isDisjoint :: (Ord a, B.MonadSAT m) => Set a -> Set a -> m B.Boolean
 isDisjoint = all2 
