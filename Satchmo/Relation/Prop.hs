@@ -7,6 +7,9 @@ module Satchmo.Relation.Prop
 , reflexive
 , regular
 , empty
+, complete
+, disjoint
+, equals
 )
 
 where
@@ -15,7 +18,7 @@ import Prelude hiding ( and, or, not, product )
 import qualified Prelude
 
 import Satchmo.Code
-import Satchmo.Boolean hiding (implies)
+import Satchmo.Boolean hiding (implies, equals)
 import Satchmo.Counting
 import Satchmo.Relation.Data
 import Satchmo.Relation.Op
@@ -37,6 +40,17 @@ empty ::  ( Ix a, Ix b, MonadSAT m )
 empty r = and $ do
     i <- indices r
     return $ not $ r ! i
+
+complete r = empty $ complement r
+
+disjoint r s = do
+    i <- intersection r s
+    empty i
+
+equals r s = do
+    rs <- implies r s
+    sr <- implies s r
+    and [ rs, sr ]
 
 symmetric :: ( Ix a, MonadSAT m) => Relation a a -> m Boolean
 {-# specialize inline symmetric :: ( Ix a ) => Relation a a -> SAT Boolean #-}      

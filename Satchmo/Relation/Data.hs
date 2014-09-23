@@ -4,7 +4,7 @@ module Satchmo.Relation.Data
 
 ( Relation, relation, build
 , identity                      
-, bounds, (!), indices, assocs
+, bounds, (!), indices, assocs, elems
 , table
 ) 
 
@@ -16,7 +16,7 @@ import Satchmo.Boolean
 import Satchmo.SAT
 
 import qualified Data.Array as A
-import Data.Array hiding ( bounds, (!), indices, assocs )
+import Data.Array ( Array, Ix )
 import Data.Functor ((<$>))
 
 import Control.Monad ( guard, forM )
@@ -28,7 +28,7 @@ relation :: ( Ix a, Ix b, MonadSAT m )
 {-# specialize inline relation :: ( Ix a, Ix b) => ((a,b),(a,b)) -> SAT ( Relation a b ) #-} 
 relation bnd = do
     pairs <- sequence $ do 
-        p <- range bnd
+        p <- A.range bnd
         return $ do
             x <- boolean
             return ( p, x )
@@ -48,7 +48,7 @@ build :: ( Ix a, Ix b )
       => ((a,b),(a,b)) 
       -> [ ((a,b), Boolean ) ]
       -> Relation a b 
-build bnd pairs = Relation $ array bnd pairs
+build bnd pairs = Relation $ A.array bnd pairs
 
 
 bounds :: (Ix a, Ix b) => Relation a b -> ((a,b),(a,b))
@@ -58,6 +58,7 @@ indices ( Relation r ) = A.indices r
 
 assocs ( Relation r ) = A.assocs r
 
+elems ( Relation r ) = A.elems r
 
 Relation r ! p = r A.! p
 
