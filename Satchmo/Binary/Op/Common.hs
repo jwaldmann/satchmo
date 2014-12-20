@@ -113,7 +113,7 @@ compare' [] ys = do
 full_adder :: (MonadSAT m) 
            => Boolean -> Boolean -> Boolean
            -> m ( Boolean , Boolean ) -- ^ (result, carry)
-full_adder = full_adder_1
+full_adder = full_adder_0
 
 full_adder_1 p1 p2 p3 = do
     p4 <- boolean ; p5 <- boolean
@@ -159,10 +159,16 @@ full_adder_plain a b c = do
     d <- fun3 ( \ x y z -> 1   < s x y z ) a b c
     return ( r, d )
 
+full_adder_from_half a b c = do
+    (p,q) <- half_adder_plain a b
+    (r,s) <- half_adder_plain p c
+    qs <- or [q,s]
+    return ( r, qs )
+
 half_adder :: (MonadSAT m) 
            => Boolean -> Boolean 
            -> m ( Boolean, Boolean ) -- ^ (result, carry)
-half_adder = half_adder_1
+half_adder = half_adder_plain
 
 half_adder_1 p1 p2 = do
     p3 <- boolean ; p4 <- boolean
@@ -191,5 +197,6 @@ half_adder_0 p1 p2 = do
 half_adder_plain a b = do
     let s x y = sum $ map fromEnum [x,y]
     r <- fun2 ( \ x y -> odd $ s x y ) a b
-    d <- fun2 ( \ x y -> 1   < s x y ) a b
+    -- d <- fun2 ( \ x y -> 1   < s x y ) a b
+    d <- and [ a, b ] -- makes three clauses (not four)
     return ( r, d )
