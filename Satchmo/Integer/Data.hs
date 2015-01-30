@@ -3,8 +3,8 @@
 module Satchmo.Integer.Data 
 
 ( Number, make, number
-, constant
-, bits, width
+, constant, decode
+, bits, width, sign
 )
 
 where
@@ -18,6 +18,7 @@ import Satchmo.Boolean hiding ( constant )
 import qualified  Satchmo.Boolean as B
 
 import Satchmo.Counting
+import Control.Monad
 
 data Number = Number 
             { bits :: [ Boolean ] -- ^ lsb first,
@@ -29,6 +30,11 @@ instance C.Decode m Boolean Bool => C.Decode m Number Integer where
 
 width :: Number -> Int
 width n = length $ bits n
+
+sign :: Number -> Boolean
+sign n = case bits n of
+  [] -> error "Satchmo.Integer.Data:sign no bits"
+  bs -> last bs
 
 -- | declare a number variable (bit width)
 number :: MonadSAT m => Int -> m Number
@@ -64,3 +70,7 @@ constant w n = do
     z <- B.constant False
     return $ make $ take w $ xs ++ repeat z
 
+decode w n = do
+  bs <- forM (bits n) C.decode
+  return $ fromBinary bs
+         - if last bs then 2^w else 0

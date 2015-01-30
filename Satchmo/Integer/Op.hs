@@ -16,6 +16,7 @@ import qualified  Satchmo.Boolean as B
 
 import qualified Satchmo.Binary.Op.Common as C
 import qualified Satchmo.Binary.Op.Flexible as F
+import qualified Satchmo.Binary.Op.Times as T
 
 import Control.Monad ( forM, when )
 
@@ -44,8 +45,11 @@ add a b = do
     cin <- B.constant False
     ( zs, cout ) <- 
         F.add_with_carry cin ( bits a ) ( bits b )
-    monadic assertOr [ fun2 (==) cout $ last zs ]
-    return $ make zs
+    let c = make zs
+    sab <- B.fun2 (==) (sign a) (sign b)
+    sac <- B.fun2 (==) (sign a) (sign c)
+    B.assert [ B.not sab , sac ]
+    return c
 
 sub :: MonadSAT m 
     => Number -> Number 
@@ -62,11 +66,17 @@ times :: MonadSAT m
 times a b = do
     when ( width a /= width b ) 
     	 $ error "Satchmo.Integer.Op.times"
-    c <- F.times ( F.make $ bits a ) 
-      	 	 ( F.make $ bits b )
-    let ( pre, post ) = splitAt ( width a ) $ F.bits c
-    monadic assertOr [ fun2 (==) ( head post) $ last pre ]
-    return $ make pre
+    let w = width a
+    cs <- T.times' T.Ignore (Just (2*w)) (sext a w) (sext b w)
+    let (small, large) = splitAt w cs
+    allone <- B.and large ; allzero <- B.and ( map B.not large )
+    B.assert [ allone, allzero ]
+    e <- B.fun2 (==) (last small) (head large)
+    B.assert[e]
+    return $ make small
+
+sext a w = bits a ++ replicate w (sign a)
+    
 
 ----------------------------------------------------
 
