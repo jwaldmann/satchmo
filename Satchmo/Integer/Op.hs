@@ -67,6 +67,39 @@ times a b = do
     when ( width a /= width b ) 
     	 $ error "Satchmo.Integer.Op.times"
     let w = width a
+
+    cs <- T.times' T.Ignore (Just w) (bits a) (bits b)
+
+    nza <- or $ bits a ; nzb <- or $ bits b
+    result_should_be_nonzero <- and [ nza, nzb ]
+    result_is_nonzero <- or cs
+
+    assert [ not result_should_be_nonzero, result_is_nonzero ]
+
+    xs <- forM (bits a) $ \ x -> fun2 (/=) x (sign a)
+    ys <- forM (bits b) $ \ y -> fun2 (/=) y (sign b)
+    
+    forM (zip [0..w-2] xs) $ \ (i,x) ->
+      forM (zip [0..w-2] ys) $ \ (j,y) ->
+        when (i+j>=w-1) $ assert [ not x, not y ]
+
+    let c = make cs
+
+    s <- fun2 (/=) (sign a) (sign b)
+    ok <- fun2 (==) s (sign c)
+    
+    assert [ not result_is_nonzero, ok ]
+    
+    return c
+
+-- | inefficient (used double-bit width computation)
+times_model :: MonadSAT m 
+    => Number -> Number 
+    -> m Number
+times_model a b = do
+    when ( width a /= width b ) 
+    	 $ error "Satchmo.Integer.Op.times"
+    let w = width a
     cs <- T.times' T.Ignore (Just (2*w)) (sext a w) (sext b w)
     let (small, large) = splitAt w cs
     allone <- B.and large ; allzero <- B.and ( map B.not large )
