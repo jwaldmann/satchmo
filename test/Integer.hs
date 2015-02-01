@@ -13,7 +13,7 @@ tdecode (Positive w) x = monadic $ do
   print (x,out)    
   return $ Just x == out
 
-tmult = tfun2 I.times (*) (Positive 3) (Positive 3)
+tmult = tfun2 I.times (*) (Positive 3) (Positive 5)
 
 representable w x =
   let h = 2^(w-1) in negate h <= x && x < h

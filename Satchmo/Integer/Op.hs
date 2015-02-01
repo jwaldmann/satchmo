@@ -60,14 +60,16 @@ sub a b = do
     c <- negate b
     add a c
 
+sextn w n = make $ sext n w
+
 times :: MonadSAT m 
     => Number -> Number 
     -> m Number
-times a b = do
-    when ( width a /= width b ) 
-    	 $ error "Satchmo.Integer.Op.times"
-    let w = width a
+times a0 b0 = do
 
+    let w = max (width a0) (width b0)
+        a = sextn w a0 ; b = sextn w b0
+        
     cs <- T.times' T.Ignore (Just w) (bits a) (bits b)
 
     nza <- or $ bits a ; nzb <- or $ bits b
