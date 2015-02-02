@@ -39,9 +39,11 @@ increment (y:ys) z = do
 add :: MonadSAT m 
     => Number -> Number 
     -> m Number
-add a b = do
-    when ( width a /= width b ) 
-    	 $ error "Satchmo.Integer.Op.add"
+add a0 b0 = do
+
+    let w = max (width a0) (width b0)
+        a = sextn w a0 ; b = sextn w b0
+
     cin <- B.constant False
     ( zs, cout ) <- 
         F.add_with_carry cin ( bits a ) ( bits b )
@@ -110,7 +112,7 @@ times_model a b = do
     B.assert[e]
     return $ make small
 
-sext a w = bits a ++ replicate w (sign a)
+sext a w = bits a ++ replicate (w - width a) (sign a)
     
 
 ----------------------------------------------------
