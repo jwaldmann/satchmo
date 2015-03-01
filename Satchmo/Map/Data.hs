@@ -4,6 +4,8 @@
 module Satchmo.Map.Data
 
 ( Map
+, unknown, constant
+, (!), 
 ) 
 
 where
@@ -20,6 +22,8 @@ import Control.Monad ( guard, forM )
 import Control.Applicative ( (<$>), (<*>) )
 
 newtype Map a b = Map (M.Map a b)
+
+Map m ! i = m M.! i
 
 instance ( Functor m, Decode m b c, Ord a )
          => Decode m (Map a b) ( M.Map a c) where

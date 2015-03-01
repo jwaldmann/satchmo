@@ -18,8 +18,6 @@ import Satchmo.SAT
 import qualified Data.Set as S
 import qualified Data.Map.Strict as M
 
-import Satchmo.Map
-
 import Control.Monad ( guard, forM )
 import Control.Applicative ( (<$>), (<*>) )
 import Data.List ( tails )
