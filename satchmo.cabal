@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        2.8.3
+Version:        2.9.0
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -28,6 +28,8 @@ Library
         -- Satchmo.Solve
         Satchmo.Boolean
         Satchmo.Counting
+        Satchmo.Counting.Unary
+        Satchmo.Counting.Binary
         Satchmo.Code
         Satchmo.Integer
         Satchmo.Binary

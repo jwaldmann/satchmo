@@ -1,4 +1,4 @@
-module Satchmo.Counting 
+module Satchmo.Counting.Unary
 
 ( atleast
 , atmost
