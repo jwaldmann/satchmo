@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        2.9.1
+Version:        2.9.2
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -64,6 +64,7 @@ Library
         Satchmo.Set.Op
         Satchmo.Map
         Satchmo.Map.Data
+        Satchmo.Array
         Satchmo.Numeric
         Satchmo.Binary.Numeric
         Satchmo.BinaryTwosComplement.Numeric
