@@ -5,7 +5,7 @@
 module Satchmo.Array
 
 ( Array
-, unknown, constant
+, array, unknown, constant
 , (!), elems, indices, bounds, range, assocs
 )
        
@@ -36,3 +36,4 @@ indices (Array a) = A.indices a
 bounds (Array a) = A.bounds a
 range bnd = A.range bnd
 assocs (Array a) = A.assocs a
+array bnd kvs = Array (A.array bnd kvs)
