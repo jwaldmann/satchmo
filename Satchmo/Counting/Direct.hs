@@ -5,6 +5,8 @@ module Satchmo.Counting.Direct
 ( atleast
 , atmost
 , exactly
+, assert_implies_atmost
+, assert_implies_exactly
 )
 
 where
@@ -12,7 +14,7 @@ where
 import Satchmo.Boolean ( Boolean, MonadSAT )  
 import qualified Satchmo.Boolean as B
 
-import Control.Monad ( forM )
+import Control.Monad ( forM, forM_ )
 
 select :: Int -> [a] -> [[a]]
 select 0 xs = [[]]
@@ -31,5 +33,13 @@ exactly k xs = do
   this <- atleast k xs
   that <- atmost k xs
   this B.&& that
-  
-        
+
+assert_implies_atmost ys k xs = 
+  forM_ (select (k+1) xs) $ \ sub -> do
+    B.assert $ map B.not ys ++ map B.not sub
+
+-- | asserting that  (or ys)  implies  (exactly k xs)
+assert_implies_exactly ys k xs = do
+  assert_implies_atmost ys k xs
+  assert_implies_atmost ys (length xs - k) $ map B.not xs
+
