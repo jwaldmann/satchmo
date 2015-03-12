@@ -1,7 +1,7 @@
 module Satchmo.Boolean.Op
 
 ( constant
-, and, or, xor, equals2, equals, implies, (||), (&&)
+, and, or, xor, xor2, equals2, equals, implies, (||), (&&)
 , fun2, fun3
 , ifThenElse, ifThenElseM
 , assert_fun2, assert_fun3
