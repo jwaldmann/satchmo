@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        2.9.3
+Version:        2.9.4
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -12,7 +12,7 @@ description:	Encoding for boolean and integral constraints into CNF-SAT.
 		(hence the "mo" in "satchmo").
 
 Category:	Logic
-cabal-version:  >= 1.6
+cabal-version:  >= 1.8
 build-type: Simple
 source-repository head
     type: git
@@ -30,6 +30,7 @@ Library
         Satchmo.Counting
         Satchmo.Counting.Unary
         Satchmo.Counting.Binary
+        Satchmo.Counting.Direct
         Satchmo.Code
         Satchmo.Integer
         Satchmo.Binary
@@ -96,3 +97,10 @@ Library
     hs-source-dirs:     .
     extensions: 
 
+Test-Suite Ramsey
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: Ramsey.hs
+  Build-Depends: base, array, satchmo
+
+  
