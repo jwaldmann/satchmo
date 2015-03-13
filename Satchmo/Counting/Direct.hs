@@ -34,9 +34,11 @@ exactly k xs = do
   that <- atmost k xs
   this B.&& that
 
-assert_implies_atmost ys k xs = 
+assert_implies_atmost ys k xs | k >= 0 = 
   forM_ (select (k+1) xs) $ \ sub -> do
     B.assert $ map B.not ys ++ map B.not sub
+assert_implies_atmost ys k _ =
+  B.assert $ map B.not ys
 
 -- | asserting that  (or ys)  implies  (exactly k xs)
 assert_implies_exactly ys k xs = do
