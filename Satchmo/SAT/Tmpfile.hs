@@ -13,7 +13,7 @@ module Satchmo.SAT.Tmpfile
 
 where
 
-import Satchmo.Data
+import Satchmo.Data hiding ( size )
 import Satchmo.Code
 import Satchmo.Boolean
 import Satchmo.Boolean.Data

@@ -1,19 +1,23 @@
 {-# language TypeFamilies #-}
+{-# language GeneralizedNewtypeDeriving #-}
 
 module Satchmo.Data 
 
-( CNF, cnf, clauses
-, Clause, clause, literals
+( CNF, cnf, singleton, clauses, foldr, filter, size
+, Clause, clause, literals, without
 , Literal, literal, nicht, positive, variable
 , Variable 
 )
 
 where
 
+import Prelude hiding ( foldr, filter )
+import qualified Prelude
+  
 import qualified Data.Sequence as S
-import Data.Foldable (toList)
+import qualified Data.Foldable as F
 import Data.Monoid
-
+import Data.List ( nub )
 
 type Variable = Int
 
@@ -21,6 +25,7 @@ data Literal =
      Literal { variable :: ! Variable
              , positive :: ! Bool
              }
+     deriving ( Eq, Ord )
 
 instance Show Literal where
     show l = ( if positive l then "" else "-" )
@@ -33,7 +38,14 @@ nicht :: Literal -> Literal
 nicht x = x { positive = not $ positive x }
 
 newtype CNF  = CNF ( S.Seq Clause )
-clauses (CNF s) = Data.Foldable.toList s
+    deriving ( Monoid )
+
+foldr f x (CNF s) = F.foldr f x s
+filter p (CNF s) = CNF $ S.filter p s
+
+size (CNF s) = S.length s
+                   
+clauses (CNF s) = F.toList s
 
 instance Show CNF  where
     show cnf = unlines $ map show $ clauses cnf
@@ -41,16 +53,20 @@ instance Show CNF  where
 cnf :: [ Clause ] -> CNF 
 cnf cs = CNF $ S.fromList cs
 
-instance Monoid CNF where
-  mempty = CNF S.empty
-  mappend (CNF c1) (CNF c2) = CNF $ mappend c1 c2
+singleton c = CNF $ S.singleton c
+
 
 newtype Clause = Clause { literals :: [ Literal ] }
+   deriving ( Eq)
+
+instance Monoid Clause where
+  mappend (Clause xs)(Clause ys)= clause (xs++ys)
 
 instance Show ( Clause ) where
-    show ( Clause xs ) = unwords ( map show xs ++ [ "0" ] )
+  show ( Clause xs ) = unwords ( map show xs ++ [ "0" ] )
 
 clause ::  [ Literal ] -> Clause 
-clause ls = Clause { literals = ls }
+clause ls = Clause { literals = nub ls }
 
-
+without (Clause lits) lit =
+  Clause (Prelude.filter (/= lit) lits)

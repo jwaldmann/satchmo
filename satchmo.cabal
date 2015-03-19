@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        2.9.6
+Version:        2.9.7
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -21,7 +21,7 @@ source-repository head
 Library
     ghc-options: -funbox-strict-fields
     Build-depends:  mtl, process, containers, base == 4.*,
-               array, bytestring, directory, minisat >= 0.1
+        lens, array, bytestring, directory, minisat >= 0.1
     Exposed-modules:
         Satchmo.Data
         -- Satchmo.Data.Default
@@ -55,6 +55,8 @@ Library
         Satchmo.SAT
         Satchmo.SAT.Tmpfile
         Satchmo.SAT.Mini
+        Satchmo.SAT.CNF
+        Satchmo.Fourier_Motzkin
         -- Satchmo.SAT.BS
         -- Satchmo.SAT.Seq
         -- Satchmo.SAT.Sequence
@@ -101,6 +103,12 @@ Test-Suite Ramsey
   Type: exitcode-stdio-1.0
   hs-source-dirs: examples
   Main-Is: Ramsey.hs
+  Build-Depends: base, array, satchmo
+
+Test-Suite RamseyFM
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: RamseyFM.hs
   Build-Depends: base, array, satchmo
 
   
