@@ -28,7 +28,7 @@ main :: IO ()
 main = do
     argv <- getArgs
     let ns = map read $ case argv of
-          [] -> [ "3", "3", "5" ] -- small numbers, else it will blow up
+          [] -> [ "3", "4", "8" ] -- small numbers, else it will blow up
           _ -> argv
         cs = init ns 
         n = last ns

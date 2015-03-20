@@ -16,7 +16,7 @@ type Solver = CNF -> IO (Maybe (M.Map Variable Bool))
 
 fomo :: Solver
 fomo cnf = do
-  print_info "fomo" cnf
+  -- print_info "fomo" cnf
   ( remove_satisfied $ trivial $ onesided $  eliminate $ branch ) cnf
 
 print_info msg cnf = do
@@ -65,7 +65,7 @@ disjoint s t = S.null $ S.intersection s t
 
 eliminate :: Solver -> Solver
 eliminate cont nf = do
-  print_info "eliminate" nf
+  -- print_info "eliminate" nf
   let pos = occurrences True  nf
       neg = occurrences False nf
       reductions = M.intersectionWith
@@ -73,7 +73,7 @@ eliminate cont nf = do
                           ly = length xs
                       in  lx*ly - lx - ly
          ) pos neg
-      resolve v = splitAt 10000 $ do -- ARBITRARY NUMBER
+      resolve v = splitAt 1000 $ do -- ARBITRARY NUMBER
         cp <- pos M.! v
         let cpv = cp `without` v
         cn <- neg M.! v
@@ -91,36 +91,37 @@ eliminate cont nf = do
           let v = M.findWithDefault False ( variable lit ) m
           return $ if positive lit then v else Prelude.not v 
       (v,c) = minimumBy (compare `on` snd) $ M.toList reductions
-  hPutStrLn stderr $ unwords [ "best resolution:", show v, "count", show c ]
+  -- hPutStrLn stderr $ unwords [ "best resolution:", show v, "count", show c ]
   let ( pre,post) = resolve v
   if null post
     then do
-               hPutStrLn stderr $ unwords [ "do it" ]
-               later <- fomo $ others v <> cnf pre
+               let res = others v <> cnf pre
+               hPutStr stderr $ unwords [ "R", show v , show (size nf, size res) ]
+               later <- fomo res
                return $ fmap
                     ( \ m -> M.insert v (reconstruct v m) m)
                     later
     else do
-               hPutStrLn stderr $ unwords [ "do not do it" ]
+               -- hPutStrLn stderr $ unwords [ "do not do it" ]
                cont nf
 
 branch cnf = do
-  print_info "branch" cnf
+--  print_info "branch" cnf
   let stat = M.fromListWith (+) $ do
         c <- clauses cnf
         let ls = literals c
         let w = 1 / fromIntegral (length ls)
         l <- ls
-        return (variable l, w)
-      (v,w) = maximumBy (compare `on` snd) $ M.toList stat
-  hPutStrLn stderr $ unwords [ "on variable", show (v,w), "False" ]
-  a <- fomo $ assign v False cnf
+        return ((variable l,positive l), w)
+      ((v,p),w) = maximumBy (compare `on` snd) $ M.toList stat
+  hPutStr stderr $ unwords [ "D", show v, show p ]
+  a <- fomo $ assign v p cnf
   case a of
-    Just m -> return $ Just $ M.insert v False m
+    Just m -> return $ Just $ M.insert v p m
     Nothing -> do
-      hPutStrLn stderr $ unwords [ "on variable", show (v,w), "True" ]
-      b <- fomo $ assign v True cnf
-      return $ fmap (M.insert v True) b
+      hPutStr stderr $ unwords [ "D", show v, show $ not p ]
+      b <- fomo $ assign v (not p) cnf
+      return $ fmap (M.insert v $ not p) b
         
 -- | map each var to list of clauses where it occurs 
 occurrences :: Bool -> CNF -> M.Map Variable [Clause]

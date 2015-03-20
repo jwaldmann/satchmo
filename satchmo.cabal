@@ -104,11 +104,12 @@ Test-Suite Ramsey
   hs-source-dirs: examples
   Main-Is: Ramsey.hs
   Build-Depends: base, array, satchmo
-
+  ghc-options: -rtsopts
+  
 Test-Suite RamseyFM
   Type: exitcode-stdio-1.0
   hs-source-dirs: examples
   Main-Is: RamseyFM.hs
   Build-Depends: base, array, satchmo
-
+  ghc-options: -rtsopts
   
