@@ -4,7 +4,7 @@
 module Satchmo.Data 
 
 ( CNF, cnf, singleton, clauses, foldr, filter, size
-, Clause, clause, literals, without
+, Clause (CTrue), clause, literals, without
 , Literal, literal, nicht, positive, variable
 , Variable 
 )
