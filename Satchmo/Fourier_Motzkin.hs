@@ -16,14 +16,26 @@ type Solver = CNF -> IO (Maybe (M.Map Variable Bool))
 
 fomo :: Solver
 fomo cnf = do
-  print_info cnf
-  ( trivial $ onesided $  eliminate fomo ) cnf
+  print_info "fomo" cnf
+  ( remove_satisfied $ trivial $ onesided $  eliminate fomo ) cnf
 
-print_info cnf = do
-  hPutStrLn stderr $ show cnf
+print_info msg cnf = do
+  hPutStrLn stderr $ unwords [ msg, show $ size cnf ]
+
+remove_satisfied cont cnf = do
+  print_info "remove_satisfied" cnf
+  let vars polar cl = S.fromList $ do
+        lit <- literals cl;
+        guard $ positive lit == polar
+        return $ variable lit
+      remaining = Satchmo.Data.filter
+        ( \ cl -> disjoint ( vars True cl ) ( vars False cl ))
+        cnf
+  cont cnf
 
 trivial :: Solver -> Solver
 trivial cont cnf = do
+  print_info "trivial" cnf
   if null $ clauses cnf
      then return $ Just M.empty
      else if clause [] `elem` clauses cnf
@@ -32,6 +44,7 @@ trivial cont cnf = do
 
 onesided :: Solver -> Solver
 onesided cont cnf = do
+  print_info "onesided" cnf
   let pos = occurrences True  cnf
       neg = occurrences False cnf
       onlypos = M.keys $ M.difference pos neg
@@ -50,6 +63,7 @@ disjoint s t = S.null $ S.intersection s t
 
 eliminate :: Solver -> Solver
 eliminate cont nf = do
+  print_info "eliminate" nf
   let pos = occurrences True  nf
       neg = occurrences False nf
       reductions = M.intersectionWith

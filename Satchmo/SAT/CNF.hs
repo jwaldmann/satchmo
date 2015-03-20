@@ -60,7 +60,7 @@ instance MonadSAT SAT where
       modify ( next %~ succ )
       return $ literal True $ x ^. next
 
-  emit cl = do
+  emit cl = do      
       modify ( output %~ ( singleton cl <> ) )
 
   note msg = liftIO $ hPutStrLn stderr msg
