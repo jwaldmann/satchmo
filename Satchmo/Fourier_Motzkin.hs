@@ -20,7 +20,8 @@ fomo cnf = do
   ( remove_satisfied $ trivial $ onesided $  eliminate fomo ) cnf
 
 print_info msg cnf = do
-  hPutStrLn stderr $ unwords [ msg, show $ size cnf ]
+  hPutStrLn stderr $ unwords [ msg, show $ size cnf, "\n" ]
+  -- hPutStrLn stderr $ show cnf ++ "\n"
 
 remove_satisfied cont cnf = do
   print_info "remove_satisfied" cnf
@@ -56,7 +57,8 @@ onesided cont cnf = do
          ( \ cl -> disjoint ks
                    $ S.fromList $ map variable $ literals cl) 
          cnf
-  later <- cont others
+  hPutStrLn stderr $ unwords [ "assigned", show assigned , "\n" ]       
+  later <- ( if size others < size cnf then fomo else cont ) others
   return $ fmap ( M.union assigned ) later
 
 disjoint s t = S.null $ S.intersection s t
@@ -69,28 +71,26 @@ eliminate cont nf = do
       reductions = M.intersectionWith
          ( \ xs ys -> let lx = length xs
                           ly = length xs
-                      in  negate (lx*ly - lx - ly)
+                      in  lx*ly - lx - ly
          ) pos neg
       resolve v = cnf $ do
         cp <- pos M.! v
-        let cpv = cp `without` (literal True  v) 
+        let cpv = cp `without` v
         cn <- neg M.! v
-        let cnv = cn `without` (literal False v) 
-        guard $ disjoint ( S.fromList (literals cpv))
-           (S.fromList (literals cnv))
+        let cnv = cn `without` v
         return $  cpv <> cnv
       others v = Satchmo.Data.filter
         ( \ cl -> not $ elem v $ map variable $ literals cl )
         nf
       reconstruct v m = Prelude.or $ do
         cp <- pos M.! v
-        return $ Prelude.not $ Prelude.and $ do
-          lit <- literals cp
-          guard $ lit /= literal True v
-          let v = m M.! variable lit
-          return $ if positive lit then v else Prelude.not v
+        return $ Prelude.not $ Prelude.or $ do
+          lit <- literals $ cp `without` v
+          let v = M.findWithDefault False ( variable lit ) m
+          return $ if positive lit then v else Prelude.not v 
   case sortBy (compare `on` snd) $ M.toList reductions of
         (v,c): _ -> do
+           hPutStrLn stderr $ unwords [ "completely resolve", show v, "count", show c ]
            later <- cont $ others v <> resolve v
            return $ fmap
                     ( \ m -> M.insert v (reconstruct v m) m)

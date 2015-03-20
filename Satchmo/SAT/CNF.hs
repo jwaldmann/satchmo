@@ -66,16 +66,14 @@ instance MonadSAT SAT where
   note msg = liftIO $ hPutStrLn stderr msg
 
   type Decoder SAT = Reader (M.Map Variable Bool)
-  decode_variable v = do
-      m <- ask
-      return $ m M.! v
+  decode_variable v = do m <- ask ; return $ m M.! v
       
 instance Decode (Reader (M.Map Variable Bool)) Boolean Bool where
     decode b = case b of
         Constant c -> return c
         Boolean  l -> do 
             v <- -- decode_variable $ variable l
-              do m <- ask ; return $ m M.! variable l
+              do m <- ask ; return $ M.findWithDefault False ( variable l ) m
             return $ if positive l then v else not v
 
 solve :: SAT (Decoder SAT a) -> IO (Maybe a)

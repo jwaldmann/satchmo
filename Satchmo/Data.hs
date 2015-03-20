@@ -14,7 +14,8 @@ where
 import Prelude hiding ( foldr, filter )
 import qualified Prelude
   
-import qualified Data.Sequence as S
+import qualified Data.Set as S
+import qualified Data.Map as M
 import qualified Data.Foldable as F
 import Data.Monoid
 import Data.List ( nub )
@@ -37,13 +38,13 @@ literal pos v  = Literal { positive = pos, variable = v }
 nicht :: Literal -> Literal 
 nicht x = x { positive = not $ positive x }
 
-newtype CNF  = CNF ( S.Seq Clause )
+newtype CNF  = CNF ( S.Set Clause )
     deriving ( Monoid )
 
 foldr f x (CNF s) = F.foldr f x s
 filter p (CNF s) = CNF $ S.filter p s
 
-size (CNF s) = S.length s
+size (CNF s) = S.size s
                    
 clauses (CNF s) = F.toList s
 
@@ -51,22 +52,44 @@ instance Show CNF  where
     show cnf = unlines $ map show $ clauses cnf
 
 cnf :: [ Clause ] -> CNF 
-cnf cs = CNF $ S.fromList cs
+cnf cs = CNF $ S.fromList $ Prelude.filter ( /= CTrue) cs
 
 singleton c = CNF $ S.singleton c
 
 
-newtype Clause = Clause { literals :: [ Literal ] }
-   deriving ( Eq)
+data Clause = Clause  ! ( M.Map Variable Bool )  | CTrue
+   deriving ( Eq, Ord )
+
+literals :: Clause ->  [ Literal ]
+literals c = case c of
+  Clause m -> map ( \ (v,p) -> literal p v ) $ M.toList m
 
 instance Monoid Clause where
-  mappend (Clause xs)(Clause ys)= clause (xs++ys)
+  mempty = Clause M.empty
+  mappend c1 c2 = case c1 of
+    CTrue -> CTrue
+    Clause m1 -> case c2 of
+      CTrue -> CTrue
+      Clause m2 ->
+        let common = M.intersection m1 m2
+        in  if M.isSubmapOf common m1 && M.isSubmapOf common m2
+            then Clause $ M.union m1 m2
+            else CTrue
 
 instance Show ( Clause ) where
-  show ( Clause xs ) = unwords ( map show xs ++ [ "0" ] )
+  show c = case c of
+    CTrue -> "# True"
+    Clause m -> unwords ( map show (literals c) ++ [ "0" ] )
 
 clause ::  [ Literal ] -> Clause 
-clause ls = Clause { literals = nub ls }
+clause ls = Prelude.foldr
+            ( \ l c -> case c of
+                 CTrue -> CTrue           
+                 Clause m -> case M.lookup (variable l) m of
+                   Nothing -> Clause $ M.insert (variable l) (positive l) m
+                   Just p -> if p == positive l then Clause m else CTrue
+            ) mempty ls
 
-without (Clause lits) lit =
-  Clause (Prelude.filter (/= lit) lits)
+without c w = case c of
+  -- CTrue -> CTrue -- ?
+  Clause m -> Clause $ M.filterWithKey ( \ v p -> w /= v ) m
