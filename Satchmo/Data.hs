@@ -3,7 +3,7 @@
 
 module Satchmo.Data 
 
-( CNF, cnf, singleton, clauses, foldr, filter, size
+( CNF, cnf, singleton, clauses, foldr, filter, size, assign
 , Clause (CTrue), clause, literals, without
 , Literal, literal, nicht, positive, variable
 , Variable 
@@ -39,7 +39,10 @@ nicht :: Literal -> Literal
 nicht x = x { positive = not $ positive x }
 
 newtype CNF  = CNF ( S.Set Clause )
-    deriving ( Monoid )
+
+instance Monoid CNF where
+  mempty = CNF S.empty
+  mappend (CNF a) (CNF b) = CNF $ S.delete CTrue $ S.union a b
 
 foldr f x (CNF s) = F.foldr f x s
 filter p (CNF s) = CNF $ S.filter p s
@@ -56,6 +59,14 @@ cnf cs = CNF $ S.fromList $ Prelude.filter ( /= CTrue) cs
 
 singleton c = CNF $ S.singleton c
 
+assign :: Variable -> Bool -> CNF -> CNF
+assign v p (CNF s) = ( F.foldMap $ \ c -> singleton $ case c of
+       CTrue -> CTrue
+       Clause m -> case M.lookup v m of
+         Nothing -> Clause m
+         Just q ->
+           if p == q then CTrue
+           else Clause $ M.delete v m ) s
 
 data Clause = Clause  ! ( M.Map Variable Bool )  | CTrue
    deriving ( Eq, Ord )

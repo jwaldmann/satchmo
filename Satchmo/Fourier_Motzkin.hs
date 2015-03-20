@@ -8,7 +8,7 @@ import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 import Control.Monad ( guard )
 import Data.Monoid
-import Data.List ( sortBy, nub )
+import Data.List ( maximumBy, minimumBy )
 import Data.Function (on)
 import System.IO
 
@@ -17,14 +17,14 @@ type Solver = CNF -> IO (Maybe (M.Map Variable Bool))
 fomo :: Solver
 fomo cnf = do
   print_info "fomo" cnf
-  ( remove_satisfied $ trivial $ onesided $  eliminate fomo ) cnf
+  ( remove_satisfied $ trivial $ onesided $  eliminate $ branch ) cnf
 
 print_info msg cnf = do
   hPutStrLn stderr $ unwords [ msg, show $ size cnf, "\n" ]
   -- hPutStrLn stderr $ show cnf ++ "\n"
 
 remove_satisfied cont cnf = do
-  print_info "remove_satisfied" cnf
+  -- print_info "remove_satisfied" cnf
   let vars polar cl = S.fromList $ do
         lit <- literals cl;
         guard $ positive lit == polar
@@ -36,7 +36,7 @@ remove_satisfied cont cnf = do
 
 trivial :: Solver -> Solver
 trivial cont cnf = do
-  print_info "trivial" cnf
+  -- print_info "trivial" cnf
   if null $ clauses cnf
      then return $ Just M.empty
      else if clause [] `elem` clauses cnf
@@ -45,7 +45,7 @@ trivial cont cnf = do
 
 onesided :: Solver -> Solver
 onesided cont cnf = do
-  print_info "onesided" cnf
+  -- print_info "onesided" cnf
   let pos = occurrences True  cnf
       neg = occurrences False cnf
       onlypos = M.keys $ M.difference pos neg
@@ -57,7 +57,7 @@ onesided cont cnf = do
          ( \ cl -> disjoint ks
                    $ S.fromList $ map variable $ literals cl) 
          cnf
-  hPutStrLn stderr $ unwords [ "assigned", show assigned , "\n" ]       
+  -- hPutStrLn stderr $ unwords [ "assigned", show assigned , "\n" ]       
   later <- ( if size others < size cnf then fomo else cont ) others
   return $ fmap ( M.union assigned ) later
 
@@ -73,12 +73,14 @@ eliminate cont nf = do
                           ly = length xs
                       in  lx*ly - lx - ly
          ) pos neg
-      resolve v = cnf $ do
+      resolve v = splitAt 10000 $ do -- ARBITRARY NUMBER
         cp <- pos M.! v
         let cpv = cp `without` v
         cn <- neg M.! v
         let cnv = cn `without` v
-        return $  cpv <> cnv
+        let c = cpv <> cnv
+        guard $ c /= CTrue
+        return $ c
       others v = Satchmo.Data.filter
         ( \ cl -> not $ elem v $ map variable $ literals cl )
         nf
@@ -88,14 +90,38 @@ eliminate cont nf = do
           lit <- literals $ cp `without` v
           let v = M.findWithDefault False ( variable lit ) m
           return $ if positive lit then v else Prelude.not v 
-  case sortBy (compare `on` snd) $ M.toList reductions of
-        (v,c): _ -> do
-           hPutStrLn stderr $ unwords [ "completely resolve", show v, "count", show c ]
-           later <- cont $ others v <> resolve v
-           return $ fmap
+      (v,c) = minimumBy (compare `on` snd) $ M.toList reductions
+  hPutStrLn stderr $ unwords [ "best resolution:", show v, "count", show c ]
+  let ( pre,post) = resolve v
+  if null post
+    then do
+               hPutStrLn stderr $ unwords [ "do it" ]
+               later <- fomo $ others v <> cnf pre
+               return $ fmap
                     ( \ m -> M.insert v (reconstruct v m) m)
                     later
+    else do
+               hPutStrLn stderr $ unwords [ "do not do it" ]
+               cont nf
 
+branch cnf = do
+  print_info "branch" cnf
+  let stat = M.fromListWith (+) $ do
+        c <- clauses cnf
+        let ls = literals c
+        let w = 1 / fromIntegral (length ls)
+        l <- ls
+        return (variable l, w)
+      (v,w) = maximumBy (compare `on` snd) $ M.toList stat
+  hPutStrLn stderr $ unwords [ "on variable", show (v,w), "False" ]
+  a <- fomo $ assign v False cnf
+  case a of
+    Just m -> return $ Just $ M.insert v False m
+    Nothing -> do
+      hPutStrLn stderr $ unwords [ "on variable", show (v,w), "True" ]
+      b <- fomo $ assign v True cnf
+      return $ fmap (M.insert v True) b
+        
 -- | map each var to list of clauses where it occurs 
 occurrences :: Bool -> CNF -> M.Map Variable [Clause]
 occurrences polarity  =
