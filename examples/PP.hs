@@ -9,7 +9,10 @@ import qualified Prelude
 import Satchmo.Relation
 import Satchmo.Code
 import Satchmo.Boolean
-import Satchmo.Counting
+
+import qualified Satchmo.Counting.Binary as CB
+import qualified Satchmo.Counting.Unary  as CU
+import qualified Satchmo.Counting.Direct as CD
 
 import qualified Satchmo.Binary as B
 
@@ -17,7 +20,7 @@ import Satchmo.SAT.Mini
 
 import Data.List (sort)
 import qualified Data.Array as A
-import Control.Monad ( guard, when, forM )
+import Control.Monad ( guard, when, forM, void )
 import System.Environment
 import Data.Ix ( range)
 
@@ -25,7 +28,9 @@ import Data.Ix ( range)
 main :: IO ()
 main = do
     argv <- getArgs
-    let [ o ] = map read argv
+    let [ o ] = case argv of
+                     [] -> [5]
+                     _  -> map read argv
     Just ( a :: A.Array (Int,Int) Bool ) <- solve $ pp o
     putStrLn $ unlines $ do
          let ((u,l),(o,r)) = A.bounds a
@@ -45,7 +50,19 @@ pp o = do
     any_two_determine_one i
     any_two_determine_one $ mirror i
     monotone i
+    monotone $ transpose i
     return $ decode i
+
+transpose a =
+  let ((1,1),(h,w)) = bounds a
+  in  build ((1,1),(w,h)) $ do
+         ((x,y),v) <- assocs a
+         return ((y,x),v)
+
+-- | see  http://www.maa.org/programs/maa-awards/writing-awards/the-search-for-a-finite-projective-plane-of-order-10
+fixed_start o i = do
+  let n =  o*o + o + 1
+  return ()
     
 monotone i = assertM $ do
     let ((1,1),(points, lines)) = bounds i    
@@ -57,14 +74,14 @@ monotone i = assertM $ do
 contains o i = assertM $ do 
     let ((1,1),(points, lines)) = bounds i
     monadic and $ for [ 1 .. points ] $ \ p -> 
-        monadic ( exactly o ) $ for [ 1 .. lines ] $ \ l -> 
+        monadic ( CB.exactly o ) $ for [ 1 .. lines ] $ \ l -> 
           return $ i ! (p, l)
                 
 any_two_determine_one i = assertM $ do
     let ((1,1),(points, lines)) = bounds i
     monadic and $ for [1..points] $ \ p ->                              
         monadic and $ for [p+1 .. points] $ \ q -> 
-            monadic ( exactly 1 ) $ for [1 .. lines] $ \ l -> 
+            monadic ( CB.exactly 1 ) $ for [1 .. lines] $ \ l -> 
                 and [ i ! (p,l),  i ! (q,l) ]
         
 for = flip map

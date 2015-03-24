@@ -73,7 +73,7 @@ eliminate cont nf = do
                           ly = length xs
                       in  lx*ly - lx - ly
          ) pos neg
-      resolve v = splitAt 1000 $ do -- ARBITRARY NUMBER
+      resolve v = splitAt 100 $ do -- ARBITRARY NUMBER
         cp <- pos M.! v
         let cpv = cp `without` v
         cn <- neg M.! v

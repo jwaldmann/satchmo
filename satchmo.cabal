@@ -99,6 +99,13 @@ Library
     hs-source-dirs:     .
     extensions: 
 
+Test-Suite PP
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: PP.hs
+  Build-Depends: base, array, satchmo
+  ghc-options: -rtsopts
+
 Test-Suite Ramsey
   Type: exitcode-stdio-1.0
   hs-source-dirs: examples
