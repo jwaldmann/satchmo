@@ -4,6 +4,7 @@
 -- earlier numbers are sizes of forbidden cliques
 
 {-# language PatternSignatures #-}
+{-# language FlexibleContexts #-}
 
 import Prelude hiding ( not, and, or, product )
 import qualified Prelude

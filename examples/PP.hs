@@ -2,6 +2,7 @@
 -- example usage: ./dist/build/PP/PP 2
 
 {-# language PatternSignatures #-}
+{-# language FlexibleContexts #-}
 
 import Prelude hiding ( not, and, or )
 import qualified Prelude
