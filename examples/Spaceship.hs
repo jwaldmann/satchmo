@@ -15,13 +15,18 @@ import qualified Prelude
 import Satchmo.Relation
 import Satchmo.Code
 import Satchmo.Boolean hiding ( equals, implies )
-import Satchmo.Counting
+import qualified Satchmo.Binary as B
+
+import qualified Satchmo.Counting.Direct as CD
+import qualified Satchmo.Counting.Unary as CU
+import qualified Satchmo.Counting.Binary as CB
 
 import Satchmo.SAT.Mini
 
 import Data.List (sort)
 import qualified Data.Array as A
-import Control.Monad ( guard, when, forM, foldM, void )
+import Control.Monad ( guard, when, forM, foldM
+  , void, replicateM )
 import System.Environment
 import Data.Ix ( range, inRange )
 
@@ -29,9 +34,14 @@ main :: IO ()
 main = void $ do
     argv <- getArgs
     Just gs <- case map read argv of
-        [ dx, dy, p, w       ] -> solve $ glide dx dy p w w Nothing
-        [ dx, dy, p, w, h    ] -> solve $ glide dx dy p w h Nothing
-        [ dx, dy, p, w, h, c ] -> solve $ glide dx dy p w h $ Just c
+        [] ->
+          solve $ glide 0  2  4 7 9 (Just 9)
+        [ dx, dy, p, w       ] ->
+          solve $ glide dx dy p w w Nothing
+        [ dx, dy, p, w, h    ] ->
+          solve $ glide dx dy p w h Nothing
+        [ dx, dy, p, w, h, c ] ->
+          solve $ glide dx dy p w h $ Just c
     forM ( zip [ 0..  ] gs ) $ \ (t, g) -> do
         putStrLn $ unwords [ "time", show t ]
         printA g
@@ -47,12 +57,13 @@ printA a = putStrLn $ unlines $ do
 
 for = flip map
 
-
+glide :: Int -> Int -> Int -> Int -> Int -> Maybe Int
+      -> SAT ( SAT [A.Array (Int,Int) Bool] )
 glide dx dy p w h mc = do
     g0 <- relation ((1,1),(w,h))
     assert $ map snd $ assocs g0
     case mc of
-         Just c -> monadic assert [ atmost c $ map snd $ assocs g0 ]
+         Just c -> monadic assert [ CB.atmost c $ map snd $ assocs g0 ]
          Nothing -> return ()
     let handle 0 g = return [g]
         handle k g = do g' <- next g ; gs <- handle (k-1) g' ; return $ g : gs
@@ -95,12 +106,22 @@ next g = do
         return (p, y)
     return $ build bnd pairs
 
-step x xs = do
+step = step_mod
+
+step_mod x xs = do
+  c <- CB.count xs
+  drei <- B.constant 3
+  birth <- B.equals drei c
+  zwei <- B.constant 2
+  keep <- B.equals zwei c
+  keepx <- and [keep, x]
+  or [ keepx, birth ]
+
+step_orig x xs = do
     cs <- counts 3 xs
     keep <- and [ x, cs !! 2 ]
     let birth = cs !! 3
     or [ keep, birth ]
-    
 
 -- | output !! k  == True
 -- if exactly  k  of the inputs are True

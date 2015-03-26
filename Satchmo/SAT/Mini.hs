@@ -61,7 +61,6 @@ instance MonadSAT SAT where
       -- hPutStrLn stderr $ "fresh: " ++ show (x, l)
       return l
 
-  emit CTrue = return ()
   emit cl = SAT $ \ s -> do
       let conv l = ( if positive l then id else API.neg ) 
                  $ toEnum
