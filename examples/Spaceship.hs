@@ -1,6 +1,6 @@
 -- | compute spaceship for Conway's game of life, 
 -- cf. http://www.conwaylife.com/wiki/Category:Oscillators
--- arguments are: distanceX, distanceY, max. period
+-- arguments are: distanceX, distanceY, exact period
 -- width [, height, [number of life start cells]]
 -- example usage: 
 -- ./Spaceship 1 1 4 6     -- glider
@@ -70,8 +70,10 @@ glide dx dy p w h mc = do
     gs <- handle p g0 
     forM gs bordered
 
-    ms <- forM ( tail gs ) $ \ h -> moved (dx,dy) ( head gs ) h
-    assert $ ms
+    -- ms <- forM ( tail gs ) $ \ h -> moved (dx,dy) ( head gs ) h
+    -- assert $ ms
+    m <- moved (dx,dy) (head gs) (last gs)
+    assert [m]
 
     return $ decode gs
 
