@@ -12,7 +12,7 @@ import qualified Prelude
 import Satchmo.Relation
 import Satchmo.Code
 import Satchmo.Boolean hiding ( equals, implies )
-import Satchmo.Counting
+import Satchmo.Counting.Binary
 
 import Satchmo.SAT.Mini
 
