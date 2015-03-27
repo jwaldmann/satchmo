@@ -55,8 +55,8 @@ osc p w h mc = do
     gs <- handle p [ g0 ]
     forM gs bordered
     monadic assert [ equals ( head gs ) ( last gs ) ]
-    forM [ 1 .. p ] $ \ s -> forM [ s + 1 .. p ] $ \ t -> 
-        monadic assert [ fmap not $ equals ( gs !! s ) ( gs !! t ) ]
+    forM [ d | d <- [1 .. p - 1] , 0 == mod p d ] $ \ d -> 
+        monadic assert [ fmap not $ equals ( gs !! 0 ) ( gs !! d ) ]
     return $ decode $ reverse gs
 
 bordered g = do
