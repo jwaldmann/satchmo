@@ -4,6 +4,7 @@
 -- arguments are: period, width, height, number of life start cells
 
 {-# language PatternSignatures #-}
+{-# language FlexibleContexts #-}
 
 import Prelude hiding ( not, or, and )
 import qualified Prelude
@@ -25,6 +26,7 @@ main :: IO ()
 main = void $ do
     argv <- getArgs
     Just gs <- case map read argv of
+        []             -> solve $ osc 3 9 9 (Just 20)
         [ p, w       ] -> solve $ osc p w w Nothing
         [ p, w, h    ] -> solve $ osc p w h Nothing
         [ p, w, h, c ] -> solve $ osc p w h $ Just c
@@ -56,8 +58,6 @@ osc p w h mc = do
     forM [ 1 .. p ] $ \ s -> forM [ s + 1 .. p ] $ \ t -> 
         monadic assert [ fmap not $ equals ( gs !! s ) ( gs !! t ) ]
     return $ decode $ reverse gs
-
-equals r s = monadic and [ implies r s, implies s r ]
 
 bordered g = do
     let ((u,l),(d,r)) = bounds g
