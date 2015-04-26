@@ -32,6 +32,7 @@ import Control.Monad.Fix
 import Control.Applicative
 import System.IO
 
+import Control.Concurrent.Async
 
 deriving instance Enum API.Lit
 
@@ -104,7 +105,7 @@ solve_with_timeout mto action = do
         return Nothing
 
 solve :: SAT (SAT a) -> IO (Maybe a)
-solve action = API.withNewSolverAsync $ \ s -> do
+solve action = withNewSolverAsync $ \ s -> do
     hPutStrLn stderr $ "start producing CNF"
     SAT decoder <- unSAT action s
     v <- API.minisat_num_vars s
@@ -120,3 +121,15 @@ solve action = API.withNewSolverAsync $ \ s -> do
         hPutStrLn stderr $ "decoder finished"    
         return $ Just out
     else return Nothing
+
+
+withNewSolverAsync h =
+  bracket newSolver API.deleteSolver $ \  s -> do
+    mask_ $ withAsync (h s) $ \ a -> do
+      wait a `onException` API.minisat_interrupt s
+
+newSolver =
+  do s <- API.minisat_new
+     -- https://github.com/niklasso/minisat-haskell-bindings/issues/6
+     -- eliminate s True 
+     return s
