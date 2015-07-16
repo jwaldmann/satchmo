@@ -3,6 +3,7 @@
 {-# language FlexibleInstances #-}
 {-# language NoMonomorphismRestriction #-}
 {-# language TemplateHaskell #-}
+{-# language DeriveGeneric #-}
 
 module Satchmo.Boolean.Data
 
@@ -32,8 +33,14 @@ import Data.List ( partition )
 
 import Control.Monad.Reader
 
-data Boolean = Boolean { encode :: Literal }
+import GHC.Generics (Generic)
+import Data.Hashable
+
+data Boolean = Boolean { encode :: ! Literal }
      | Constant { value :: ! Bool }
+  deriving (Eq, Ord, Show, Generic)
+
+instance Hashable Boolean
 
 $(deriveMemoizable ''Boolean)
 

@@ -31,7 +31,8 @@ import Data.Monoid
 
 type Weight = Int
 
-class (MonadFix m, Applicative m, Monad m) => MonadSAT m where
+class ( -- MonadFix m,
+        Applicative m, Monad m) => MonadSAT m where
   fresh, fresh_forall :: m  Literal
 
   emit  :: Clause  -> m ()
@@ -53,8 +54,6 @@ data Header =
                      }
      deriving Show
 
-{-
-
 -- -------------------------------------------------------
 -- MonadSAT liftings for standard monad transformers
 -- -------------------------------------------------------
@@ -63,54 +62,62 @@ instance (Monad m, MonadSAT m) => MonadSAT (ListT m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
 instance (Monad m, MonadSAT m) => MonadSAT (ReaderT r m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
 instance (Monad m, MonadSAT m) => MonadSAT (Lazy.StateT s m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
 instance (Monad m, MonadSAT m, Monoid w) => MonadSAT (Lazy.RWST r w s m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
 instance (Monad m, MonadSAT m, Monoid w) => MonadSAT (Lazy.WriterT w m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
 instance (Monad m, MonadSAT m) => MonadSAT (Strict.StateT s m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
 instance (Monad m, MonadSAT m, Monoid w) => MonadSAT (Strict.RWST r w s m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
 instance (Monad m, MonadSAT m, Monoid w) => MonadSAT (Strict.WriterT w m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
 instance (Monad m, MonadSAT m) => MonadSAT (ContT s m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
-  emitW = (lift.) . emitW
+  -- emitW = (lift.) . emitW
+  note = lift . note
 
--}

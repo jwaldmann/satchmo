@@ -23,7 +23,7 @@ Library
     Build-depends:  mtl, process, containers, base == 4.*,
         -- lens,
       array, bytestring, directory, minisat >= 0.1, async,
-      memoize
+      memoize, hashable, transformers
     Exposed-modules:
         Satchmo.Data
         -- Satchmo.Data.Default

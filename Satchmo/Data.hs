@@ -5,6 +5,7 @@
 {-# language TypeFamilies #-}
 {-# language GeneralizedNewtypeDeriving #-}
 {-# language TemplateHaskell #-}
+{-# language DeriveGeneric #-}
 
 module Satchmo.Data 
 
@@ -26,6 +27,8 @@ import Data.Monoid
 import Data.List ( nub )
 import Data.Function.Memoize
 
+import GHC.Generics (Generic)
+import Data.Hashable
 
 -- * variables and literals
 
@@ -35,7 +38,9 @@ data Literal =
      Literal { variable :: ! Variable
              , positive :: ! Bool
              }
-     deriving ( Eq, Ord )
+     deriving ( Eq, Ord, Generic )
+
+instance Hashable Literal
 
 $(deriveMemoizable ''Literal)
 

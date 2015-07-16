@@ -29,6 +29,7 @@ import Control.Concurrent.MVar
 import Control.Exception
 import Control.Monad ( when )
 import Control.Monad.Fix
+import Control.Monad.IO.Class
 import Control.Applicative
 import System.IO
 
@@ -47,6 +48,10 @@ instance Monad SAT where
     return x = SAT $ \ s -> return x
     SAT m >>= f = SAT $ \ s -> do 
         x <- m s ; let { SAT n = f x } ; n s
+
+-- | need this for hashtables
+instance MonadIO SAT where
+  liftIO comp = SAT $ \ s -> comp
 
 instance Applicative SAT where
     pure = return
