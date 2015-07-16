@@ -32,9 +32,13 @@ import Data.List ( partition )
 
 import Control.Monad.Reader
 
+-- | Eq and Ord instances are for use in caching,
+-- so we can check whether we have seen some subexpression
+-- (represented by the Tseitin literal) before
+
 data Boolean = Boolean { encode :: Literal }
      | Constant { value :: ! Bool }
-
+   deriving (Eq, Ord, Show)
 
 {-
 
