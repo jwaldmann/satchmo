@@ -2,6 +2,7 @@
 {-# language TypeSynonymInstances #-}
 {-# language FlexibleInstances #-}
 {-# language NoMonomorphismRestriction #-}
+{-# language TemplateHaskell #-}
 
 module Satchmo.Boolean.Data
 
@@ -24,21 +25,17 @@ import qualified Satchmo.Code as C
 import Satchmo.Data
 import Satchmo.MonadSAT
 
-
-
+import Data.Function.Memoize
 import Data.Array
 import Data.Maybe ( fromJust )
 import Data.List ( partition )
 
 import Control.Monad.Reader
 
--- | Eq and Ord instances are for use in caching,
--- so we can check whether we have seen some subexpression
--- (represented by the Tseitin literal) before
-
 data Boolean = Boolean { encode :: Literal }
      | Constant { value :: ! Bool }
-   deriving (Eq, Ord, Show)
+
+$(deriveMemoizable ''Boolean)
 
 {-
 

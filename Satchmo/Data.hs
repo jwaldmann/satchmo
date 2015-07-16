@@ -4,6 +4,7 @@
 
 {-# language TypeFamilies #-}
 {-# language GeneralizedNewtypeDeriving #-}
+{-# language TemplateHaskell #-}
 
 module Satchmo.Data 
 
@@ -23,6 +24,8 @@ import qualified Data.Map as M
 import qualified Data.Foldable as F
 import Data.Monoid
 import Data.List ( nub )
+import Data.Function.Memoize
+
 
 -- * variables and literals
 
@@ -33,6 +36,8 @@ data Literal =
              , positive :: ! Bool
              }
      deriving ( Eq, Ord )
+
+$(deriveMemoizable ''Literal)
 
 instance Show Literal where
     show l = ( if positive l then "" else "-" )
