@@ -23,7 +23,7 @@ import Data.Ix ( range)
 main :: IO ()
 main = do
     argv <- getArgs
-    let [ r, k, n ] = map read argv
+    let [ r, k, n ] = map (read :: String -> Int) argv
     Just f <- solve "glucose" [ "-model"] $ waerden r k n
     printA f
 
@@ -36,6 +36,8 @@ printA a = putStrLn $ unlines $ do
              return $ case a A.! (x,y) of
                   True -> "* " ; False -> ". "
 
+waerden :: Int -> Int -> Int
+        -> SAT  (Decoder SAT (A.Array (Int,Int) Bool))
 waerden r k n = do
     f <- relation ((1 :: Int,1 :: Int),(r,n))
     assertM $ regular 1 $ mirror f
