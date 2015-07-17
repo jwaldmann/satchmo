@@ -11,9 +11,7 @@ import Satchmo.Code
 import Satchmo.Boolean
 import Satchmo.Counting
 
-import qualified Satchmo.Binary as B
-
-import Satchmo.SAT.Mini
+import Satchmo.SAT.External
 
 import Data.List (sort, tails)
 import qualified Data.Array as A
@@ -26,7 +24,7 @@ main :: IO ()
 main = do
     argv <- getArgs
     let [ r, k, n ] = map read argv
-    Just f <- solve $ waerden r k n
+    Just f <- solve "glucose" [ "-model"] $ waerden r k n
     printA f
 
 printA :: A.Array (Int,Int) Bool -> IO ()

@@ -1,5 +1,5 @@
 Name:           satchmo
-Version:        2.9.8
+Version:        2.9.9
 
 License:        GPL
 License-file:	gpl-2.0.txt
@@ -23,7 +23,7 @@ Library
     Build-depends:  mtl, process, containers, base == 4.*,
         -- lens,
       array, bytestring, directory, minisat >= 0.1, async,
-      memoize, hashable, transformers
+      memoize, hashable, transformers, lens
     Exposed-modules:
         Satchmo.Data
         -- Satchmo.Data.Default
@@ -57,6 +57,7 @@ Library
         Satchmo.SAT
         Satchmo.SAT.Tmpfile
         Satchmo.SAT.Mini
+        Satchmo.SAT.External
         -- Satchmo.SAT.CNF
         -- Satchmo.SAT.BS
         -- Satchmo.SAT.Seq
