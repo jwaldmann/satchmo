@@ -11,7 +11,11 @@ module Satchmo.SAT.Mini
 ( SAT
 , fresh
 , emit
+, SolveOptions(..)
+, defaultSolveOptions
 , solve
+, solveSilently
+, solveWith
 , solve_with_timeout
 )
 
@@ -93,6 +97,13 @@ instance Decode SAT Boolean Bool where
             v <- dv $ variable l
             return $ if positive l then v else not v
 
+newtype SolveOptions = SolveOptions {
+        verboseOutput :: Bool
+    }
+
+defaultSolveOptions :: SolveOptions
+defaultSolveOptions = SolveOptions {verboseOutput = True}
+
 solve_with_timeout :: Maybe Int -> SAT (SAT a) -> IO (Maybe a)
 solve_with_timeout mto action = do
     accu <- newEmptyMVar 
@@ -110,20 +121,26 @@ solve_with_timeout mto action = do
         return Nothing
 
 solve :: SAT (SAT a) -> IO (Maybe a)
-solve action = withNewSolverAsync $ \ s -> do
-    hPutStrLn stderr $ "start producing CNF"
+solve = solveWith defaultSolveOptions
+
+solveSilently :: SAT (SAT a) -> IO (Maybe a)
+solveSilently = solveWith defaultSolveOptions{verboseOutput = False}
+
+solveWith :: SolveOptions -> SAT (SAT a) -> IO (Maybe a)
+solveWith options action = withNewSolverAsync $ \ s -> do
+    let printIfVerbose = when (verboseOutput options) . hPutStrLn stderr
+    printIfVerbose "start producing CNF"
     SAT decoder <- unSAT action s
     v <- API.minisat_num_vars s
     c <- API.minisat_num_clauses s
-    hPutStrLn stderr 
-        $ unwords [ "CNF finished", "vars", show v, "clauses", show c ]
-    hPutStrLn stderr $ "starting solver"
+    printIfVerbose $ unwords [ "CNF finished", "vars", show v, "clauses", show c ]
+    printIfVerbose "starting solver"
     status <- API.limited_solve s []
-    hPutStrLn stderr $ "solver finished, result: " ++ show status
+    printIfVerbose $ "solver finished, result: " ++ show status
     if status == API.l_True then do
-        hPutStrLn stderr $ "starting decoder"    
+        printIfVerbose "starting decoder"    
         out <- decoder s
-        hPutStrLn stderr $ "decoder finished"    
+        printIfVerbose "decoder finished"    
         return $ Just out
     else return Nothing
 
