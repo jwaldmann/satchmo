@@ -25,7 +25,7 @@ data Number = Number
 	         -- using two's complement
             }
 
-instance C.Decode m Boolean Bool => C.Decode m Number Integer where
+instance (Monad m, C.Decode m Boolean Bool) => C.Decode m Number Integer where
     decode n = do ys <- mapM C.decode (bits n) ; return $ fromBinary ys
 
 width :: Number -> Int

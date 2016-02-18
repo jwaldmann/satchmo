@@ -3,6 +3,7 @@ dist/
 wordpress-theme/
 *.hi
 *.o
+*.dyn_hi
 *.p_o
 *.*_o
 *.*-boot

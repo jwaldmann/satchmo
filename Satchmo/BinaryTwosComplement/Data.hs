@@ -20,7 +20,7 @@ data Number = Number
             }
 
 
-instance C.Decode m Boolean Bool => C.Decode m Number Integer where
+instance (Monad m, C.Decode m Boolean Bool) => C.Decode m Number Integer where
     decode n = do bs <- C.decode $ bits n ; return $ fromBinary bs
 
 -- | Make a number from its binary representation

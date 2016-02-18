@@ -25,12 +25,12 @@ data Number = Number
             -- number of 1 is value of number  
             }  
             
-instance C.Decode m Boolean Bool => C.Decode m Number Int where            
+instance (Monad m, C.Decode m Boolean Bool) => C.Decode m Number Int where            
     decode n = do
         bs <- forM ( bits n ) C.decode
         return $ length $ filter id bs
 
-instance C.Decode m Boolean Bool => C.Decode m Number Integer where 
+instance (Monad m, C.Decode m Boolean Bool) => C.Decode m Number Integer where 
     decode n = do
         bs <- forM ( bits n ) C.decode
         return $ fromIntegral $ length $ filter id bs
