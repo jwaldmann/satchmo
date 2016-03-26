@@ -1,4 +1,4 @@
--- | graphs n nodes of degree == d and diameter <= k 
+-- | graphs n nodes of degree <= d and diameter <= k 
 -- see http://combinatoricswiki.org/wiki/The_Degree_Diameter_Problem_for_General_Graphs
 
 -- usage: ./Moore d k n
@@ -34,7 +34,7 @@ moore d k n = do
   g <- R.relation ((1,1),(n,n))
   B.monadic B.assert [ R.symmetric g ]
   B.monadic B.assert [ R.reflexive g ]
-  B.monadic B.assert [ R.regular (d+1) g ]
+  B.monadic B.assert [ R.max_degree (d+1) g ]
   p <- R.power k g
   B.monadic B.assert [ R.complete p ]
   return $ decode g

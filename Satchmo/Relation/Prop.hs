@@ -7,6 +7,8 @@ module Satchmo.Relation.Prop
 , irreflexive
 , reflexive
 , regular
+, max_degree
+, min_degree
 , empty
 , complete
 , disjoint
@@ -71,12 +73,18 @@ reflexive r = and $ do
     x <- range (a,c)
     return $ r ! (x,x) 
 
-regular :: ( Ix a, MonadSAT m) => Int -> Relation a a -> m Boolean
-{-# specialize inline regular :: ( Ix a ) => Int -> Relation a a -> SAT Boolean #-}      
-regular deg r = monadic and $ do
+regular, max_degree, min_degree :: ( Ix a, MonadSAT m) => Int -> Relation a a -> m Boolean
+{-# specialize inline regular :: ( Ix a ) => Int -> Relation a a -> SAT Boolean #-}
+{-# specialize inline max_degree :: ( Ix a ) => Int -> Relation a a -> SAT Boolean #-}
+{-# specialize inline min_degree :: ( Ix a ) => Int -> Relation a a -> SAT Boolean #-}
+regular = degree_helper exactly
+max_degree = degree_helper atmost
+min_degree = degree_helper atleast
+
+degree_helper f deg r = monadic and $ do
     let ((a,b),(c,d)) = bounds r
     x <- range ( a , c )
-    return $ exactly deg $ do 
+    return $ f deg $ do 
         y <- range (b,d)
         return $ r !(x,y)
 
