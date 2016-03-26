@@ -22,7 +22,7 @@ import Satchmo.Binary.Data (Number, number, make, bits, width)
 
 import Control.Monad ( forM, foldM )
 
-import Satchmo.Counting
+-- import Satchmo.Counting
 
 import Control.Monad ( forM )
 

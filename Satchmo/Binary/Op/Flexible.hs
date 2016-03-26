@@ -20,7 +20,7 @@ import qualified Satchmo.Code as C
 import Satchmo.Binary.Data
 import Satchmo.Binary.Op.Common
 import qualified Satchmo.Binary.Op.Times as T
-import Satchmo.Counting
+import Satchmo.Counting.Unary
 
 import qualified Data.Map as M
 

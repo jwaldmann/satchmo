@@ -127,4 +127,11 @@ Test-Suite Oscillator
   Main-Is: Oscillator.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
-  
+
+Test-Suite Moore
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: Moore.hs
+  Build-Depends: base, array, satchmo
+  ghc-options: -rtsopts
+

@@ -17,7 +17,7 @@ import qualified Satchmo.Code as C
 import Satchmo.Boolean hiding ( constant )
 import qualified  Satchmo.Boolean as B
 
-import Satchmo.Counting
+-- import Satchmo.Counting
 
 data Number = Number 
             { bits :: [ Boolean ] -- lsb first

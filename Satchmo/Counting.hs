@@ -1,11 +1,12 @@
--- | Re-exports @Satchmo.Counting.Unary@
--- for backwards compatibility.
+-- | Re-exports @Satchmo.Binary.Counting@
+-- because that implementation seems best overall.
 
 module Satchmo.Counting
 
-( module Satchmo.Counting.Unary )
+( module Satchmo.Counting.Binary )
 
 where
 
-import Satchmo.Counting.Unary
+import Satchmo.Counting.Binary
+
 
