@@ -42,13 +42,16 @@ moore :: Int -> Int -> Int -> Maybe Int
       -> SAT (SAT (A.Array (Int,Int) Bool))
 moore d k n ms = do
   g <- R.symmetric_relation ((0,0),(n-1,n-1))
-  case ms of
-    Nothing -> return ()
+  g <- case ms of
+    Nothing -> return g
     Just s -> do
       let f x = mod (x + s) n ; f2 (x,y) = (f x, f y)
-      void $ forM (R.indices g) $ \ i -> do
-        ok <- B.equals2 (g R.! i) (g R.! f2 i)
-        B.assert [ok]
+          normal i = head
+                   $ filter (\(x,y) -> y < s)
+                   $ iterate f2 i
+      return $ R.build (R.bounds g)
+             $ map (\(i,x) -> (i, g R.! normal i) )
+             $ R.assocs g
   B.monadic B.assert [ R.reflexive g ]
   B.monadic B.assert [ R.max_in_degree (d+1) g ]
   B.monadic B.assert [ R.max_out_degree (d+1) g ]
