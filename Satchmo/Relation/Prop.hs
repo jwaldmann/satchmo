@@ -7,8 +7,12 @@ module Satchmo.Relation.Prop
 , irreflexive
 , reflexive
 , regular
-, max_degree
-, min_degree
+, regular_in_degree
+, regular_out_degree
+, max_in_degree
+, min_in_degree
+, max_out_degree
+, min_out_degree
 , empty
 , complete
 , disjoint
@@ -73,15 +77,19 @@ reflexive r = and $ do
     x <- range (a,c)
     return $ r ! (x,x) 
 
-regular, max_degree, min_degree :: ( Ix a, MonadSAT m) => Int -> Relation a a -> m Boolean
-{-# specialize inline regular :: ( Ix a ) => Int -> Relation a a -> SAT Boolean #-}
-{-# specialize inline max_degree :: ( Ix a ) => Int -> Relation a a -> SAT Boolean #-}
-{-# specialize inline min_degree :: ( Ix a ) => Int -> Relation a a -> SAT Boolean #-}
-regular = degree_helper exactly
-max_degree = degree_helper atmost
-min_degree = degree_helper atleast
+regular, regular_in_degree, regular_out_degree, max_in_degree, min_in_degree, max_out_degree, min_out_degree :: ( Ix a, MonadSAT m) => Int -> Relation a a -> m Boolean
 
-degree_helper f deg r = monadic and $ do
+regular deg r = monadic and [ regular_in_degree deg r, regular_out_degree deg r ]
+
+regular_out_degree = out_degree_helper exactly
+max_out_degree = out_degree_helper atmost
+min_out_degree = out_degree_helper atleast
+regular_in_degree deg r = regular_out_degree deg $ mirror r
+max_in_degree deg r = max_out_degree deg $ mirror r
+min_in_degree deg r = min_out_degree deg $ mirror r
+
+
+out_degree_helper f deg r = monadic and $ do
     let ((a,b),(c,d)) = bounds r
     x <- range ( a , c )
     return $ f deg $ do 

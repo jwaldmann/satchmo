@@ -41,7 +41,8 @@ moore :: Int -> Int -> Int -> SAT (SAT (A.Array (Int,Int) Bool))
 moore d k n = do
   g <- R.symmetric_relation ((1,1),(n,n))
   B.monadic B.assert [ R.reflexive g ]
-  B.monadic B.assert [ R.max_degree (d+1) g ]
+  B.monadic B.assert [ R.max_in_degree (d+1) g ]
+  B.monadic B.assert [ R.max_out_degree (d+1) g ]
   p <- R.power k g
   B.monadic B.assert [ R.complete p ]
   return $ decode g
