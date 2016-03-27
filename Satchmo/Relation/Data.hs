@@ -2,7 +2,9 @@
 
 module Satchmo.Relation.Data
 
-( Relation, relation, build
+( Relation
+, relation, symmetric_relation
+, build
 , identity                      
 , bounds, (!), indices, assocs, elems
 , table
@@ -33,6 +35,16 @@ relation bnd = do
             x <- boolean
             return ( p, x )
     return $ build bnd pairs
+    
+symmetric_relation bnd = do
+    pairs <- sequence $ do
+        (p,q) <- A.range bnd
+        guard $ p <= q
+        return $ do
+            x <- boolean
+            return $ [ ((p,q), x ) ]
+                   ++ [ ((q,p), x) | p /= q ]
+    return $ build bnd $ concat pairs          
 
 identity :: ( Ix a, MonadSAT m) 
          => ((a,a),(a,a)) -> m ( Relation a a )
