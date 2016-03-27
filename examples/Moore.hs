@@ -16,30 +16,39 @@ import Satchmo.SAT.Mini
 
 import qualified Data.Array as A
 import System.Environment (getArgs)
-import Control.Monad ( void, when )
+import Control.Monad ( void, when, forM )
 
 main :: IO ( )
 main = do
   argv <- getArgs
   case argv of
-    [ d, k, n ] -> void $ mainf ( read d ) (read k) (read n)
+    [ d, k, n ] -> void $ mainf ( read d ) (read k) (read n) Nothing
+    [ d, k, n, s ] -> void $ mainf ( read d ) (read k) (read n) (Just $ read s)
     [ d, k ] -> do
-      let go d k n = do
-            ok <- mainf d k n
-            when ok $ go d k (n+1)
-      go (read d) (read k) 1      
-    [] -> void $ mainf 3 2 10 -- petersen
+      let go d k n ms = do
+            ok <- mainf d k n ms
+            when ok $ go d k (n+1) ms
+      go (read d) (read k) 1 Nothing
+    [] -> void $ mainf 3 2 10 Nothing -- petersen
 
-mainf d k n = do
-  putStrLn $ unwords [ "degree <=", show d, "diameter <=", show k, "nodes ==", show n ]
-  mg <- solve $ moore d k n
+mainf d k n ms = do
+  putStrLn $ unwords [ "degree <=", show d, "diameter <=", show k, "nodes ==", show n, "sym", show ms ]
+  mg <- solve $ moore d k n ms
   case mg of
     Just g -> do printA g ; return True
     Nothing -> return False
 
-moore :: Int -> Int -> Int -> SAT (SAT (A.Array (Int,Int) Bool))
-moore d k n = do
-  g <- R.symmetric_relation ((1,1),(n,n))
+moore :: Int -> Int -> Int -> Maybe Int
+      -> SAT (SAT (A.Array (Int,Int) Bool))
+moore d k n ms = do
+  g <- R.symmetric_relation ((0,0),(n-1,n-1))
+  case ms of
+    Nothing -> return ()
+    Just s -> do
+      let f x = mod (x + s) n ; f2 (x,y) = (f x, f y)
+      void $ forM (R.indices g) $ \ i -> do
+        ok <- B.equals2 (g R.! i) (g R.! f2 i)
+        B.assert [ok]
   B.monadic B.assert [ R.reflexive g ]
   B.monadic B.assert [ R.max_in_degree (d+1) g ]
   B.monadic B.assert [ R.max_out_degree (d+1) g ]
