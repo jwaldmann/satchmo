@@ -52,6 +52,7 @@ moore d k n ms = do
       return $ R.build (R.bounds g)
              $ map (\(i,x) -> (i, g R.! normal i) )
              $ R.assocs g
+  B.monadic B.assert [ R.symmetric g ]
   B.monadic B.assert [ R.reflexive g ]
   B.monadic B.assert [ R.max_in_degree (d+1) g ]
   B.monadic B.assert [ R.max_out_degree (d+1) g ]
