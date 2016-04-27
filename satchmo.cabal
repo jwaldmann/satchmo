@@ -135,3 +135,10 @@ Test-Suite Moore
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
 
+Test-Suite Sudoku
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: Sudoku.hs
+  Build-Depends: base, array, satchmo
+  ghc-options: -rtsopts
+
