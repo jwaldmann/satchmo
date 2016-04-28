@@ -1,9 +1,13 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts, FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
 
+
+#if (__GLASGOW_HASKELL__ >= 708)
+{-# LANGUAGE AllowAmbiguousTypes #-}
+#endif
 
 module Satchmo.MonadSAT
 
