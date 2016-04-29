@@ -22,6 +22,7 @@ import qualified Data.Array as A
 import Control.Monad ( guard, when, forM, foldM, forM_ )
 import System.Environment
 import Data.Ix ( range)
+import Data.List ( sort )
 
 main :: IO ()
 main = do
@@ -32,16 +33,17 @@ main = do
 
 main_with :: Int -> IO ()
 main_with n = do
-    Just r <- solve $ ais n
-    printA r
-
-printA :: A.Array (Int,Int) Bool -> IO ()
-printA a = putStrLn $ unwords $ do
-  let ((u,l),(o,r)) = A.bounds a
-  x <- A.range (u,o) 
-  let zs = map (\y -> a A.! (x,y) ) (A.range(l,r))
-      fill n s = replicate (n - length s) ' ' ++ s
-  return $ fill 3 $ show $ length $ takeWhile Prelude.not zs
+    Just a <- solve $ ais n
+    let  xs = do
+           let ((u,l),(o,r)) = A.bounds a
+           x <- A.range (u,o) 
+           let zs = map (\y -> a A.! (x,y) ) (A.range(l,r))
+           return $ length $ takeWhile Prelude.not zs
+         ds = map abs $ zipWith (-) xs $ drop 1 xs
+    print xs
+    print $ sort xs == [0 .. n]
+    print ds
+    print $ sort ds == [1 .. n]
 
 ais :: Int
        -> SAT (SAT (A.Array (Int,Int) Bool))
@@ -50,11 +52,11 @@ ais n = do
     R.relation ((0,0),(n,n))
   assertM $ R.is_bijection r
   forM_ [ 1 .. n-1 ] $ \ d -> do
-    occs <- concat <$> forM [ 0 .. n-1 ] $ \ x -> do
+    occs <- concat <$> ( forM [ 0 .. n-1 ] $ \ x -> do
       forM [0 .. n-d] $ \ v -> do 
         up   <- and [ r R.! (x,v), r R.! (x+1,v+d) ]
         down <- and [ r R.! (x,v+d), r R.! (x+1,v) ]
-        or [up,down]
+        or [up,down] )
     assertM $ C.exactly 1 occs
   return $ decode r
 
