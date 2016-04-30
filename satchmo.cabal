@@ -97,7 +97,7 @@ Library
         Satchmo.Boolean.Op
         Satchmo.Integer.Op
         Satchmo.Boolean.Data
-    hs-source-dirs:     .
+    hs-source-dirs:     src
     extensions: 
 
 Test-Suite PP
