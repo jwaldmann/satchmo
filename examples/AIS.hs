@@ -17,12 +17,12 @@ import qualified Satchmo.Counting as C
 
 import Satchmo.SAT.Mini
 
-import Data.List (inits, tails)
+import Data.List (inits, tails, sort)
 import qualified Data.Array as A
 import Control.Monad ( guard, when, forM, foldM, forM_ )
 import System.Environment
 import Data.Ix ( range)
-import Data.List ( sort )
+import Control.Applicative ((<$>))
 
 main :: IO ()
 main = do
@@ -42,6 +42,7 @@ main_with n = do
          ds = map abs $ zipWith (-) xs $ drop 1 xs
     print xs
     print $ sort xs == [0 .. n]
+    
     print ds
     print $ sort ds == [1 .. n]
 
