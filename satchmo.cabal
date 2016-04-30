@@ -142,3 +142,17 @@ Test-Suite Sudoku
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
 
+Test-Suite AIS
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: AIS.hs
+  Build-Depends: base, array, satchmo
+  ghc-options: -rtsopts
+
+Test-Suite Langford
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: Langford.hs
+  Build-Depends: base, array, satchmo
+  ghc-options: -rtsopts
+
