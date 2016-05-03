@@ -156,3 +156,10 @@ Test-Suite Langford
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
 
+Test-Suite Pigeon
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: Pigeon.hs
+  Build-Depends: base, satchmo
+  ghc-options: -rtsopts
+
