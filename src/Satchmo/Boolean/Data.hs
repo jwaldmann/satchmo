@@ -26,7 +26,7 @@ import qualified Satchmo.Code as C
 import Satchmo.Data
 import Satchmo.MonadSAT
 
-import Data.Function.Memoize
+-- import Data.Function.Memoize
 import Data.Array
 import Data.Maybe ( fromJust )
 import Data.List ( partition )
@@ -42,7 +42,7 @@ data Boolean = Boolean { encode :: ! Literal }
 
 instance Hashable Boolean
 
-$(deriveMemoizable ''Boolean)
+--  $(deriveMemoizable ''Boolean)
 
 {-
 

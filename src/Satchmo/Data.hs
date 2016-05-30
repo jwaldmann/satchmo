@@ -25,7 +25,7 @@ import qualified Data.Map as M
 import qualified Data.Foldable as F
 import Data.Monoid
 import Data.List ( nub )
-import Data.Function.Memoize
+-- import Data.Function.Memoize
 
 import GHC.Generics (Generic)
 import Data.Hashable
@@ -42,7 +42,7 @@ data Literal =
 
 instance Hashable Literal
 
-$(deriveMemoizable ''Literal)
+--  $(deriveMemoizable ''Literal)
 
 instance Show Literal where
     show l = ( if positive l then "" else "-" )

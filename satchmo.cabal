@@ -22,7 +22,8 @@ Library
     ghc-options: -funbox-strict-fields
     Build-depends:  mtl, process, containers, base == 4.*,
       array, bytestring, directory, minisat >= 0.1, async,
-      memoize, hashable, transformers, lens, deepseq
+      -- memoize,
+      hashable, transformers, lens, deepseq
     Exposed-modules:
         Satchmo.Data
         -- Satchmo.Data.Default
