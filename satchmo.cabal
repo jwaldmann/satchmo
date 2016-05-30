@@ -170,3 +170,10 @@ Test-Suite Pigeon
   Build-Depends: base, satchmo
   ghc-options: -rtsopts
 
+Test-Suite Pythagoras
+  Type: exitcode-stdio-1.0
+  hs-source-dirs: examples
+  Main-Is: Pythagoras.hs
+  Build-Depends: base, satchmo
+  ghc-options: -rtsopts
+  
