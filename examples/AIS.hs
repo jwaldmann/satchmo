@@ -5,7 +5,7 @@
 -- for Definition and Background, see
 -- http://www.combinatorics.org/ojs/index.php/eljc/article/view/DS6
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not, product, and, or )
 import qualified Prelude

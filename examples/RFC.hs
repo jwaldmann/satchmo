@@ -1,7 +1,7 @@
 -- rectangle free colourings of grids
 -- see http://www.cs.umd.edu/~gasarch/papers/grid.pdf
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 {-# language NoMonomorphismRestriction #-}
 
 import Prelude hiding ( not, and, or, product )

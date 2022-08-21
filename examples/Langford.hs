@@ -1,7 +1,7 @@
 -- | The Langford Sequence Problem
 -- http://www.csplib.org/Problems/prob024/
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not, product, and, or )
 import qualified Prelude

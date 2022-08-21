@@ -3,7 +3,7 @@
 -- example usage: ./dist/build/Life/Life 3 9 9 20
 -- arguments are: period, width, height, number of life start cells
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 {-# language FlexibleContexts #-}
 
 import Prelude hiding ( not, or, and )
