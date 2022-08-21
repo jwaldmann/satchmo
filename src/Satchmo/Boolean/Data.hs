@@ -36,8 +36,8 @@ import Control.Monad.Reader
 import GHC.Generics (Generic)
 import Data.Hashable
 
-data Boolean = Boolean { encode :: ! Literal }
-     | Constant { value :: ! Bool }
+data Boolean = Boolean { encode :: !Literal }
+     | Constant { value :: !Bool }
   deriving (Eq, Ord, Show, Generic)
 
 instance Hashable Boolean

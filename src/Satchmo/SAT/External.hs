@@ -53,8 +53,8 @@ tracing = False
 report s = when tracing $ hPutStrLn stderr s
 
 data S = S
-       { _next_variable :: ! Int 
-       , _solver_input :: ! Handle 
+       { _next_variable :: !Int 
+       , _solver_input :: !Handle 
        }
 
 $(makeLenses ''S)

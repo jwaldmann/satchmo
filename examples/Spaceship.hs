@@ -81,7 +81,7 @@ equals r s = monadic and [ implies r s, implies s r ]
 
 moved (dx,dy) g h = do
     f <- constant False
-    let bnd @ ((l,o),(r,u)) = bounds g
+    let bnd@((l,o),(r,u)) = bounds g
         get g p = if inRange bnd p then g ! p else f
     monadic and $ for ( range bnd ) $ \ (x,y) -> do
         fun2 (==) ( get g (x,y) ) ( get h (x+dx, y+dy) )

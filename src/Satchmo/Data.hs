@@ -35,8 +35,8 @@ import Data.Hashable
 type Variable = Int
 
 data Literal =
-     Literal { variable :: ! Variable
-             , positive :: ! Bool
+     Literal { variable :: !Variable
+             , positive :: !Bool
              }
      deriving ( Eq, Ord, Generic )
 

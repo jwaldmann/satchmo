@@ -78,11 +78,11 @@ instance MonadSAT SAT where
 -- ---------------
 
 data Accu = Accu
-          { next :: ! Int
+          { next :: !Int
           , universal :: [Int]
-          , size :: ! Int
-          , notes :: ! [ String ]
-          , census :: ! ( M.Map Int Int )
+          , size :: !Int
+          , notes :: ![ String ]
+          , census :: !( M.Map Int Int )
           }
 
 start :: Accu
