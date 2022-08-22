@@ -187,7 +187,7 @@ oe_merge  [x] [y] = do
 oe_merge  xs ys = do
     let ( xo, xe ) = divide xs
         ( yo, ye ) = divide ys
-    m : mo <- oe_merge  xo yo
+    ~(m : mo) <- oe_merge  xo yo
     me <- oe_merge  xe ye
     re <- repair me mo
     return $ m : re

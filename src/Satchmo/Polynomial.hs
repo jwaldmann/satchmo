@@ -140,7 +140,7 @@ add' = binaryOp return
 times (Poly p1) (Poly p2) = Poly <$> times' p1 p2
 times' = binaryOp (\_ -> return [])
          (\(x:xs) ys -> do zs   <- times' xs ys
-                           f:fs <- forM ys $ F.times x
+                           ~(f:fs) <- forM ys $ F.times x
                            rest <- add' zs fs
                            return $ f : rest
          )
