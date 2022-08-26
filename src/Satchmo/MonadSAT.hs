@@ -54,8 +54,8 @@ type NumClauses = Integer
 type NumVars    = Integer
 
 data Header = 
-     Header { numClauses, numVars :: ! Int
-            , universals :: ! [Int]
+     Header { numClauses, numVars :: !Int
+            , universals :: ![Int]
                      }
      deriving Show
 

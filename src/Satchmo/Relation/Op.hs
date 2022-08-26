@@ -52,7 +52,7 @@ product a b = do
         ((bo,bl),(bu,br)) = bounds b
         bnd = ((ao,bl),(au,br))
     pairs <- sequence $ do
-        i @ (x,z) <- range bnd
+        i@(x,z) <- range bnd
         return $ do
             o <- monadic or $ do
                 y <- range ( al, ar )

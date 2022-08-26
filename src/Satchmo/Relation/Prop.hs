@@ -100,7 +100,7 @@ out_degree_helper f deg r = monadic and $ do
     x <- range ( a , c )
     return $ f deg $ do 
         y <- range (b,d)
-        return $ r !(x,y)
+        return $ r ! (x,y)
 
 transitive :: ( Ix a, MonadSAT m ) 
            => Relation a a -> m Boolean
