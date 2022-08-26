@@ -8,7 +8,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DoAndIfThenElse #-}
-{-# LANGUAGE PatternSignatures #-}
+{-# LANGUAGE ScopedTypeVaribles #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 

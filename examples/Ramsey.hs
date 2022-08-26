@@ -3,7 +3,7 @@
 -- last number is size of graph,
 -- earlier numbers are sizes of forbidden cliques
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 {-# language FlexibleContexts #-}
 
 import Prelude hiding ( not, and, or, product )

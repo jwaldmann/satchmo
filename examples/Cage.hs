@@ -2,7 +2,7 @@
 -- example usage: ./dist/build/Cage/Cage 3 5 10
 -- should find the Petersen graph
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not, product )
 import qualified Prelude

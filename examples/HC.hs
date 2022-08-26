@@ -2,7 +2,7 @@
 -- example usage: ./dist/build/HC/HC 8 8
 -- should find and print a solution in < 10 seconds.
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not )
 import qualified Prelude

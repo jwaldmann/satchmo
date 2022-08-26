@@ -6,7 +6,7 @@
 -- ./Spaceship 1 1 4 6     -- glider
 -- ./Spaceship 0 2 4 7 9 9 -- Conway's lightweight spaceship
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 {-# language FlexibleContexts #-}
 
 import Prelude hiding ( not, or, and )

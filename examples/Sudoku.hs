@@ -3,7 +3,7 @@
 -- argument n: board is (n^2)x(n^2),
 -- so standard Sudoku is for n=3
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not, product )
 import qualified Prelude

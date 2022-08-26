@@ -1,7 +1,7 @@
 -- | find van der Warden Colourings
 -- (avoiding monochromatic arithmetic sequences)
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not, and, or, product )
 import qualified Prelude

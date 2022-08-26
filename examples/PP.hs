@@ -1,7 +1,7 @@
 -- | find incidence matrix of projective plane of given order
 -- example usage: ./dist/build/PP/PP 2
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 {-# language FlexibleContexts #-}
 
 import Prelude hiding ( not, and, or )

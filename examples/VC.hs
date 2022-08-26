@@ -3,7 +3,7 @@
 -- (that is, if you put knights there, they control the full board)
 -- example: VC 8 12
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not )
 

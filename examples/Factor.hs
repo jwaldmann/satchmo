@@ -2,7 +2,7 @@
 -- | run like this: ./test/Factor 1000000000001
 -- (takes 10 .. 20 seconds depending on your CPU)
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not )
 

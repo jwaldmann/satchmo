@@ -1,5 +1,5 @@
 {-# language NoMonomorphismRestriction #-}
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 module Satchmo.Unary.Op.Common 
        

@@ -1,7 +1,7 @@
 -- | Simple Pigoenhole benchmark:
 -- put  p  pigeons in (p-1) holes.
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not, product )
 import qualified Prelude

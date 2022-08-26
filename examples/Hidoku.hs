@@ -9,7 +9,7 @@
 -- For discussion of a many more encoding options,
 -- see 4.2 and 4.4 of http://nbn-resolving.de/urn:nbn:de:bsz:14-qucosa-158672
 
-{-# language PatternSignatures #-}
+{-# language ScopedTypeVariables #-}
 
 import Prelude hiding ( not, product )
 import qualified Prelude
