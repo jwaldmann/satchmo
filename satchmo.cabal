@@ -1,18 +1,18 @@
+cabal-version:  3.4
+
 Name:           satchmo
 Version:        2.9.9.4
 
-License:        GPL
-License-file:	gpl-2.0.txt
 Author:         Pepe Iborra, Johannes Waldmann, Alexander Bau
 Maintainer:	Johannes Waldmann
 Homepage:       https://github.com/jwaldmann/satchmo
 Synopsis:       SAT encoding monad
 description:	Encoding for boolean and integral constraints into CNF-SAT.
-		The encoder is provided as a State monad 
-		(hence the "mo" in "satchmo").
+                The encoder is provided as a State monad
+                (hence the "mo" in "satchmo").
+License:        GPL-2.0-only
 
 Category:	Logic
-cabal-version:  >= 1.10
 build-type: Simple
 
 tested-with: GHC==8.10.7, GHC==9.0.2, GHC==9.2.4, GHC==9.4.2
@@ -102,7 +102,6 @@ Library
         Satchmo.Integer.Op
         Satchmo.Boolean.Data
     hs-source-dirs:     src
-    extensions: 
 
 Test-Suite PP
   Type: exitcode-stdio-1.0
