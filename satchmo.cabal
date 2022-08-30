@@ -1,4 +1,4 @@
-cabal-version:  3.4
+cabal-version:  3.0
 
 Name:           satchmo
 Version:        2.9.9.4
@@ -22,6 +22,7 @@ source-repository head
     location:   https://github.com/jwaldmann/satchmo
 
 Library
+    default-language: Haskell2010
     ghc-options: -funbox-strict-fields
     Build-depends:  mtl, process, containers, base == 4.*,
       array, bytestring, directory, minisat >= 0.1, async,
@@ -109,6 +110,7 @@ Test-Suite PP
   Main-Is: PP.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
 
 Test-Suite Ramsey
   Type: exitcode-stdio-1.0
@@ -116,6 +118,7 @@ Test-Suite Ramsey
   Main-Is: Ramsey.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
   
 Test-Suite Spaceship
   Type: exitcode-stdio-1.0
@@ -123,6 +126,7 @@ Test-Suite Spaceship
   Main-Is: Spaceship.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
   
 Test-Suite Oscillator
   Type: exitcode-stdio-1.0
@@ -130,6 +134,7 @@ Test-Suite Oscillator
   Main-Is: Oscillator.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
 
 Test-Suite Moore
   Type: exitcode-stdio-1.0
@@ -137,6 +142,7 @@ Test-Suite Moore
   Main-Is: Moore.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
 
 Test-Suite Sudoku
   Type: exitcode-stdio-1.0
@@ -144,6 +150,7 @@ Test-Suite Sudoku
   Main-Is: Sudoku.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
 
 Test-Suite Hidoku
   Type: exitcode-stdio-1.0
@@ -151,6 +158,7 @@ Test-Suite Hidoku
   Main-Is: Hidoku.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
 
 Test-Suite AIS
   Type: exitcode-stdio-1.0
@@ -158,6 +166,7 @@ Test-Suite AIS
   Main-Is: AIS.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
 
 Test-Suite Langford
   Type: exitcode-stdio-1.0
@@ -165,6 +174,7 @@ Test-Suite Langford
   Main-Is: Langford.hs
   Build-Depends: base, array, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
 
 Test-Suite Pigeon
   Type: exitcode-stdio-1.0
@@ -172,6 +182,7 @@ Test-Suite Pigeon
   Main-Is: Pigeon.hs
   Build-Depends: base, satchmo
   ghc-options: -rtsopts
+  default-language: Haskell2010
 
 Test-Suite Pythagoras
   Type: exitcode-stdio-1.0
@@ -179,4 +190,4 @@ Test-Suite Pythagoras
   Main-Is: Pythagoras.hs
   Build-Depends: base, satchmo
   ghc-options: -rtsopts
-  
+  default-language: Haskell2010
