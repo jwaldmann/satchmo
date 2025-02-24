@@ -1,7 +1,7 @@
 cabal-version:  3.0
 
 Name:           satchmo
-Version:        2.9.9.4
+Version:        2.9.9.5
 
 Author:         Pepe Iborra, Johannes Waldmann, Alexander Bau
 Maintainer:	Johannes Waldmann
@@ -11,11 +11,12 @@ description:	Encoding for boolean and integral constraints into CNF-SAT.
                 The encoder is provided as a State monad
                 (hence the "mo" in "satchmo").
 License:        GPL-2.0-only
+Extra-Doc-Files: CHANGELOG          
 
 Category:	Logic
 build-type: Simple
 
-tested-with: GHC==8.10.7, GHC==9.0.2, GHC==9.2.4, GHC==9.4.2
+tested-with: GHC==8.10.7, GHC==9.0.2, GHC==9.2.4, GHC==9.4.2, GHC==9.6.5, GHC==9.8.4, GHC==9.10.1, GHC==9.12.1
 
 source-repository head
     type: git
@@ -27,7 +28,7 @@ Library
     Build-depends:  mtl, process, containers, base == 4.*,
       array, bytestring, directory, minisat >= 0.1, async,
       -- memoize,
-      hashable, transformers, lens, deepseq
+      hashable, transformers, microlens, microlens-th, microlens-mtl, deepseq
     Exposed-modules:
         Satchmo.Data
         -- Satchmo.Data.Default

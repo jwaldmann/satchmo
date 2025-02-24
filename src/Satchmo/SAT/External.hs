@@ -30,7 +30,9 @@ import Control.Monad.Reader
 import Control.Monad.State
 -- import Control.Monad.IO.Class
 import System.IO
-import Control.Lens
+import Lens.Micro
+import Lens.Micro.TH
+import Lens.Micro.Mtl
 import Control.Applicative
 
 import Control.Concurrent

@@ -1,5 +1,6 @@
 *.pdf
 dist/
+dist-newstyle/
 wordpress-theme/
 *.hi
 *.o

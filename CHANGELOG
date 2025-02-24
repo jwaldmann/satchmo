@@ -1,0 +1,5 @@
+2.9.9.5
+
+	* change forall to forall_ (for ghc-9.10)
+	* repair Control.Monad imports (for mtl-2.3)
+	* replace lens with microlens (has fewer dependencies)
