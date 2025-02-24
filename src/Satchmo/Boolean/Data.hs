@@ -8,7 +8,7 @@
 module Satchmo.Boolean.Data
 
 ( Boolean(..), Booleans, encode
-, boolean, exists, forall
+, boolean, exists, forall_
 , constant
 , not, monadic
 , assertOr -- , assertOrW
@@ -93,12 +93,12 @@ exists = do
 -}
            }
 
-forall :: MonadSAT m => m ( Boolean )
-forall = do
+forall_ :: MonadSAT m => m ( Boolean )
+forall_ = do
     x <- fresh_forall
     return $ Boolean 
            { encode = x
---           , decode = error "Boolean.forall cannot be decoded"
+--           , decode = error "Boolean.forall_ cannot be decoded"
            }
 
 constant :: MonadSAT m => Bool -> m (Boolean)
