@@ -31,6 +31,7 @@ import Data.Array
 import Data.Maybe ( fromJust )
 import Data.List ( partition )
 
+import Control.Monad
 import Control.Monad.Reader
 
 import GHC.Generics (Generic)

@@ -20,6 +20,8 @@ import Satchmo.Boolean.Data
 import Satchmo.MonadSAT
 
 import Control.Exception
+import Control.Monad
+import Control.Monad.Fix
 import Control.Monad.RWS.Strict
 import Control.Applicative
 import qualified  Data.Set as Set

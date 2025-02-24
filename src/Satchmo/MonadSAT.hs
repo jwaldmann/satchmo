@@ -23,7 +23,9 @@ import Satchmo.Code
 import Control.Applicative
 import Control.Monad.Trans (lift)
 import Control.Monad.Cont  (ContT)
+#if !MIN_VERSION_mtl(2,3,0)
 import Control.Monad.List  (ListT)
+#endif
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Fix ( MonadFix )
 import qualified Control.Monad.State  as Lazy (StateT)
@@ -63,12 +65,16 @@ data Header =
 -- MonadSAT liftings for standard monad transformers
 -- -------------------------------------------------------
 
+#if !MIN_VERSION_mtl(2,3,0)
+
 instance (Monad m, MonadSAT m) => MonadSAT (ListT m) where
   fresh = lift fresh
   fresh_forall = lift fresh_forall
   emit  = lift . emit
   -- emitW = (lift.) . emitW
   note = lift . note
+
+#endif
 
 instance (Monad m, MonadSAT m) => MonadSAT (ReaderT r m) where
   fresh = lift fresh

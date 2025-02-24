@@ -25,6 +25,7 @@ import Satchmo.Boolean hiding ( not )
 import Satchmo.Code
 -- import Satchmo.MonadSAT
 
+import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.State
 -- import Control.Monad.IO.Class
